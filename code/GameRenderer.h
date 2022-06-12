@@ -21,7 +21,7 @@ public:
 
 	void Render();
 
-	//void UpdateScreenSize();
+	void UpdateBackBufferSize();
 
 private:
 
@@ -41,7 +41,7 @@ private:
 
 	void CreateBasicFrameBuffer(BasicFrameBuffer* buffer);
 
-	void UpdateBasicFrameBufferSize(BasicFrameBuffer* buffer);
+	void UpdateBasicFrameBufferSize(BasicFrameBuffer* buffer, i32 newWidth, i32 newHeight);
 
 	void CreateMiscellaneous();
 

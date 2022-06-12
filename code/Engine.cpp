@@ -154,14 +154,14 @@ void EngineClass::SDLProcessEvents()
                 Input::SDLControllerRemoved(event.cdevice.which);
             }break;
 
-            //case SDL_WINDOWEVENT: {
-            //    switch (event.window.event) {
-            //    case SDL_WINDOWEVENT_RESIZED:
-            //    case SDL_WINDOWEVENT_SIZE_CHANGED: {
-            //        renderer.UpdateBackBufferSize();
-            //    }break;
-            //    }
-            //}break;
+            case SDL_WINDOWEVENT: {
+                switch (event.window.event) {
+                    case SDL_WINDOWEVENT_RESIZED:
+                    case SDL_WINDOWEVENT_SIZE_CHANGED: {
+                        gfx->UpdateBackBufferSize();
+                    }break;
+                }
+            }break;
 
             case SDL_QUIT: {
                 programShouldShutdown = true;
