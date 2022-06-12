@@ -16,7 +16,7 @@ bool EngineClass::SDLInitialize()
     // Initialize SDL
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
     {
-        PrintLog.Error("SDL failed to initialize.\n");
+        PrintLog.Error("SDL failed to initialize.");
         return false;
     }
 
@@ -38,18 +38,18 @@ bool EngineClass::SDLInitialize()
         SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
     )) == nullptr)
     {
-        PrintLog.Error("SDL window failed to create.\n");
+        PrintLog.Error("SDL window failed to create.");
         return false;
     }
     SDL_SetWindowResizable(window, SDL_TRUE);
-    PrintLog.Message("SDL window created.\n");
+    PrintLog.Message("SDL window created.");
 
     if ((openglContext = SDL_GL_CreateContext(window)) == nullptr)
     {
-        PrintLog.Error("Failed to create OpenGL context with SDL.\n");
+        PrintLog.Error("Failed to create OpenGL context with SDL.");
         return false;
     }
-    PrintLog.Message("OpenGL context created.\n");
+    PrintLog.Message("OpenGL context created.");
 
     //// Loading music and sounds with SDL
     //if (SDL_Init(SDL_INIT_AUDIO) < 0) {

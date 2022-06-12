@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "Timer.h"
+#include "Utils.h"
 #include "MessageLogger.h"
 
 
@@ -31,6 +32,17 @@ inline std::string level_path(const std::string& name) { return data_path() + "l
 inline std::string font_path(const std::string& name) { return data_path() + "fonts/" + std::string(name); }
 
 #define ARRAY_COUNT(a) (sizeof(a) / (sizeof(a[0])))
+
+/** HELPER FUNCTIONS **/
+#if SLOW_BUILD
+#if (defined _WIN64)
+#define ASSERT(predicate) if(!(predicate)) {*(int*)0 = 0;}
+#else
+#define ASSERT(predicate) if(!(predicate)) { __builtin_trap(); }
+#endif
+#else
+#define ASSERT(predicate)
+#endif
 
 #define INTERNAL static
 #define LOCAL_PERSIST static

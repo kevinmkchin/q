@@ -9,4 +9,24 @@ public:
 
 	void Render();
 
+private:
+
+	void RenderGameLayer();
+
+	void RenderGUILayer();
+
+	void RenderDebugUILayer();
+
+	void FinalRenderToBackBuffer();
+
+private:
+
+	void CreateFrameBuffers();
+
+	void UpdateFrameBuffersSize();
+
+private:
+
+
+
 };

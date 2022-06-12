@@ -5,11 +5,20 @@ project(Game)
 
 set(IS_WIN32PROGRAM 0)
 
+add_compile_definitions(
+        INTERNAL_BUILD=1
+        SLOW_BUILD=1
+)
+
 set(SOURCE_FILES 
     "code/Engine.cpp"
     "code/Timer.cpp"
     "code/Input.cpp" 
-    "code/GameRenderer.cpp" "code/MessageLogger.cpp")
+    "code/GameRenderer.cpp" 
+    "code/MessageLogger.cpp" 
+    "code/Shader.cpp"
+    "code/FileSystem.cpp"
+    "code/Utils.cpp")
 
 
 
