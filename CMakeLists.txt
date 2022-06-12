@@ -18,7 +18,7 @@ set(SOURCE_FILES
     "code/MessageLogger.cpp" 
     "code/Shader.cpp"
     "code/FileSystem.cpp"
-    "code/Utils.cpp")
+    "code/Utils.cpp" "code/Core.cpp")
 
 
 
