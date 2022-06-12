@@ -1,0 +1,11 @@
+build/
+bin/
+out/
+cmake-build-*/
+
+.sln
+.vs/
+.idea/
+*.DS_Store
+
+ext/project_path.hpp
