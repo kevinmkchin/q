@@ -2,9 +2,11 @@
 
 #include <glew.h>
 #include <SDL.h>
+#include <gmath.h>
 
 #include "Common.h"
 #include "Engine.h"
+#include "Camera.h"
 
 bool GameRenderer::Init()
 {
@@ -26,6 +28,7 @@ bool GameRenderer::Init()
     UpdateFrameBuffersSize();
 
     Shader::GLLoadShaderProgramFromFile(finalPassShader, shader_path("finalpass.vert").c_str(), shader_path("finalpass.frag").c_str());
+    Shader::GLLoadShaderProgramFromFile(gameSceneShader, shader_path("scene.vert").c_str(), shader_path("scene.frag").c_str());
 
     CreateMiscellaneous();
 
@@ -50,6 +53,27 @@ void GameRenderer::RenderGameLayer()
     glEnable(GL_DEPTH_TEST);
 
 
+    LOCAL_PERSIST GameCamera camera;
+    camera.position = vec3(-4.f,0.f,0.f);
+    LOCAL_PERSIST MeshGroup* tempObj = nullptr;
+    if (tempObj == nullptr)
+    {
+        tempObj = MeshGroup::MeshGroupAssimpLoad(primitives_path("cube.obj").c_str());
+    }
+    camera.CameraUpdate();
+    camera.CameraCalculatePerspectiveMatrix();
+    
+    LOCAL_PERSIST vec3 euler = vec3();
+    euler += vec3(0.6f,0.4f,0.3f) * Time.deltaTime;
+    
+    gameSceneShader.UseShader();
+
+    gameSceneShader.GLBindMatrix4fv("modelMatrix", 1, RotationMatrix(EulerToQuat(euler)).ptr());
+    gameSceneShader.GLBindMatrix4fv("viewMatrix", 1, camera.viewMatrix.ptr());
+    gameSceneShader.GLBindMatrix4fv("projMatrix", 1, camera.perspectiveMatrix.ptr());
+    tempObj->Render();
+
+    glUseProgram(0);
 }
 
 void GameRenderer::RenderGUILayer()

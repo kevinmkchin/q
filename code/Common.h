@@ -30,6 +30,7 @@ inline std::string audio_path(const std::string& name) { return data_path() + "a
 inline std::string mesh_path(const std::string& name) { return data_path() + "meshes/" + std::string(name); }
 inline std::string level_path(const std::string& name) { return data_path() + "level/" + std::string(name); }
 inline std::string font_path(const std::string& name) { return data_path() + "fonts/" + std::string(name); }
+inline std::string primitives_path(const std::string& name) { return data_path() + "primitives/" + std::string(name); }
 
 #define ARRAY_COUNT(a) (sizeof(a) / (sizeof(a[0])))
 

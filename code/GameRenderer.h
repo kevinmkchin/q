@@ -46,15 +46,17 @@ private:
 	void CreateMiscellaneous();
 
 private:
-
 	i32 backBufferWidth;
 	i32 backBufferHeight;
 
+public:
 	BasicFrameBuffer gameLayer;
 	BasicFrameBuffer guiLayer;
 	BasicFrameBuffer debugUILayer;
 
+private:
 	Shader finalPassShader;
+	Shader gameSceneShader;
 
 private:
 	Mesh screenSizeQuad;

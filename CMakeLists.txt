@@ -18,7 +18,7 @@ set(SOURCE_FILES
     "code/MessageLogger.cpp" 
     "code/Shader.cpp"
     "code/FileSystem.cpp"
-    "code/Utils.cpp" "code/Core.cpp")
+    "code/Utils.cpp" "code/Core.cpp" "code/Camera.cpp")
 
 
 
@@ -64,7 +64,7 @@ set(GLEW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/lib/GLEW/include/GL")
 set(GLEW_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/lib/GLEW/lib/Release/x64/glew32.lib")
 set(GLEW_DLL "${CMAKE_CURRENT_SOURCE_DIR}/lib/GLEW/lib/Release/x64/glew32.dll")
 
-set(ASSIMP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/lib/ASSIMP/include/assimp;${CMAKE_CURRENT_SOURCE_DIR}/lib/ASSIMP/include/assimp/Compiler;${CMAKE_CURRENT_SOURCE_DIR}/lib/ASSIMP/include/port;${CMAKE_CURRENT_SOURCE_DIR}/lib/ASSIMP/include/port/AndroidJNI;")
+set(ASSIMP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/lib/ASSIMP/include;")
 set(ASSIMP_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/lib/ASSIMP/lib/assimp-vc142-mt.lib")
 set(ASSIMP_DLL "${CMAKE_CURRENT_SOURCE_DIR}/lib/ASSIMP/lib/assimp-vc142-mt.dll")
 
@@ -84,4 +84,4 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "${ASSIMP_DLL}"
-    "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assimp-vc142.dll")
+    "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assimp-vc142-mt.dll")
