@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Common.h"
-#include "Core.h"
+#include "Resources.h"
 #include "Shader.h"
 
 

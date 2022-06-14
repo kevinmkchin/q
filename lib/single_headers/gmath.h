@@ -1031,7 +1031,7 @@ inline mat3 ScaleMatrix2D(vec2 scale)
 
 inline mat4 ProjectionMatrixPerspective(float fovy, float aspect, float nearclip, float farclip)
 {
-    float const tanHalfFovy = tan(fovy / 2.f);
+    float const tanHalfFovy = tanf(fovy / 2.f);
 
     mat4 Result;
     Result[0][0] = 1.f / (aspect * tanHalfFovy);
@@ -1451,7 +1451,7 @@ inline quat RotationFromTo(vec3 fromDirection, vec3 toDirection)
     rotation_axis = Cross(start, dest);
     if (cos_theta >= -1 + 0.0001f)
     {
-        float s = sqrt((1 + cos_theta) * 2);
+        float s = sqrtf((1 + cos_theta) * 2);
         float sin_of_half_angle = 1 / s;
 
         rotation_quat = quat(

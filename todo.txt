@@ -2,6 +2,5 @@
 - Mouse input
 
 - Asset management
-	- remove old hash map for storing textures and replace w the texture management from Cute2D/Ascent
 
 - Camera

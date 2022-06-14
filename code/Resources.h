@@ -13,7 +13,7 @@ struct Texture
     i32         width = 0;        // Width of the texture
     i32         height = 0;        // Height of the texture
     GLenum      format = GL_NONE;  // format / bitdepth of texture (GL_RGB would be 3 byte bit depth)
-    std::string filePath = "";
+    std::string filePath = "";  // TODO(Kevin): remove filePath from Texture
 
     void UseTexture() const;      // Binds this texture to Texture Unit 1
 
@@ -102,3 +102,23 @@ struct MeshGroup
 
     static void MeshGroupDelete(MeshGroup* const modelToDelete);
 };
+
+struct vtxt_font;
+struct Font
+{
+    vtxt_font* ptr = nullptr;
+    Texture texture;
+    std::string filePath; // TODO(Kevin): remove filePath from Font
+
+    void Delete();
+
+    static Font FontCreateFromFile(const std::string& fontFilePath, u8 fontSize, bool useNearestFiltering = false);
+};
+
+struct ResourceManager
+{
+
+    Font fonts[16];
+};
+
+extern ResourceManager Resources;
