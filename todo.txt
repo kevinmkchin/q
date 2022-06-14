@@ -1,6 +1,10 @@
 
+- Clean up console and make it resize on window resize
+
 - Mouse input
 
-- Asset management
+- Asset management? do i need to?
 
 - Camera
+
+- Entity system

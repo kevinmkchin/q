@@ -233,12 +233,13 @@ void console_toggle()
 
     if(console_state == CONSOLE_HIDDEN)
     {
+        Time.timeScale = 0.f;
         SDL_SetRelativeMouseMode(SDL_FALSE);
         console_state = CONSOLE_SHOWING;
     }
     else if(console_state == CONSOLE_SHOWN)
     {
-        // TODO pause game while shown
+        Time.timeScale = 1.f;
         SDL_SetRelativeMouseMode(SDL_TRUE);
         console_state = CONSOLE_HIDING;
     }

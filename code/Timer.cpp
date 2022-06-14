@@ -12,6 +12,7 @@ Timer::Timer()
     : deltaTime(-1.f)
     , time(0.f)
     , timeScale(1.f)
+    , unscaledDeltaTime(-1.f)
 {}
 
 float Timer::UpdateDeltaTime()
@@ -24,7 +25,8 @@ float Timer::UpdateDeltaTime()
     float deltaTimeInSeconds = elapsedMs / 1000.f; // elapsed time in SECONDS
     float currentTimeInSeconds = (float)(std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count() / 1000.0);
     time = currentTimeInSeconds;
-    deltaTime = deltaTimeInSeconds;
+    unscaledDeltaTime = deltaTimeInSeconds;
+    deltaTime = unscaledDeltaTime * Time.timeScale;
 
     return deltaTime;
 }

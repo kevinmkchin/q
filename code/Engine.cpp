@@ -201,7 +201,7 @@ int EngineClass::Run()
 
         SDLProcessEvents();
 
-        console_update(Time.deltaTime);
+        console_update(Time.unscaledDeltaTime);
 
         //if (editor.IsActive())
         //{

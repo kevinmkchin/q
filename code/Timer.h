@@ -17,6 +17,8 @@ public:
     // The scale at which time passes
     float timeScale;
 
+    float unscaledDeltaTime;
+
 };
 
 extern Timer Time;
