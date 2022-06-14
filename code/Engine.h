@@ -4,6 +4,7 @@
 #include "SDL.h"
 
 class GameRenderer;
+class GameMode;
 
 class EngineClass
 {
@@ -15,6 +16,8 @@ private:
 
 	void SDLProcessEvents();
 
+	void Load();
+
 public:
 
 	SDL_Window* window = nullptr;
@@ -22,7 +25,7 @@ public:
 	bool programShouldShutdown = false;
 
 	GameRenderer* gfx = nullptr;
-	// World* world;
+	GameMode* game = nullptr;
 
 };
 

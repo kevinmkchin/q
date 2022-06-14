@@ -5,6 +5,13 @@
 #include "Common.h"
 
 
+enum FONTENUM : u8
+{
+    FONT_SourceCodePro
+};
+
+
+
 struct Texture
 {
     /** Handle for texture stored in GPU memory */

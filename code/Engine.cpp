@@ -12,6 +12,8 @@
 #include "Engine.h"
 #include "Input.h"
 #include "GameRenderer.h"
+#include "GameMode.h"
+#include "Resources.h"
 
 EngineClass Engine;
 
@@ -183,6 +185,11 @@ int EngineClass::Run()
     gfx = &renderer;
     if (!gfx->Init()) return EXIT_FAILURE;
 
+    Load();
+
+    GameMode gameMode;
+    game = &gameMode;
+
     while (!programShouldShutdown) 
     {
         if (Time.UpdateDeltaTime() > 0.1f) { continue; } // if delta time is too large, will cause glitches
@@ -199,22 +206,8 @@ int EngineClass::Run()
         //    renderer.Draw(elapsedMs);
         //    editor.Draw();
         //}
-        //else
-        //{
-        //    if (true) // PAUSED or console_is_hidden()
-        //    {
-        //        // Screen PrePhysicsStep
-        //        // Entities PrePhysicsStep
-        //        // Physics
-        //        // Handle Collision Events?
-        //        // Update Subsystems
-        //        // Screen Step
-        //        // Entities Step
-        //        ui.Step(Time.deltaTime);
-        //    }
-        //    renderer.Draw(elapsedMs);
-        //}
 
+        game->Update();
         gfx->Render();
 
         SDL_GL_SwapWindow(window);
@@ -227,6 +220,14 @@ int EngineClass::Run()
     SDL_GL_DeleteContext(openglContext);
     SDL_Quit();
     return EXIT_SUCCESS;
+}
+
+void EngineClass::Load()
+{
+    // don't need to unload. these are resources alive for the entire program. when program closes, resources are automatically cleaned up!
+
+    Resources.fonts[FONT_SourceCodePro] = Font::FontCreateFromFile(font_path("SourceCodePro.ttf"), 16, false);
+
 }
 
 int main(int argc, char* argv[])
