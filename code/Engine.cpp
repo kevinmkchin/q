@@ -5,6 +5,8 @@
 #include <stb_image.h>
 #define STB_TRUETYPE_IMPLEMENTATION
 #include <stb_truetype.h>
+#define STB_SPRINTF_IMPLEMENTATION
+#include <stb_sprintf.h>
 #define VERTEXT_IMPLEMENTATION
 #include <vertext.h>
 
@@ -14,6 +16,7 @@
 #include "GameRenderer.h"
 #include "GameMode.h"
 #include "Resources.h"
+#include "Console.h"
 
 EngineClass Engine;
 
@@ -114,17 +117,17 @@ void EngineClass::SDLProcessEvents()
             case SDL_KEYDOWN: {
                 Input::ProcessSDLKeyDownEvent(event.key);
 
-                //if (event.key.keysym.sym == SDLK_BACKQUOTE)
-                //{
-                //    console_toggle();
-                //    break;
-                //}
+                if (event.key.keysym.sym == SDLK_BACKQUOTE)
+                {
+                    console_toggle();
+                    break;
+                }
 
-                //if (console_is_shown())
-                //{
-                //    console_keydown(event.key);
-                //    break;
-                //}
+                if (console_is_shown())
+                {
+                    console_keydown(event.key);
+                    break;
+                }
 
                 if (event.key.keysym.sym == SDLK_F1)
                 {
@@ -190,13 +193,15 @@ int EngineClass::Run()
     GameMode gameMode;
     game = &gameMode;
 
+    console_initialize();
+
     while (!programShouldShutdown) 
     {
         if (Time.UpdateDeltaTime() > 0.1f) { continue; } // if delta time is too large, will cause glitches
 
         SDLProcessEvents();
 
-        //console_update(Time.deltaTime);
+        console_update(Time.deltaTime);
 
         //if (editor.IsActive())
         //{
@@ -226,7 +231,7 @@ void EngineClass::Load()
 {
     // don't need to unload. these are resources alive for the entire program. when program closes, resources are automatically cleaned up!
 
-    Resources.fonts[FONT_SourceCodePro] = Font::FontCreateFromFile(font_path("SourceCodePro.ttf"), 16, false);
+    Resources.fonts[FONT_SourceCodePro] = Font::FontCreateFromFile(font_path("SourceCodePro.ttf"), 24, false);
 
 }
 

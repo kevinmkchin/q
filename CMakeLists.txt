@@ -3,7 +3,7 @@ set (CMAKE_CXX_STANDARD 23)
 
 project(Game)
 
-set(IS_WIN32PROGRAM 0)
+set(IS_WIN32PROGRAM 1)
 
 add_compile_definitions(
         INTERNAL_BUILD=1
@@ -18,7 +18,11 @@ set(SOURCE_FILES
     "code/MessageLogger.cpp" 
     "code/Shader.cpp"
     "code/FileSystem.cpp"
-    "code/Utils.cpp" "code/Resources.cpp" "code/Camera.cpp" "code/GameMode.cpp")
+    "code/Utils.cpp" 
+    "code/Resources.cpp" 
+    "code/Camera.cpp" 
+    "code/GameMode.cpp"
+    "code/Console.cpp")
 
 
 

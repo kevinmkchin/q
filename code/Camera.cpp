@@ -73,11 +73,6 @@ void GameCamera::CameraCalculatePerspectiveMatrix()
     perspectiveMatrix = ProjectionMatrixPerspective((90.f / 2.f) * GM_DEG2RAD, aspect_ratio, nearClip, farClip); // TODO(Kevin): FOV
 }
 
-void GameCamera::CameraCalculatePerspectiveMatrix(float aspectRatio)
-{
-    perspectiveMatrix = ProjectionMatrixPerspective((90.f / 2.f) * GM_DEG2RAD, aspectRatio, nearClip, farClip); // TODO(Kevin): FOV
-}
-
 void GameCamera::CameraCalculateViewMatrix()
 {
     viewMatrix = ViewMatrixLookAt(position, position + calculatedDirection, calculatedUp);

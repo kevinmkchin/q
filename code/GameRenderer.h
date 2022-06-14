@@ -57,6 +57,9 @@ public:
 private:
 	Shader finalPassShader;
 	Shader gameSceneShader;
+public:
+	Shader consoleUIShader;
+	Shader consoleTextUIShader;
 
 private:
 	Mesh screenSizeQuad;

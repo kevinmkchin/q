@@ -10,12 +10,6 @@
 #include "MessageLogger.h"
 
 
-#define GAME_RESOLUTION_WIDTH 320
-#define GAME_RESOLUTION_HEIGHT 180
-#define FRAMEBUFFER_PIXELS_PER_GAME_PIXEL 6
-#define UI_LAYER_RESOLUTION_WIDTH (GAME_RESOLUTION_WIDTH * 6)
-#define UI_LAYER_RESOLUTION_HEIGHT (GAME_RESOLUTION_HEIGHT * 6)
-
 // Simple utility functions to avoid mistyping directory name
 // audio_path("audio.ogg") -> data/audio/audio.ogg
 #include "../lib/project_path.h" // Get defintion of PROJECT_SOURCE_DIR from this CMake created header

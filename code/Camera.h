@@ -18,6 +18,5 @@ struct GameCamera
 
     virtual void CameraUpdate();
     void CameraCalculatePerspectiveMatrix();
-    void CameraCalculatePerspectiveMatrix(float aspectRatio);
     void CameraCalculateViewMatrix();
 };

@@ -7,6 +7,7 @@
 #include "Common.h"
 #include "Engine.h"
 #include "Camera.h"
+#include "Console.h"
 
 bool GameRenderer::Init()
 {
@@ -29,6 +30,8 @@ bool GameRenderer::Init()
 
     Shader::GLLoadShaderProgramFromFile(finalPassShader, shader_path("finalpass.vert").c_str(), shader_path("finalpass.frag").c_str());
     Shader::GLLoadShaderProgramFromFile(gameSceneShader, shader_path("scene.vert").c_str(), shader_path("scene.frag").c_str());
+    Shader::GLLoadShaderProgramFromFile(consoleUIShader, shader_path("console_ui.vert").c_str(), shader_path("console_ui.frag").c_str());
+    Shader::GLLoadShaderProgramFromFile(consoleTextUIShader, shader_path("console_text_ui.vert").c_str(), shader_path("console_text_ui.frag").c_str());
 
     CreateMiscellaneous();
 
@@ -101,9 +104,12 @@ void GameRenderer::RenderDebugUILayer()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // CONSOLE RENDERING
     glDisable(GL_DEPTH_TEST);
-
-
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    console_render();
+    glEnable(GL_DEPTH_TEST);
 }
 
 void GameRenderer::FinalRenderToBackBuffer()
