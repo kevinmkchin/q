@@ -42,8 +42,8 @@ bool EngineClass::SDLInitialize()
         "Quake Clone",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        800,
-        600,
+        1280,
+        720,
         SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
     )) == nullptr)
     {

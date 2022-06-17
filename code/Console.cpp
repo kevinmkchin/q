@@ -371,7 +371,7 @@ void console_render()
         conUIShader->GLBindMatrix4fv("matrix_ortho", 1, (GLfloat*) &projectionMatrix);
         conUIShader->GLBindMatrix4fv("matrix_model", 1, (GLfloat*) &con_transform);
         glBindVertexArray(console_background_vao_id);
-            conUIShader->GLBind4f("ui_element_colour", 0.1f, 0.1f, 0.1f, 0.7f);
+            conUIShader->GLBind4f("ui_element_colour", 0.1f, 0.1f, 0.1f, 0.9f);
             glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(console_line_vao_id);
             conUIShader->GLBind4f("ui_element_colour", 0.8f, 0.8f, 0.8f, 1.f);
@@ -382,7 +382,6 @@ void console_render()
     conTextShader->UseShader();
     GLHasErrors();
         // RENDER CONSOLE TEXT
-
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, console_font_atlas.textureId);
         conTextShader->GLBind1i("font_atlas_sampler", 1);

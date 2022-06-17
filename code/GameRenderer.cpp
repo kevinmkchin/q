@@ -22,11 +22,8 @@ bool GameRenderer::Init()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // alpha blending func: a * (rgb) + (1 - a) * (rgb) = final color output
     glBlendEquation(GL_FUNC_ADD);
 
-    backBufferWidth = 800;
-    backBufferHeight = 600;
-
     CreateFrameBuffers();
-    UpdateFrameBuffersSize();
+    UpdateBackBufferSize();
 
     Shader::GLLoadShaderProgramFromFile(finalPassShader, shader_path("finalpass.vert").c_str(), shader_path("finalpass.frag").c_str());
     Shader::GLLoadShaderProgramFromFile(gameSceneShader, shader_path("scene.vert").c_str(), shader_path("scene.frag").c_str());
