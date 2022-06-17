@@ -36,8 +36,8 @@ noclip::console& get_console()
     return console_backend;
 }
 
-#define CONSOLE_MAX_PRINT_MSGS 8096
-#define CONSOLE_SCROLL_SPEED 4.0f
+#define CONSOLE_MAX_PRINT_MSGS 4096
+#define CONSOLE_SCROLL_SPEED 2000.0f
 #define CONSOLE_COLS_MAX 124        // char columns in line
 #define CONSOLE_ROWS_MAX 27         // we can store more messages than this, but this is just rows that are being displayed
 enum console_state_t
@@ -67,13 +67,13 @@ INTERNAL GLfloat console_line_vertex_buffer[] = {
 
 INTERNAL bool               console_b_initialized = false;
 INTERNAL console_state_t    console_state = CONSOLE_HIDDEN;
-INTERNAL float              console_y = -1.f;
+INTERNAL float              console_y = 0.f;
 
-INTERNAL float    CONSOLE_HEIGHT = 0.1f;//400.f;
+INTERNAL float    CONSOLE_HEIGHT = 400.f;
 INTERNAL u8       CONSOLE_TEXT_SIZE = 24;
 INTERNAL u8       CONSOLE_TEXT_PADDING_BOTTOM = 4;
 INTERNAL u16      CONSOLE_INPUT_DRAW_X = 4;
-INTERNAL u16      CONSOLE_INPUT_DRAW_Y = (u16) ((((1.f+CONSOLE_HEIGHT)/2.f)*600) - (float) CONSOLE_TEXT_PADDING_BOTTOM);
+INTERNAL u16      CONSOLE_INPUT_DRAW_Y = (u16)(CONSOLE_HEIGHT - (float)CONSOLE_TEXT_PADDING_BOTTOM);
 
 // Input character buffer
 INTERNAL char        console_input_buffer[CONSOLE_COLS_MAX];
@@ -106,13 +106,13 @@ void console_initialize()
     console_font_atlas = Resources.fonts[FONT_SourceCodePro].texture;
     debugUILayerPtr = &Engine.gfx->debugUILayer;
 
-    vtxt_setflags(VTXT_CREATE_INDEX_BUFFER|VTXT_USE_CLIPSPACE_COORDS);
-    vtxt_backbuffersize(debugUILayerPtr->width, debugUILayerPtr->height);
+    vtxt_setflags(VTXT_CREATE_INDEX_BUFFER);
 
     // INIT TEXT mesh_t OBJECTS
     vtxt_clear_buffer();
     vtxt_move_cursor(CONSOLE_INPUT_DRAW_X, CONSOLE_INPUT_DRAW_Y);
     vtxt_append_glyph('>', console_font_handle, CONSOLE_TEXT_SIZE);
+    vtxt_append_glyph('_', console_font_handle, CONSOLE_TEXT_SIZE);
     vtxt_vertex_buffer vb = vtxt_grab_buffer();
     Mesh::MeshCreate(console_inputtext_vao, vb.vertex_buffer, vb.index_buffer,
                            vb.vertices_array_count, vb.indices_array_count,
@@ -128,16 +128,12 @@ void console_initialize()
     // todo update console vertex buffer on window size change
     // INIT CONSOLE GUI
     buffer_dimensions = vec2((float)debugUILayerPtr->width, (float)debugUILayerPtr->height);
-    float halfWidth = 1.f;//buffer_dimensions.x / 2.f;
-    console_background_vertex_buffer[0] = -halfWidth;
-    console_background_vertex_buffer[4] = -halfWidth;
-    console_background_vertex_buffer[16] = -halfWidth;
-    console_background_vertex_buffer[8] = halfWidth;
-    console_background_vertex_buffer[12] = halfWidth;
-    console_background_vertex_buffer[20] = halfWidth;
-    console_background_vertex_buffer[5] = -CONSOLE_HEIGHT;
-    console_background_vertex_buffer[9] = -CONSOLE_HEIGHT;
-    console_background_vertex_buffer[21] = -CONSOLE_HEIGHT;
+    console_background_vertex_buffer[8] = 4000.f;//(float)buffer_dimensions.x;
+    console_background_vertex_buffer[12] = 4000.f;//(float)buffer_dimensions.x;
+    console_background_vertex_buffer[20] = 4000.f; //(float)buffer_dimensions.x;
+    console_background_vertex_buffer[5] = CONSOLE_HEIGHT;
+    console_background_vertex_buffer[9] = CONSOLE_HEIGHT;
+    console_background_vertex_buffer[21] = CONSOLE_HEIGHT;
     glGenVertexArrays(1, &console_background_vao_id);
     glBindVertexArray(console_background_vao_id);
         glGenBuffers(1, &console_background_vbo_id);
@@ -148,10 +144,10 @@ void console_initialize()
             glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(sizeof(float) * 2));
             glEnableVertexAttribArray(1);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-    console_line_vertex_buffer[0] = -halfWidth;
-    console_line_vertex_buffer[1] = -CONSOLE_HEIGHT + (((float) CONSOLE_TEXT_SIZE + CONSOLE_TEXT_PADDING_BOTTOM) / (buffer_dimensions.y*0.5f));
-    console_line_vertex_buffer[2] = halfWidth;
-    console_line_vertex_buffer[3] = -CONSOLE_HEIGHT + (((float) CONSOLE_TEXT_SIZE + CONSOLE_TEXT_PADDING_BOTTOM) / (buffer_dimensions.y*0.5f));
+    console_line_vertex_buffer[0] = 0.f;
+    console_line_vertex_buffer[1] = CONSOLE_HEIGHT - (float)CONSOLE_TEXT_SIZE - CONSOLE_TEXT_PADDING_BOTTOM - 2.f;
+    console_line_vertex_buffer[2] = 4000.f;//(float)buffer_dimensions.x;
+    console_line_vertex_buffer[3] = CONSOLE_HEIGHT - (float)CONSOLE_TEXT_SIZE - CONSOLE_TEXT_PADDING_BOTTOM - 2.f;
     glGenVertexArrays(1, &console_line_vao_id);
     glBindVertexArray(console_line_vao_id);
         glGenBuffers(1, &console_line_vbo_id);
@@ -250,9 +246,7 @@ void console_update_messages()
     if(console_b_messages_dirty)
     {
         int msg_iterator = console_messages_read_cursor - 1;
-        for(int row = 0;
-            row < CONSOLE_ROWS_MAX;
-            ++row)
+        for(int row = 0; row < CONSOLE_ROWS_MAX; ++row)
         {
             // get line
             int line_len = 0;
@@ -274,8 +268,7 @@ void console_update_messages()
             }
             // rebind vao
             {
-                vtxt_setflags(VTXT_CREATE_INDEX_BUFFER|VTXT_USE_CLIPSPACE_COORDS);
-                vtxt_backbuffersize(debugUILayerPtr->width, debugUILayerPtr->height);
+                vtxt_setflags(VTXT_CREATE_INDEX_BUFFER);
 
                 vtxt_clear_buffer();
                 vtxt_move_cursor(CONSOLE_INPUT_DRAW_X, CONSOLE_INPUT_DRAW_Y);
@@ -312,8 +305,9 @@ void console_update(float delta_time)
         return;
     }
     
-    vtxt_setflags(VTXT_CREATE_INDEX_BUFFER|VTXT_USE_CLIPSPACE_COORDS);
-    vtxt_backbuffersize(debugUILayerPtr->width, debugUILayerPtr->height);
+    vtxt_setflags(VTXT_CREATE_INDEX_BUFFER);
+
+    buffer_dimensions = vec2((float)debugUILayerPtr->width, (float)debugUILayerPtr->height);
 
     switch(console_state)
     {
@@ -324,7 +318,7 @@ void console_update(float delta_time)
                 // update input vao
                 vtxt_clear_buffer();
                 vtxt_move_cursor(CONSOLE_INPUT_DRAW_X, CONSOLE_INPUT_DRAW_Y);
-                std::string input_text = ">" + std::string(console_input_buffer);
+                std::string input_text = ">" + std::string(console_input_buffer) + std::string("_");
                 vtxt_append_line(input_text.c_str(), console_font_handle, CONSOLE_TEXT_SIZE);
                 vtxt_vertex_buffer vb = vtxt_grab_buffer();
                 console_inputtext_vao.RebindBufferObjects(vb.vertex_buffer, vb.index_buffer, vb.vertices_array_count, vb.indices_array_count);
@@ -336,9 +330,9 @@ void console_update(float delta_time)
         case CONSOLE_HIDING:
         {
             console_y -= CONSOLE_SCROLL_SPEED * delta_time;
-            if(console_y < -1.f)
+            if(console_y < 0.f)
             {
-                console_y = -1.f;
+                console_y = 0.f;
                 console_state = CONSOLE_HIDDEN;
             }
         } break;
@@ -364,21 +358,23 @@ void console_render()
     }
 
     float console_translation_y = console_y - (float) CONSOLE_HEIGHT;
-    mat4 con_transform = mat4();
-    con_transform = TranslationMatrix(0.f, -console_translation_y, 0.f) * con_transform;
+    mat4 con_transform = TranslationMatrix(0.f, console_translation_y, 0.f);
 
     Shader* conUIShader = &Engine.gfx->consoleUIShader;
     Shader* conTextShader = &Engine.gfx->consoleTextUIShader;
 
+    mat4 projectionMatrix = ProjectionMatrixOrthographic2D(0.f, buffer_dimensions.x, buffer_dimensions.y, 0.f);
+
     // render console
     conUIShader->UseShader();
         conUIShader->GLBind1i("b_use_colour", true);
+        conUIShader->GLBindMatrix4fv("matrix_ortho", 1, (GLfloat*) &projectionMatrix);
         conUIShader->GLBindMatrix4fv("matrix_model", 1, (GLfloat*) &con_transform);
         glBindVertexArray(console_background_vao_id);
-            conUIShader->GLBind4f("ui_element_colour", 0.1f, 0.1f, 0.1f, 0.9f);
+            conUIShader->GLBind4f("ui_element_colour", 0.1f, 0.1f, 0.1f, 0.7f);
             glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(console_line_vao_id);
-            conUIShader->GLBind4f("ui_element_colour", 0.9f, 0.9f, 0.9f, 1.f);
+            conUIShader->GLBind4f("ui_element_colour", 0.8f, 0.8f, 0.8f, 1.f);
             glDrawArrays(GL_LINES, 0, 2);
         glBindVertexArray(0);
     GLHasErrors();
@@ -394,9 +390,10 @@ void console_render()
     GLHasErrors();
 
         // Input text visual
-        con_transform[3][1] += (float)(5.f) / (buffer_dimensions.y*0.5f);
+        con_transform[3][1] -= 5.f;
         conTextShader->GLBind3f("text_colour", 1.f, 1.f, 1.f);
-        conUIShader->GLBindMatrix4fv("matrix_model", 1, (GLfloat*)&con_transform);
+        conTextShader->GLBindMatrix4fv("matrix_ortho", 1, (GLfloat*)&projectionMatrix);
+        conTextShader->GLBindMatrix4fv("matrix_model", 1, (GLfloat*)&con_transform);
         if(console_inputtext_vao.indicesCount > 0)
         {
             glBindVertexArray(console_inputtext_vao.idVAO);
@@ -407,7 +404,7 @@ void console_render()
         }
     GLHasErrors();
         // move transform matrix up a lil
-        con_transform[3][1] += (float)(CONSOLE_TEXT_SIZE + 20) / (buffer_dimensions.y*0.5f);
+        con_transform[3][1] -= (float)CONSOLE_TEXT_SIZE + 7.f;
 
         // Messages text visual
         conTextShader->GLBind3f("text_colour", 0.9f, 0.9f, 0.9f);
@@ -416,8 +413,8 @@ void console_render()
             Mesh m = console_messages_vaos[i];
             if(m.indicesCount > 0)
             {
-                conUIShader->GLBindMatrix4fv("matrix_model", 1, (GLfloat*)&con_transform);
-                con_transform[3][1] += ((float) CONSOLE_TEXT_SIZE + 3.f) / (buffer_dimensions.y*0.5f);
+                conTextShader->GLBindMatrix4fv("matrix_model", 1, (GLfloat*)&con_transform);
+                con_transform[3][1] -= (float)CONSOLE_TEXT_SIZE + 3.f;
                 glBindVertexArray(m.idVAO);
                     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.idIBO);
                         glDrawElements(GL_TRIANGLES, m.indicesCount, GL_UNSIGNED_INT, nullptr);

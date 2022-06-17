@@ -7,7 +7,8 @@
 
 enum FONTENUM : u8
 {
-    FONT_SourceCodePro
+    FONT_SourceCodePro,
+    FONT_Iosevka
 };
 
 

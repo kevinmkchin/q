@@ -8,3 +8,5 @@
 - Camera
 
 - Entity system
+
+- why is there fps hitching like every 10 seconds

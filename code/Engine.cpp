@@ -232,6 +232,7 @@ void EngineClass::Load()
     // don't need to unload. these are resources alive for the entire program. when program closes, resources are automatically cleaned up!
 
     Resources.fonts[FONT_SourceCodePro] = Font::FontCreateFromFile(font_path("SourceCodePro.ttf"), 24, false);
+    Resources.fonts[FONT_Iosevka] = Font::FontCreateFromFile(font_path("iosevka-term-regular.ttf"), 24, false);
 
 }
 
