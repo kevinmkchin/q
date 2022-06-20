@@ -1,6 +1,4 @@
 
-- Clean up console and make it resize on window resize
-
 - Mouse input
 
 - Asset management? do i need to?
@@ -9,4 +7,7 @@
 
 - Entity system
 
-- why is there fps hitching like every 10 seconds
+check how fast / how much we can print to the console per frame
+
+think about having a registration system for colliders so when a collider is created we register it to a master collection of colliders? probably unnecessary tho
+because just manually checking player against enemies, enemies against floor, enemies against bullets gives me much more control and is also doable.

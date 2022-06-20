@@ -195,6 +195,8 @@ int EngineClass::Run()
 
     console_initialize();
 
+    game->StartGame();
+
     while (!programShouldShutdown) 
     {
         if (Time.UpdateDeltaTime() > 0.1f) { continue; } // if delta time is too large, will cause glitches
@@ -234,6 +236,11 @@ void EngineClass::Load()
     Resources.fonts[FONT_SourceCodePro] = Font::FontCreateFromFile(font_path("SourceCodePro.ttf"), 24, false);
     Resources.fonts[FONT_Iosevka] = Font::FontCreateFromFile(font_path("iosevka-term-regular.ttf"), 24, false);
 
+}
+
+GameState* EngineClass::GetGameState()
+{
+    return &game->state;
 }
 
 int main(int argc, char* argv[])

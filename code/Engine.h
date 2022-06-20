@@ -5,6 +5,7 @@
 
 class GameRenderer;
 class GameMode;
+struct GameState;
 
 class EngineClass
 {
@@ -26,6 +27,9 @@ public:
 
 	GameRenderer* gfx = nullptr;
 	GameMode* game = nullptr;
+
+public:
+	GameState* GetGameState();
 
 };
 

@@ -242,10 +242,10 @@ union mat4
     /** Constructs a 4x4 identity matrix */
     mat4()
     {
-        columns[0] = vec4(1.f, 0.f, 0.f, 0.f);
-        columns[1] = vec4(0.f, 1.f, 0.f, 0.f);
-        columns[2] = vec4(0.f, 0.f, 1.f, 0.f);
-        columns[3] = vec4(0.f, 0.f, 0.f, 1.f);
+        columns[0] = { 1.f, 0.f, 0.f, 0.f };
+        columns[1] = { 0.f, 1.f, 0.f, 0.f };
+        columns[2] = { 0.f, 0.f, 1.f, 0.f };
+        columns[3] = { 0.f, 0.f, 0.f, 1.f };
     }
 
     mat4(float e00, float e01, float e02, float e03,
@@ -291,9 +291,9 @@ union mat3
     /** Constructs a 3x3 identity matrix */
     mat3()
     {
-        columns[0] = vec3(1.f, 0.f, 0.f);
-        columns[1] = vec3(0.f, 1.f, 0.f);
-        columns[2] = vec3(0.f, 0.f, 1.f);
+        columns[0] = { 1.f, 0.f, 0.f };
+        columns[1] = { 0.f, 1.f, 0.f };
+        columns[2] = { 0.f, 0.f, 1.f };
     }
 
     mat3(float e00, float e01, float e02,

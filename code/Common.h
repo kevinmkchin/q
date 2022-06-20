@@ -60,3 +60,5 @@ typedef int_fast16_t  i16f;
 typedef int_fast32_t  i32f;
 typedef i16           bool16;
 typedef i32           bool32;
+typedef uint32_t EntityIndex;
+#define EntityIndexInvalid UINT32_MAX; //0xFFFFFFFF

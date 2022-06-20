@@ -20,9 +20,13 @@ set(SOURCE_FILES
     "code/FileSystem.cpp"
     "code/Utils.cpp" 
     "code/Resources.cpp" 
+    "code/Console.cpp" 
     "code/Camera.cpp" 
+    "code/Collision.cpp" 
     "code/GameMode.cpp"
-    "code/Console.cpp")
+    "code/GameState.cpp"
+    "code/GameComponents.cpp" 
+    "code/GameEntities.cpp")
 
 
 
