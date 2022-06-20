@@ -5,9 +5,7 @@
 
 - Camera
 
-- Entity system
-
-check how fast / how much we can print to the console per frame
-
-think about having a registration system for colliders so when a collider is created we register it to a master collection of colliders? probably unnecessary tho
+- think about having a registration system for colliders so when a collider is created we register it to a master collection of colliders? probably unnecessary tho
 because just manually checking player against enemies, enemies against floor, enemies against bullets gives me much more control and is also doable.
+
+- get FPS display and debug info display stuff from XNGINE
