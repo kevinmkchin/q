@@ -13,7 +13,7 @@ public:
 	EntityIndex self = EntityIndexInvalid;
 };
 
-class Player : public virtual Entity
+class Player : public Entity
 {
 public:
 	Player();
@@ -28,8 +28,20 @@ public:
 	MeshCollider collider;
 };
 
-class Monster : public virtual Entity
+class Monster : public Entity
 {
 public:
 	virtual void Update() override;
+};
+
+class RotatingCube : public Entity
+{
+public:
+	RotatingCube();
+
+	virtual void Update() override;
+
+public:
+	GameModelComponent graphics;
+
 };

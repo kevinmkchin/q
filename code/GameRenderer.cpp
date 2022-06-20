@@ -8,6 +8,7 @@
 #include "Engine.h"
 #include "Camera.h"
 #include "Console.h"
+#include "GameState.h"
 
 bool GameRenderer::Init()
 {
@@ -52,26 +53,20 @@ void GameRenderer::RenderGameLayer()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
 
+    GameState* gameState = Engine.GetGameState();
 
     LOCAL_PERSIST GameCamera camera;
     camera.position = vec3(-4.f,0.f,0.f);
-    LOCAL_PERSIST MeshGroup* tempObj = nullptr;
-    if (tempObj == nullptr)
-    {
-        tempObj = MeshGroup::MeshGroupAssimpLoad(primitives_path("cube.obj").c_str());
-    }
     camera.CameraUpdate();
     camera.CameraCalculatePerspectiveMatrix();
     
-    LOCAL_PERSIST vec3 euler = vec3();
-    euler += vec3(0.6f,0.4f,0.3f) * Time.deltaTime;
-    
     gameSceneShader.UseShader();
 
-    gameSceneShader.GLBindMatrix4fv("modelMatrix", 1, RotationMatrix(EulerToQuat(euler)).ptr());
     gameSceneShader.GLBindMatrix4fv("viewMatrix", 1, camera.viewMatrix.ptr());
     gameSceneShader.GLBindMatrix4fv("projMatrix", 1, camera.perspectiveMatrix.ptr());
-    tempObj->Render();
+
+    auto rotatingCube = std::static_pointer_cast<RotatingCube>(gameState->entities[gameState->rotatingCube]);
+    rotatingCube->graphics.Render(gameSceneShader);
 
     glUseProgram(0);
 }

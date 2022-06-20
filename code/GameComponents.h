@@ -3,6 +3,7 @@
 #include <gmath.h>
 
 #include "Collision.h"
+#include "Shader.h"
 
 struct MeshGroup;
 
@@ -37,7 +38,7 @@ class TransformComponent
 public:
     vec3 position;
     quat orientation;
-    vec3 scale;
+    vec3 scale = {1.f,1.f,1.f};
 
 public:
     mat4 GetModelMatrix();
@@ -47,9 +48,13 @@ class GameModelComponent
 {
 public:
     GameModelComponent(TransformComponent* transformArg);
+
+    void Render(const Shader& shader);
+
+public:
+    MeshGroup* sharedMesh;
 private:
     TransformComponent* transform;
-    MeshGroup* sharedMesh;
 };
 
 

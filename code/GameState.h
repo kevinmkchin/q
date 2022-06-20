@@ -11,6 +11,8 @@ struct GameState
     //std::vector<EntityIndex> playerIds;
     std::vector<EntityIndex> monsterIds;
     std::vector<EntityIndex> npcIds;
+
+    EntityIndex rotatingCube;
 };
 
 EntityIndex CreateNewPlayer(GameState* gameState);

@@ -23,3 +23,15 @@ void Monster::Update()
 {
 
 }
+
+RotatingCube::RotatingCube()
+	: graphics(GameModelComponent(&transform))
+{
+}
+
+void RotatingCube::Update()
+{
+	LOCAL_PERSIST vec3 euler = vec3();
+	euler += vec3(0.6f, 0.4f, 0.3f) * Time.deltaTime;
+	transform.orientation = EulerToQuat(euler);
+}
