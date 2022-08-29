@@ -17,6 +17,7 @@
 #include "GameMode.h"
 #include "Resources.h"
 #include "Console.h"
+#include "GUI.h"
 
 EngineClass Engine;
 
@@ -110,7 +111,7 @@ void EngineClass::SDLProcessEvents()
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
-        //ImGui_ImplSDL2_ProcessEvent(&event);
+        KevGui::SDLProcessEvent(&event);
 
         switch (event.type) 
         {
@@ -197,6 +198,8 @@ int EngineClass::Run()
 
     game->StartGame();
 
+    KevGui::Init();
+
     while (!programShouldShutdown) 
     {
         if (Time.UpdateDeltaTime() > 0.1f) { continue; } // if delta time is too large, will cause glitches
@@ -205,14 +208,9 @@ int EngineClass::Run()
 
         console_update(Time.unscaledDeltaTime);
 
-        //if (editor.IsActive())
-        //{
-        //    editor.Step();
-        //    scriptSystem.Update();
+        KevGui::NewFrame();
 
-        //    renderer.Draw(elapsedMs);
-        //    editor.Draw();
-        //}
+        KevGui::DoText("DEV BUILD", 25, 40, 16);
 
         game->Update();
         gfx->Render();
@@ -231,7 +229,7 @@ int EngineClass::Run()
 
 void EngineClass::Load()
 {
-    // don't need to unload. these are resources alive for the entire program. when program closes, resources are automatically cleaned up!
+    // don't need to unload. these are resources alive for the entire program. when Windows program closes, resources are automatically cleaned up!
 
     Resources.fonts[FONT_SourceCodePro] = Font::FontCreateFromFile(font_path("SourceCodePro.ttf"), 24, false);
     Resources.fonts[FONT_Iosevka] = Font::FontCreateFromFile(font_path("iosevka-term-regular.ttf"), 24, false);

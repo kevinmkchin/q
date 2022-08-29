@@ -26,7 +26,8 @@ set(SOURCE_FILES
     "code/GameMode.cpp"
     "code/GameState.cpp"
     "code/GameComponents.cpp" 
-    "code/GameEntities.cpp")
+    "code/GameEntities.cpp"
+    "code/GUI.cpp")
 
 
 

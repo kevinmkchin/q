@@ -9,6 +9,7 @@
 #include "Camera.h"
 #include "Console.h"
 #include "GameState.h"
+#include "GUI.h"
 
 bool GameRenderer::Init()
 {
@@ -40,6 +41,7 @@ void GameRenderer::Render()
 {
     RenderGameLayer();
     RenderGUILayer();
+    KevGui::Draw();
     RenderDebugUILayer();
 
     FinalRenderToBackBuffer();
