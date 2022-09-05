@@ -10,7 +10,7 @@ Player::Player()
 
 void Player::Update()
 {
-
+	
 }
 
 void Player::OnCollision(CollisionEventArgs event)
