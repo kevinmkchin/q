@@ -8,7 +8,7 @@
 #include "Engine.h"
 #include "Camera.h"
 #include "Console.h"
-#include "GameState.h"
+#include "GameMode.h"
 #include "GUI.h"
 
 bool GameRenderer::Init()
@@ -41,7 +41,6 @@ void GameRenderer::Render()
 {
     RenderGameLayer();
     RenderGUILayer();
-    KevGui::Draw();
     RenderDebugUILayer();
 
     FinalRenderToBackBuffer();
@@ -55,7 +54,7 @@ void GameRenderer::RenderGameLayer()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
 
-    GameState* gameState = Engine.GetGameState();
+    GameState* gameState = &(Engine.game->state);
 
     LOCAL_PERSIST GameCamera camera;
     camera.position = vec3(-4.f,0.f,0.f);
@@ -67,8 +66,8 @@ void GameRenderer::RenderGameLayer()
     gameSceneShader.GLBindMatrix4fv("viewMatrix", 1, camera.viewMatrix.ptr());
     gameSceneShader.GLBindMatrix4fv("projMatrix", 1, camera.perspectiveMatrix.ptr());
 
-    auto rotatingCube = std::static_pointer_cast<RotatingCube>(gameState->entities[gameState->rotatingCube]);
-    rotatingCube->graphics.Render(gameSceneShader);
+    //auto rotatingCube = std::static_pointer_cast<RotatingCube>(gameState->entities[gameState->rotatingCube]);
+    //rotatingCube->graphics.Render(gameSceneShader);
 
     glUseProgram(0);
 }
@@ -86,6 +85,7 @@ void GameRenderer::RenderGUILayer()
     glDisable(GL_DEPTH_TEST);
 
 
+    KevGui::Draw();
 }
 
 void GameRenderer::RenderDebugUILayer()

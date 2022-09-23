@@ -1,11 +1,9 @@
 #include "Collision.h"
+#include "GameMode.h"
 
 #include <array>
 
-#include "GameComponents.h"
-
-
-MeshCollider::MeshCollider(EntityIndex ownerArg, TransformComponent* transformArg, std::function<void(CollisionEventArgs)> onCollisionCallbackArg)
+MeshCollider::MeshCollider(EntityIndex ownerArg, EntityTransform* transformArg, std::function<void(CollisionEventArgs)> onCollisionCallbackArg)
 {
     owner = ownerArg;
     ownerTransform = transformArg;
@@ -43,7 +41,7 @@ vec3 MeshCollider::FindFurthestPoint(vec3 direction) const
 }
 
 
-SphereCollider::SphereCollider(EntityIndex ownerArg, TransformComponent* transformArg, std::function<void(CollisionEventArgs)> onCollisionCallbackArg)
+SphereCollider::SphereCollider(EntityIndex ownerArg, EntityTransform* transformArg, std::function<void(CollisionEventArgs)> onCollisionCallbackArg)
 {
     owner = ownerArg;
     ownerTransform = transformArg;
@@ -77,7 +75,7 @@ float SphereCollider::GetScaledRadius() const
 }
 
 
-LineCollider::LineCollider(EntityIndex ownerArg, TransformComponent* transformArg, std::function<void(CollisionEventArgs)> onCollisionCallbackArg)
+LineCollider::LineCollider(EntityIndex ownerArg, EntityTransform* transformArg, std::function<void(CollisionEventArgs)> onCollisionCallbackArg)
 {
     owner = ownerArg;
     ownerTransform = transformArg;

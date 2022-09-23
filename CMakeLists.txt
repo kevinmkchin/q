@@ -24,9 +24,7 @@ set(SOURCE_FILES
     "code/Camera.cpp" 
     "code/Collision.cpp" 
     "code/GameMode.cpp"
-    "code/GameState.cpp"
-    "code/GameComponents.cpp" 
-    "code/GameEntities.cpp"
+    
     "code/GUI.cpp")
 
 

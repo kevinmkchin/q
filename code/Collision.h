@@ -6,8 +6,6 @@
 
 #include <gmath.h>
 
-class TransformComponent;
-
 struct CollisionEventArgs
 {
     vec3 normal;
@@ -23,6 +21,8 @@ enum class ColliderType
     Line
 };
 
+struct EntityTransform;
+
 /** 2022-06-22 (Kevin): Design of a collider is as follows:
     An entity class can contain a collider. A collider knows the EntityIndex of its owning entity, and
     the address to the owning entity's transform component. A collider can also have an onCollisionCallback
@@ -36,7 +36,7 @@ struct Collider
     virtual vec3 FindFurthestPoint(vec3 direction) const = 0;
 
     EntityIndex owner = EntityIndexInvalid;
-    TransformComponent* ownerTransform = nullptr;
+    EntityTransform* ownerTransform = nullptr;
     ColliderType colliderType = ColliderType::Invalid;
     std::function<void(CollisionEventArgs)> onCollisionCallback = nullptr;
 };
@@ -45,7 +45,7 @@ struct MeshCollider : Collider
 {
     std::vector<vec3> verticesModelSpace; // TODO(Kevin): make this a pointer to so e.g. all cars in a racing game can share same model space collider
 
-    MeshCollider(EntityIndex ownerArg, TransformComponent* transformArg, std::function<void(CollisionEventArgs)> onCollisionCallbackArg);
+    MeshCollider(EntityIndex ownerArg, EntityTransform* transformArg, std::function<void(CollisionEventArgs)> onCollisionCallbackArg);
 
     void TransformCollider() override;
 
@@ -59,7 +59,7 @@ struct SphereCollider : Collider
 {
     float radius; // radius in model frame. before being affected by scale.
 
-    SphereCollider(EntityIndex ownerArg, TransformComponent* transformArg, std::function<void(CollisionEventArgs)> onCollisionCallbackArg);
+    SphereCollider(EntityIndex ownerArg, EntityTransform* transformArg, std::function<void(CollisionEventArgs)> onCollisionCallbackArg);
 
     void TransformCollider() override;
 
@@ -79,7 +79,7 @@ struct LineCollider : Collider
     vec3 a;
     vec3 b;
 
-    LineCollider(EntityIndex ownerArg, TransformComponent* transformArg, std::function<void(CollisionEventArgs)> onCollisionCallbackArg);
+    LineCollider(EntityIndex ownerArg, EntityTransform* transformArg, std::function<void(CollisionEventArgs)> onCollisionCallbackArg);
 
     void TransformCollider() override;
 

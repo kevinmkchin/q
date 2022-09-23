@@ -2,7 +2,32 @@
 #include "Engine.h"
 #include "Collision.h"
 #include "Resources.h"
-#include "GameState.h"
+#include "GUI.h"
+
+
+template <class T>
+INTERNAL EntityIndex MakeSharedPtrAndPushBackToEntitiesVector(GameState* gameState)
+{
+	std::shared_ptr<Entity> ptr = std::make_shared<T>();
+	EntityIndex id = (EntityIndex)gameState->entities.size();
+	ptr->self = id;
+	gameState->entities.push_back(ptr);
+	return id;
+}
+
+//EntityIndex CreateNewPlayer(GameState* gameState)
+//{
+//	EntityIndex id = MakeSharedPtrAndPushBackToEntitiesVector<Player>(gameState);
+//	gameState->player = id;
+//	return id;
+//}
+//
+//EntityIndex CreateNewMonster(GameState* gameState)
+//{
+//	EntityIndex id = MakeSharedPtrAndPushBackToEntitiesVector<Monster>(gameState);
+//	gameState->monsterIds.push_back(id);
+//	return id;
+//}
 
 
 void GameMode::LoadAllContent()
@@ -17,19 +42,21 @@ void GameMode::UnloadAllContent()
 
 void GameMode::StartGame()
 {
-	GameState* gameState = Engine.GetGameState();
+	GameState* gameState = &state;
 
-	std::shared_ptr<RotatingCube> p = std::make_shared<RotatingCube>();
-	EntityIndex id = (EntityIndex)gameState->entities.size();
-	p->self = id;
-	gameState->entities.push_back(p);
-	p->graphics.sharedMesh = MeshGroup::MeshGroupAssimpLoad(primitives_path("cube.obj").c_str());
-	gameState->rotatingCube = id;
+	//std::shared_ptr<RotatingCube> p = std::make_shared<RotatingCube>();
+	//EntityIndex id = (EntityIndex)gameState->entities.size();
+	//p->self = id;
+	//gameState->entities.push_back(p);
+	//p->graphics.sharedMesh = MeshGroup::MeshGroupAssimpLoad(primitives_path("cube.obj").c_str());
+	//gameState->rotatingCube = id;
 }
 
 void GameMode::Update()
 {
-	GameState* gameState = Engine.GetGameState();
+	KevGui::DoText("DEV BUILD", 25, 40, 16);
+
+	GameState* gameState = &state;
 
 	for (auto e : gameState->entities)
 	{

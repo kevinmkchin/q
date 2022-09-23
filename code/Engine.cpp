@@ -210,8 +210,6 @@ int EngineClass::Run()
 
         KevGui::NewFrame();
 
-        KevGui::DoText("DEV BUILD", 25, 40, 16);
-
         game->Update();
         gfx->Render();
 
@@ -234,11 +232,6 @@ void EngineClass::Load()
     Resources.fonts[FONT_SourceCodePro] = Font::FontCreateFromFile(font_path("SourceCodePro.ttf"), 24, false);
     Resources.fonts[FONT_Iosevka] = Font::FontCreateFromFile(font_path("iosevka-term-regular.ttf"), 24, false);
 
-}
-
-GameState* EngineClass::GetGameState()
-{
-    return &game->state;
 }
 
 int main(int argc, char* argv[])

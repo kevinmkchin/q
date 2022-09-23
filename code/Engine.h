@@ -28,9 +28,6 @@ public:
 	GameRenderer* gfx = nullptr;
 	GameMode* game = nullptr;
 
-public:
-	GameState* GetGameState();
-
 };
 
 extern EngineClass Engine;
