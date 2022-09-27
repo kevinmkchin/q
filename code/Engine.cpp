@@ -235,6 +235,7 @@ void EngineClass::LoadPerpetualResources()
     Resources.fonts[FONT_SourceCodePro] = Font::FontCreateFromFile(font_path("SourceCodePro.ttf"), 24, false);
     Resources.fonts[FONT_Iosevka] = Font::FontCreateFromFile(font_path("iosevka-term-regular.ttf"), 24, false);
 
+    Texture::TextureCreateFromFile(Resources.defaultMissingTexture, primitives_path("missing_texture.png").c_str());
 }
 
 int main(int argc, char* argv[])

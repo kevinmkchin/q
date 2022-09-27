@@ -351,6 +351,19 @@ namespace KevGui
         drawQueue.push(&textDrawRequestsBuffer.back());
     }
 
+    void DoImage(UIRect rect, u32 glTextureId)
+    {
+        CorneredRectDrawRequest drawRequest;
+        drawRequest.rect = rect;
+        drawRequest.color = vec4(0.157f, 0.172f, 0.204f, 1.f);
+        drawRequest.textureId = glTextureId;
+        drawRequest.cornerWidth = 0;
+        drawRequest.normalizedCornerSizeInUV = 0.f;
+
+        corneredRectDrawRequestsBuffer.push_back(drawRequest);
+        drawQueue.push(&corneredRectDrawRequestsBuffer.back());
+    }
+
 
     ui_id FreshID()
     {

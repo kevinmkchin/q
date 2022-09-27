@@ -41,6 +41,8 @@ namespace KevGui
 
     void DoTextUnformatted(const char* text, int x, int y, int size/*, font*/);
 
+    void DoImage(UIRect rect, u32 glTextureId = 0);
+
 
     
     // void DoEditorPanel();

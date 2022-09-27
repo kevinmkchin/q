@@ -16,4 +16,5 @@ void EditorRuntime::UpdateEditor()
 	Engine.gfx->GetBackBufferSize(&drawableWidth, &drawableHeight);
 	KevGui::DoPanel(KevGui::UIRect(drawableWidth - 300, 0, 300, drawableHeight), vec4(0.1f, 0.1f, 0.1f, 1.f));
 
+	KevGui::DoImage(KevGui::UIRect(drawableWidth - 280, 40, 250, 250), Resources.defaultMissingTexture.textureId);
 }

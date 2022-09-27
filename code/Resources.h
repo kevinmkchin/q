@@ -125,8 +125,9 @@ struct Font
 
 struct ResourceManager
 {
-
     Font fonts[16];
+
+    Texture defaultMissingTexture;
 };
 
 extern ResourceManager Resources;
