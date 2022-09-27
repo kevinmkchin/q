@@ -1,4 +1,4 @@
-#include "GameMode.h"
+#include "GameRuntime.h"
 #include "Engine.h"
 #include "Collision.h"
 #include "Resources.h"
@@ -30,17 +30,17 @@ INTERNAL EntityIndex MakeSharedPtrAndPushBackToEntitiesVector(GameState* gameSta
 //}
 
 
-void GameMode::LoadAllContent()
+void GameRuntime::LoadAllContent()
 {
 	MeshGroup::MeshGroupAssimpLoad(primitives_path("cube.obj").c_str());
 }
 
-void GameMode::UnloadAllContent()
+void GameRuntime::UnloadAllContent()
 {
 
 }
 
-void GameMode::StartGame()
+void GameRuntime::StartGame()
 {
 	GameState* gameState = &state;
 
@@ -52,7 +52,7 @@ void GameMode::StartGame()
 	//gameState->rotatingCube = id;
 }
 
-void GameMode::Update()
+void GameRuntime::Update()
 {
 	KevGui::DoText("GAME", 25, 40, 16);
 

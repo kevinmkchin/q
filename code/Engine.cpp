@@ -14,7 +14,7 @@
 #include "Engine.h"
 #include "Input.h"
 #include "GameRenderer.h"
-#include "GameMode.h"
+#include "GameRuntime.h"
 #include "Resources.h"
 #include "Console.h"
 #include "GUI.h"
@@ -192,8 +192,8 @@ int EngineClass::Run()
 
     LoadPerpetualResources();
 
-    GameMode gameMode;
-    game = &gameMode;
+    GameRuntime gameRuntime;
+    game = &gameRuntime;
 
     EditorRuntime editorRuntime;
 

@@ -4,7 +4,7 @@
 #include "SDL.h"
 
 class GameRenderer;
-class GameMode;
+class GameRuntime;
 struct GameState;
 
 class EngineClass
@@ -25,7 +25,7 @@ public:
 	bool programShouldShutdown = false;
 
 	GameRenderer* gfx = nullptr;
-	GameMode* game = nullptr;
+	GameRuntime* game = nullptr;
 
 };
 

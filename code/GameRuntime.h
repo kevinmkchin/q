@@ -60,7 +60,7 @@ struct GameState
 //
 //EntityIndex CreateNewMonster(GameState* gameState);
 
-class GameMode
+class GameRuntime
 {
 public:
 	void LoadAllContent();

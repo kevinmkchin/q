@@ -1,7 +1,8 @@
 #include "Collision.h"
-#include "GameMode.h"
 
 #include <array>
+
+#include "GameRuntime.h"
 
 MeshCollider::MeshCollider(EntityIndex ownerArg, EntityTransform* transformArg, std::function<void(CollisionEventArgs)> onCollisionCallbackArg)
 {

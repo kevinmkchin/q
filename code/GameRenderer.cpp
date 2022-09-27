@@ -8,7 +8,7 @@
 #include "Engine.h"
 #include "Camera.h"
 #include "Console.h"
-#include "GameMode.h"
+#include "GameRuntime.h"
 #include "GUI.h"
 
 bool GameRenderer::Init()

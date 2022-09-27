@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-set (CMAKE_CXX_STANDARD 23)
+set (CMAKE_CXX_STANDARD 20)
 
 project(Game)
 
@@ -23,7 +23,7 @@ set(SOURCE_FILES
     "code/Console.cpp" 
     "code/Camera.cpp" 
     "code/Collision.cpp" 
-    "code/GameMode.cpp"
+    "code/GameRuntime.cpp"
     "code/GUI.cpp"
     "code/EditorRuntime.cpp")
 
