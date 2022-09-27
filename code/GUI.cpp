@@ -285,7 +285,18 @@ namespace KevGui
         return result;
     }
 
-    void DoPanel(ui_id id, UIRect rect, int cornerWidth, u32 glTextureId, float normalizedCornerSizeInUV)
+
+    void DoPanel(UIRect rect, vec4 colorRGBA)
+    {
+        RectDrawRequest drawRequest;
+        drawRequest.rect = rect;
+        drawRequest.color = colorRGBA;
+
+        rectDrawRequestsBuffer.push_back(drawRequest);
+        drawQueue.push(&rectDrawRequestsBuffer.back());
+    }
+
+    void DoPanel(UIRect rect, int cornerWidth, u32 glTextureId, float normalizedCornerSizeInUV)
     {
         CorneredRectDrawRequest drawRequest;
         drawRequest.rect = rect;

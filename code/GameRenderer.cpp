@@ -144,6 +144,12 @@ void GameRenderer::UpdateBackBufferSize()
     UpdateFrameBuffersSize();
 }
 
+void GameRenderer::GetBackBufferSize(i32* widthOutput, i32* heightOutput)
+{
+    *widthOutput = backBufferWidth;
+    *heightOutput = backBufferHeight;
+}
+
 void GameRenderer::CreateFrameBuffers()
 {
     gameLayer.width = 800;

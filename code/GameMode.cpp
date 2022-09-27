@@ -54,7 +54,7 @@ void GameMode::StartGame()
 
 void GameMode::Update()
 {
-	KevGui::DoText("DEV BUILD", 25, 40, 16);
+	KevGui::DoText("GAME", 25, 40, 16);
 
 	GameState* gameState = &state;
 

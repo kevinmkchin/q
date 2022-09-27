@@ -5,6 +5,7 @@ typedef int ui_id;
 
 #include <SDL.h>
 
+#include <gmath.h>
 #include "Common.h"
 
 namespace KevGui
@@ -30,10 +31,15 @@ namespace KevGui
     void Draw();
 
 
-    void DoPanel(ui_id id, UIRect rect, int cornerWidth, u32 glTextureId = 0, float normalizedCornerSizeInUV = 0.3f);
+    void DoPanel(UIRect rect, vec4 colorRGBA);
+
+    void DoPanel(UIRect rect, int cornerWidth, u32 glTextureId = 0, float normalizedCornerSizeInUV = 0.3f);
 
     bool DoButton(ui_id id, UIRect rect);
 
     void DoText(const char* text, int x, int y, int size/*, font*/);
+
+    
+    // void DoEditorPanel();
 }
 

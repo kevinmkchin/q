@@ -23,6 +23,8 @@ public:
 
 	void UpdateBackBufferSize();
 
+	void GetBackBufferSize(i32* widthOutput, i32* heightOutput);
+
 private:
 
 	void RenderGameLayer();

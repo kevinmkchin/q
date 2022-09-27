@@ -17,10 +17,9 @@ private:
 
 	void SDLProcessEvents();
 
-	void Load();
+	void LoadPerpetualResources();
 
 public:
-
 	SDL_Window* window = nullptr;
 	SDL_GLContext openglContext = nullptr;
 	bool programShouldShutdown = false;

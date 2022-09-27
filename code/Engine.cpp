@@ -18,6 +18,7 @@
 #include "Resources.h"
 #include "Console.h"
 #include "GUI.h"
+#include "EditorRuntime.h"
 
 EngineClass Engine;
 
@@ -189,10 +190,12 @@ int EngineClass::Run()
     gfx = &renderer;
     if (!gfx->Init()) return EXIT_FAILURE;
 
-    Load();
+    LoadPerpetualResources();
 
     GameMode gameMode;
     game = &gameMode;
+
+    EditorRuntime editorRuntime;
 
     console_initialize();
 
@@ -210,7 +213,7 @@ int EngineClass::Run()
 
         KevGui::NewFrame();
 
-        game->Update();
+        editorRuntime.UpdateEditor(); //game->Update();
         gfx->Render();
 
         SDL_GL_SwapWindow(window);
@@ -225,7 +228,7 @@ int EngineClass::Run()
     return EXIT_SUCCESS;
 }
 
-void EngineClass::Load()
+void EngineClass::LoadPerpetualResources()
 {
     // don't need to unload. these are resources alive for the entire program. when Windows program closes, resources are automatically cleaned up!
 
