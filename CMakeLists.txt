@@ -3,7 +3,7 @@ set (CMAKE_CXX_STANDARD 20)
 
 project(Game)
 
-set(IS_WIN32PROGRAM 1)
+set(IS_WIN32PROGRAM 0)
 
 add_compile_definitions(
         INTERNAL_BUILD=1

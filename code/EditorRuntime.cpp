@@ -9,7 +9,7 @@
 
 void EditorRuntime::UpdateEditor()
 {
-	KevGui::DoText("EDITOR", 25, 40, 16);
+	KevGui::DoText(25, 40, 16, "EDITOR");
 
 	i32 drawableWidth;
 	i32 drawableHeight;

@@ -37,7 +37,10 @@ namespace KevGui
 
     bool DoButton(ui_id id, UIRect rect);
 
-    void DoText(const char* text, int x, int y, int size/*, font*/);
+    void DoText(int x, int y, int size, const char* textFmt, ...);
+
+    void DoTextUnformatted(const char* text, int x, int y, int size/*, font*/);
+
 
     
     // void DoEditorPanel();

@@ -4,10 +4,15 @@
 
 #include <gmath.h>
 #include <vertext.h>
+#include <stb_sprintf.h>
+
 #include "Engine.h"
 #include "GameRenderer.h"
 #include "Shader.h"
 #include "Resources.h"
+#if INTERNAL_BUILD & SLOW_BUILD
+#include "MessageLogger.h"
+#endif
 
 namespace KevGui
 {
@@ -64,6 +69,11 @@ namespace KevGui
     static Mesh __text_mesh;
 
     static Font __text_font;
+
+    static char __reservedFormattedTextMem[16384];
+    static const int __formattedTextLineSizeBytes = 128;
+    static int __reservedFormattedTextMemIndexer = 0;
+
 
     struct UIDrawRequest
     {
@@ -309,7 +319,26 @@ namespace KevGui
         drawQueue.push(&corneredRectDrawRequestsBuffer.back());
     }
 
-    void DoText(const char* text, int x, int y, int size)
+    void DoText(int x, int y, int size, const char* textFmt, ...)
+    {
+#if INTERNAL_BUILD & SLOW_BUILD
+        if (__reservedFormattedTextMemIndexer >= ARRAY_COUNT(__reservedFormattedTextMem) / __formattedTextLineSizeBytes)
+        {
+            PrintLog.WarningFmt("Attempting to format text in GUI.cpp but not enough reserved memory to store formatted text.");
+        }
+#endif
+
+        va_list argptr;
+        char* formattedTextBuffer = __reservedFormattedTextMem + (__reservedFormattedTextMemIndexer * __formattedTextLineSizeBytes);
+        va_start(argptr, textFmt);
+        stbsp_vsprintf(formattedTextBuffer, textFmt, argptr);
+        va_end(argptr);
+        ++__reservedFormattedTextMemIndexer;
+
+        DoTextUnformatted(formattedTextBuffer, x, y, size);
+    }
+
+    void DoTextUnformatted(const char* text, int x, int y, int size)
     {
         TextDrawRequest drawRequest;
         drawRequest.text = text;
@@ -352,6 +381,8 @@ namespace KevGui
         corneredRectDrawRequestsBuffer.clear();
 
         freshIdCounter = 0;
+
+        __reservedFormattedTextMemIndexer = 0;
     }
 
     void SDLProcessEvent(const SDL_Event* evt)

@@ -54,7 +54,7 @@ void GameRuntime::StartGame()
 
 void GameRuntime::Update()
 {
-	KevGui::DoText("GAME", 25, 40, 16);
+	KevGui::DoTextUnformatted("GAME", 25, 40, 16);
 
 	GameState* gameState = &state;
 
