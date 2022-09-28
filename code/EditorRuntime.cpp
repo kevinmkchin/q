@@ -7,6 +7,8 @@
 #include "GameRenderer.h"
 #include "GUI.h"
 
+int num = 10;
+
 void EditorRuntime::UpdateEditor()
 {
 	KevGui::DoText(25, 40, 16, "EDITOR");
@@ -18,5 +20,9 @@ void EditorRuntime::UpdateEditor()
 
 	KevGui::DoImage(KevGui::UIRect(drawableWidth - 280, 40, 250, 250), Resources.defaultMissingTexture.textureId);
 
-	KevGui::TextButton(KevGui::UIRect(drawableWidth - 280, 300, 250, 40), "Click me!");
+	KevGui::Temp_TextButton(KevGui::UIRect(drawableWidth - 280, 300, 250, 40), "Click me!");
+
+	//KevGui::Temp_IncrementableIntegerField("Xx", &num);
+
+	KevGui::DoIntegerField(KevGui::FreshID(), KevGui::UIRect(300, 300, 100, 25), &num);
 }

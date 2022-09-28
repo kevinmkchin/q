@@ -6,6 +6,7 @@
 #include <vertext.h>
 #include <stb_sprintf.h>
 
+#include "Utils.h"
 #include "Engine.h"
 #include "GameRenderer.h"
 #include "Shader.h"
@@ -73,6 +74,10 @@ namespace KevGui
     static char __reservedFormattedTextMem[16384];
     static const int __formattedTextLineSizeBytes = 128;
     static int __reservedFormattedTextMemIndexer = 0;
+
+    static NiceArray<SDL_Keycode, 16> keyboardInputASCIIKeycodeThisFrame;
+
+    static NiceArray<char, 128> activeTextInputBuffer;
 
 
     struct UIDrawRequest
@@ -197,32 +202,9 @@ namespace KevGui
         }
     };
 
-    template<typename T, int _count> struct DrawRequestsBuffer
-    {
-        T data[_count];
-        int count = 0;
-        const int capacity = _count;
-
-        void PushBack(T elem)
-        {
-            data[count] = elem;
-            ++count;
-        }
-
-        T& Back()
-        {
-            return *(data + count - 1);
-        }
-
-        void Clear()
-        {
-            count = 0;
-        }
-    };
-
-    DrawRequestsBuffer<RectDrawRequest, 256> rectDrawRequestsBuffer;
-    DrawRequestsBuffer<CorneredRectDrawRequest, 256> corneredRectDrawRequestsBuffer;
-    DrawRequestsBuffer<TextDrawRequest, 256> textDrawRequestsBuffer;
+    NiceArray<RectDrawRequest, 256> rectDrawRequestsBuffer;
+    NiceArray<CorneredRectDrawRequest, 256> corneredRectDrawRequestsBuffer;
+    NiceArray<TextDrawRequest, 256> textDrawRequestsBuffer;
     std::queue<UIDrawRequest*> drawQueue;
 
 
@@ -318,6 +300,101 @@ namespace KevGui
         return result;
     }
 
+    void DoIntegerField(ui_id id, UIRect rect, int* v)
+    {
+        bool bSetInactiveAndReturnValue = false;
+
+        if (IsActive(id))
+        {
+            for (int i = 0; i < keyboardInputASCIIKeycodeThisFrame.count; ++i)
+            {
+                i32 keycodeASCII = keyboardInputASCIIKeycodeThisFrame.At(i);
+                if (48 <= keycodeASCII && keycodeASCII <= 57)
+                {
+                    if (activeTextInputBuffer.count == 1 && activeTextInputBuffer.At(0) == '0')
+                    {
+                        activeTextInputBuffer.At(0) = char(keycodeASCII);
+                    }
+                    else
+                    {
+                        activeTextInputBuffer.PushBack(char(keycodeASCII));
+                    }
+                }
+                else if (keycodeASCII == 45 /* minus sign */ && activeTextInputBuffer.count == 0)
+                {
+                    activeTextInputBuffer.PushBack(char(keycodeASCII));
+                }
+                else if (keycodeASCII == SDLK_RETURN)
+                {
+                    bSetInactiveAndReturnValue = true;
+                }
+                else if (keycodeASCII == SDLK_BACKSPACE)
+                {
+                    if (activeTextInputBuffer.count > 0)
+                    {
+                        activeTextInputBuffer.Back() = '\0';
+                        --activeTextInputBuffer.count;
+                    }
+                }
+            }
+
+            if (MouseWentDown() && !MouseInside(rect))
+            {
+                bSetInactiveAndReturnValue = true;
+            }
+        }
+        else if (IsHovered(id))
+        {
+            if (MouseWentDown())
+            {
+                std::string intValueAsString = std::to_string(*v);
+                activeTextInputBuffer.ResetToZero();
+                memcpy(activeTextInputBuffer.data, intValueAsString.c_str(), intValueAsString.size());
+                activeTextInputBuffer.count = (int) intValueAsString.size();
+                SetActive(id);
+            }
+        }
+
+        if (bSetInactiveAndReturnValue)
+        {
+            int inputtedInteger = 0;
+            bool inputIsNotEmpty = activeTextInputBuffer.count > 0;
+            bool onlyInputIsMinusSign = activeTextInputBuffer.count == 1 && activeTextInputBuffer.At(0) == '-';
+            if (inputIsNotEmpty && !onlyInputIsMinusSign)
+            {
+                inputtedInteger = std::stoi(activeTextInputBuffer.data);
+            }
+            *v = inputtedInteger;
+            activeTextInputBuffer.ResetCount();
+            activeTextInputBuffer.ResetToZero();
+            SetActive(null_ui_id);
+        }
+
+        if (MouseInside(rect))
+        {
+            SetHovered(id);
+        }
+
+        RectDrawRequest drawRequest;
+        drawRequest.rect = rect;
+        drawRequest.color = IsActive(id) ? vec4(0.f, 0.f, 0.f, 1.f) : vec4(0.2f, 0.2f, 0.2f, 1.f);//vec4(1.f, 1.f, 1.f, 1.f) : vec4(0.8f, 0.8f, 0.8f, 1.f);
+
+        rectDrawRequestsBuffer.PushBack(drawRequest);
+        drawQueue.push(&rectDrawRequestsBuffer.Back());
+
+        if (IsActive(id))
+        {
+            if (activeTextInputBuffer.count > 0)
+            {
+                DoText(rect.x, rect.y + rect.h, 14, activeTextInputBuffer.data);
+            }
+        }
+        else
+        {
+            DoText(rect.x, rect.y + rect.h, 14, std::to_string(*v).c_str());
+        }
+    }
+
     void DoPanel(UIRect rect, vec4 colorRGBA)
     {
         RectDrawRequest drawRequest;
@@ -389,16 +466,25 @@ namespace KevGui
 
 
 
-
-
-    bool TextButton(UIRect rect, const char* label)
+    bool Temp_TextButton(UIRect rect, const char* label)
     {
         bool buttonValue = DoButton(FreshID(), rect, vec4(0.18f, 0.18f, 0.18f, 1.f), vec4(0.08f, 0.08f, 0.08f, 1.f), vec4(0.06f, 0.06f, 0.06f, 1.f));
         DoTextUnformatted(label, rect.x + 10, rect.y + rect.h - 10, 16);
         return buttonValue;
     }
 
+    void Temp_IncrementableIntegerField(const char* label, int* v)
+    {
+        int x = 40;
+        int y = 100;
+        int w = 60;
+        int h = 20;
 
+        DoPanel(UIRect(x, y, 38, h), vec4(0.4f, 0.4f, 0.4f, 1.f));
+        DoButton(FreshID(), UIRect(x + 40, y + 1, 20, (h / 2) - 1), vec4(0.18f, 0.18f, 0.18f, 1.f), vec4(0.08f, 0.08f, 0.08f, 1.f), vec4(0.06f, 0.06f, 0.06f, 1.f));
+        DoButton(FreshID(), UIRect(x + 40, y + (h / 2) + 1, 20, (h / 2) - 1), vec4(0.18f, 0.18f, 0.18f, 1.f), vec4(0.08f, 0.08f, 0.08f, 1.f), vec4(0.06f, 0.06f, 0.06f, 1.f));
+        DoTextUnformatted(label, x + 62, y + h, 20);
+    }
 
 
 
@@ -427,9 +513,12 @@ namespace KevGui
         }
         anyElementHoveredThisFrame = false;
 
-        rectDrawRequestsBuffer.Clear();
-        corneredRectDrawRequestsBuffer.Clear();
-        textDrawRequestsBuffer.Clear();
+        rectDrawRequestsBuffer.ResetCount();
+        corneredRectDrawRequestsBuffer.ResetCount();
+        textDrawRequestsBuffer.ResetCount();
+
+        keyboardInputASCIIKeycodeThisFrame.ResetCount();
+        keyboardInputASCIIKeycodeThisFrame.ResetToZero();
 
         freshIdCounter = 0;
 
@@ -460,6 +549,13 @@ namespace KevGui
                 mouseUp = true;
                 mouseDown = false;
             }
+        }break;
+        case SDL_KEYDOWN:
+        {
+            SDL_KeyboardEvent keyevent = event.key;
+            SDL_Keycode keycodeASCII = keyevent.keysym.sym;
+            keycodeASCII = ModifyASCIIBasedOnModifiers(keycodeASCII, keyevent.keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT));
+            keyboardInputASCIIKeycodeThisFrame.PushBack(keycodeASCII);
         }break;
         }
     }

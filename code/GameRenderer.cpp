@@ -5,6 +5,7 @@
 #include <gmath.h>
 
 #include "Common.h"
+#include "Utils.h"
 #include "Engine.h"
 #include "Camera.h"
 #include "Console.h"

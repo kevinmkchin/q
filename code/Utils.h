@@ -11,3 +11,36 @@ void PickThreeRandomInts(int* x, int* y, int* z, int cap);
 int RandomInt(int min, int max);
 
 i32 ModifyASCIIBasedOnModifiers(i32 keycodeASCII, bool shift);
+
+template<typename T, int _count> struct NiceArray
+{
+    T data[_count] = {};
+    int count = 0;
+    const int capacity = _count;
+
+    void PushBack(T elem)
+    {
+        data[count] = elem;
+        ++count;
+    }
+
+    T& At(int index)
+    {
+        return *(data + index);
+    }
+
+    T& Back()
+    {
+        return *(data + count - 1);
+    }
+
+    void ResetCount()
+    {
+        count = 0;
+    }
+
+    void ResetToZero()
+    {
+        memset(data, 0, capacity * sizeof(*data));
+    }
+};

@@ -37,14 +37,18 @@ namespace KevGui
 
     bool DoButton(ui_id id, UIRect rect, vec4 normalColor, vec4 hoveredColor, vec4 activeColor);
 
-    bool TextButton(UIRect rect, const char* label);
-
     void DoText(int x, int y, int size, const char* textFmt, ...);
 
     void DoTextUnformatted(const char* text, int x, int y, int size/*, font*/);
 
     void DoImage(UIRect rect, u32 glTextureId = 0);
 
+    void DoIntegerField(ui_id id, UIRect rect, int* v);
+
+
+    bool Temp_TextButton(UIRect rect, const char* label);
+
+    void Temp_IncrementableIntegerField(const char* label, int* v);
 
     //void DoCheckbox(const char* label, );
     

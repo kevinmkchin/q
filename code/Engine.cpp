@@ -207,11 +207,11 @@ int EngineClass::Run()
     {
         if (Time.UpdateDeltaTime() > 0.1f) { continue; } // if delta time is too large, will cause glitches
 
+        KevGui::NewFrame();
+
         SDLProcessEvents();
 
         console_update(Time.unscaledDeltaTime);
-
-        KevGui::NewFrame();
 
         editorRuntime.UpdateEditor(); //game->Update();
         gfx->Render();
