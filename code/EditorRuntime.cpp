@@ -17,4 +17,6 @@ void EditorRuntime::UpdateEditor()
 	KevGui::DoPanel(KevGui::UIRect(drawableWidth - 300, 0, 300, drawableHeight), vec4(0.1f, 0.1f, 0.1f, 1.f));
 
 	KevGui::DoImage(KevGui::UIRect(drawableWidth - 280, 40, 250, 250), Resources.defaultMissingTexture.textureId);
+
+	KevGui::TextButton(KevGui::UIRect(drawableWidth - 280, 300, 250, 40), "Click me!");
 }

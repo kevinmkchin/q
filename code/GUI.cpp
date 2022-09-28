@@ -197,10 +197,33 @@ namespace KevGui
         }
     };
 
-    static std::vector<RectDrawRequest> rectDrawRequestsBuffer;
-    static std::vector<CorneredRectDrawRequest> corneredRectDrawRequestsBuffer;
-    static std::vector<TextDrawRequest> textDrawRequestsBuffer;
-    static std::queue<UIDrawRequest*> drawQueue;
+    template<typename T, int _count> struct DrawRequestsBuffer
+    {
+        T data[_count];
+        int count = 0;
+        const int capacity = _count;
+
+        void PushBack(T elem)
+        {
+            data[count] = elem;
+            ++count;
+        }
+
+        T& Back()
+        {
+            return *(data + count - 1);
+        }
+
+        void Clear()
+        {
+            count = 0;
+        }
+    };
+
+    DrawRequestsBuffer<RectDrawRequest, 256> rectDrawRequestsBuffer;
+    DrawRequestsBuffer<CorneredRectDrawRequest, 256> corneredRectDrawRequestsBuffer;
+    DrawRequestsBuffer<TextDrawRequest, 256> textDrawRequestsBuffer;
+    std::queue<UIDrawRequest*> drawQueue;
 
 
     static ui_id freshIdCounter = 0;
@@ -256,7 +279,7 @@ namespace KevGui
     }
 
 
-    bool DoButton(ui_id id, UIRect rect)
+    bool DoButton(ui_id id, UIRect rect, vec4 normalColor, vec4 hoveredColor, vec4 activeColor)
     {
         bool result = false;
 
@@ -286,15 +309,14 @@ namespace KevGui
 
         RectDrawRequest drawRequest;
         drawRequest.rect = rect;
-        drawRequest.color = IsHovered(id) ? vec4(0.5f,0.5f,0.5f,1.f) : vec4(1.f,1.f,1.f,1.f);
-        if (IsActive(id)) drawRequest.color = vec4(0.2f,0.2f,0.2f,1.f);
+        drawRequest.color = IsHovered(id) ? hoveredColor : normalColor;
+        if (IsActive(id)) drawRequest.color = activeColor;
 
-        rectDrawRequestsBuffer.push_back(drawRequest);
-        drawQueue.push(&rectDrawRequestsBuffer.back());
+        rectDrawRequestsBuffer.PushBack(drawRequest);
+        drawQueue.push(&rectDrawRequestsBuffer.Back());
 
         return result;
     }
-
 
     void DoPanel(UIRect rect, vec4 colorRGBA)
     {
@@ -302,8 +324,8 @@ namespace KevGui
         drawRequest.rect = rect;
         drawRequest.color = colorRGBA;
 
-        rectDrawRequestsBuffer.push_back(drawRequest);
-        drawQueue.push(&rectDrawRequestsBuffer.back());
+        rectDrawRequestsBuffer.PushBack(drawRequest);
+        drawQueue.push(&rectDrawRequestsBuffer.Back());
     }
 
     void DoPanel(UIRect rect, int cornerWidth, u32 glTextureId, float normalizedCornerSizeInUV)
@@ -315,8 +337,8 @@ namespace KevGui
         drawRequest.cornerWidth = cornerWidth;
         drawRequest.normalizedCornerSizeInUV = normalizedCornerSizeInUV;
 
-        corneredRectDrawRequestsBuffer.push_back(drawRequest);
-        drawQueue.push(&corneredRectDrawRequestsBuffer.back());
+        corneredRectDrawRequestsBuffer.PushBack(drawRequest);
+        drawQueue.push(&corneredRectDrawRequestsBuffer.Back());
     }
 
     void DoText(int x, int y, int size, const char* textFmt, ...)
@@ -347,8 +369,8 @@ namespace KevGui
         drawRequest.y = y;
         drawRequest.color = vec4(1.f, 1.f, 1.f, 1.f);
 
-        textDrawRequestsBuffer.push_back(drawRequest);
-        drawQueue.push(&textDrawRequestsBuffer.back());
+        textDrawRequestsBuffer.PushBack(drawRequest);
+        drawQueue.push(&textDrawRequestsBuffer.Back());
     }
 
     void DoImage(UIRect rect, u32 glTextureId)
@@ -360,9 +382,24 @@ namespace KevGui
         drawRequest.cornerWidth = 0;
         drawRequest.normalizedCornerSizeInUV = 0.f;
 
-        corneredRectDrawRequestsBuffer.push_back(drawRequest);
-        drawQueue.push(&corneredRectDrawRequestsBuffer.back());
+        corneredRectDrawRequestsBuffer.PushBack(drawRequest);
+        drawQueue.push(&corneredRectDrawRequestsBuffer.Back());
     }
+
+
+
+
+
+
+    bool TextButton(UIRect rect, const char* label)
+    {
+        bool buttonValue = DoButton(FreshID(), rect, vec4(0.18f, 0.18f, 0.18f, 1.f), vec4(0.08f, 0.08f, 0.08f, 1.f), vec4(0.06f, 0.06f, 0.06f, 1.f));
+        DoTextUnformatted(label, rect.x + 10, rect.y + rect.h - 10, 16);
+        return buttonValue;
+    }
+
+
+
 
 
     ui_id FreshID()
@@ -390,8 +427,9 @@ namespace KevGui
         }
         anyElementHoveredThisFrame = false;
 
-        rectDrawRequestsBuffer.clear();
-        corneredRectDrawRequestsBuffer.clear();
+        rectDrawRequestsBuffer.Clear();
+        corneredRectDrawRequestsBuffer.Clear();
+        textDrawRequestsBuffer.Clear();
 
         freshIdCounter = 0;
 
@@ -441,8 +479,8 @@ namespace KevGui
         while(!drawQueue.empty())
         {
             UIDrawRequest* drawCall = drawQueue.front();
-            drawQueue.pop();
             drawCall->Draw();
+            drawQueue.pop();
         }
     }
 

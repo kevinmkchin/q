@@ -35,7 +35,9 @@ namespace KevGui
 
     void DoPanel(UIRect rect, int cornerWidth, u32 glTextureId = 0, float normalizedCornerSizeInUV = 0.3f);
 
-    bool DoButton(ui_id id, UIRect rect);
+    bool DoButton(ui_id id, UIRect rect, vec4 normalColor, vec4 hoveredColor, vec4 activeColor);
+
+    bool TextButton(UIRect rect, const char* label);
 
     void DoText(int x, int y, int size, const char* textFmt, ...);
 
@@ -44,6 +46,7 @@ namespace KevGui
     void DoImage(UIRect rect, u32 glTextureId = 0);
 
 
+    //void DoCheckbox(const char* label, );
     
     // void DoEditorPanel();
 }
