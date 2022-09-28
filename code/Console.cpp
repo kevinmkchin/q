@@ -544,44 +544,7 @@ void console_keydown(SDL_KeyboardEvent& keyevent)
         }break;
     }
 
-    // CHECK MODIFIERS
-    if(keyevent.keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT))
-    {
-        if(97 <= keycode && keycode <= 122)
-        {
-            keycode -= 32;
-        }
-        else if(keycode == 50)
-        {
-            keycode = 64;
-        }
-        else if(49 <= keycode && keycode <= 53)
-        {
-            keycode -= 16;
-        }
-        else if(91 <= keycode && keycode <= 93)
-        {
-            keycode += 32;
-        }
-        else
-        {
-            switch(keycode)
-            {
-                case 48: { keycode = 41; } break;
-                case 54: { keycode = 94; } break;
-                case 55: { keycode = 38; } break;
-                case 56: { keycode = 42; } break;
-                case 57: { keycode = 40; } break;
-                case 45: { keycode = 95; } break;
-                case 61: { keycode = 43; } break;
-                case 39: { keycode = 34; } break;
-                case 59: { keycode = 58; } break;
-                case 44: { keycode = 60; } break;
-                case 46: { keycode = 62; } break;
-                case 47: { keycode = 63; } break;
-            }   
-        }
-    }
+    keycode = ModifyASCIIBasedOnModifiers(keycode, keyevent.keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT));
 
     // CHECK INPUT
     const int ASCII_SPACE = 32;
