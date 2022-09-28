@@ -312,101 +312,6 @@ namespace KevGui
         return result;
     }
 
-    void DoIntegerField(ui_id id, UIRect rect, int* v)
-    {
-        bool bSetInactiveAndReturnValue = false;
-
-        if (IsActive(id))
-        {
-            for (int i = 0; i < keyboardInputASCIIKeycodeThisFrame.count; ++i)
-            {
-                i32 keycodeASCII = keyboardInputASCIIKeycodeThisFrame.At(i);
-                if (48 <= keycodeASCII && keycodeASCII <= 57)
-                {
-                    if (activeTextInputBuffer.count == 1 && activeTextInputBuffer.At(0) == '0')
-                    {
-                        activeTextInputBuffer.At(0) = char(keycodeASCII);
-                    }
-                    else if(activeTextInputBuffer.count < 9) // just to prevent integers that are too big
-                    {
-                        activeTextInputBuffer.PushBack(char(keycodeASCII));
-                    }
-                }
-                else if (keycodeASCII == 45 /* minus sign */ && activeTextInputBuffer.count == 0)
-                {
-                    activeTextInputBuffer.PushBack(char(keycodeASCII));
-                }
-                else if (keycodeASCII == SDLK_RETURN)
-                {
-                    bSetInactiveAndReturnValue = true;
-                }
-                else if (keycodeASCII == SDLK_BACKSPACE)
-                {
-                    if (activeTextInputBuffer.count > 0)
-                    {
-                        activeTextInputBuffer.Back() = '\0';
-                        --activeTextInputBuffer.count;
-                    }
-                }
-            }
-
-            if (MouseWentDown() && !MouseInside(rect))
-            {
-                bSetInactiveAndReturnValue = true;
-            }
-        }
-        else if (IsHovered(id))
-        {
-            if (MouseWentDown())
-            {
-                std::string intValueAsString = std::to_string(*v);
-                activeTextInputBuffer.ResetToZero();
-                memcpy(activeTextInputBuffer.data, intValueAsString.c_str(), intValueAsString.size());
-                activeTextInputBuffer.count = (int) intValueAsString.size();
-                SetActive(id);
-            }
-        }
-
-        if (bSetInactiveAndReturnValue)
-        {
-            int inputtedInteger = 0;
-            bool inputIsNotEmpty = activeTextInputBuffer.count > 0;
-            bool onlyInputIsMinusSign = activeTextInputBuffer.count == 1 && activeTextInputBuffer.At(0) == '-';
-            if (inputIsNotEmpty && !onlyInputIsMinusSign)
-            {
-                inputtedInteger = std::stoi(activeTextInputBuffer.data);
-            }
-            *v = inputtedInteger;
-            activeTextInputBuffer.ResetCount();
-            activeTextInputBuffer.ResetToZero();
-            SetActive(null_ui_id);
-        }
-
-        if (MouseInside(rect))
-        {
-            SetHovered(id);
-        }
-
-        RectDrawRequest drawRequest;
-        drawRequest.rect = rect;
-        drawRequest.color = IsActive(id) ? vec4(0.f, 0.f, 0.f, 1.f) : vec4(0.2f, 0.2f, 0.2f, 1.f);//vec4(1.f, 1.f, 1.f, 1.f) : vec4(0.8f, 0.8f, 0.8f, 1.f);
-
-        rectDrawRequestsBuffer.PushBack(drawRequest);
-        drawQueue.push(&rectDrawRequestsBuffer.Back());
-
-        if (IsActive(id))
-        {
-            if (activeTextInputBuffer.count > 0)
-            {
-                DoText(rect.x + rect.w, rect.y + rect.h, 14, TextAlignment::Right, activeTextInputBuffer.data);
-            }
-        }
-        else
-        {
-            DoText(rect.x + rect.w, rect.y + rect.h, 14, TextAlignment::Right, std::to_string(*v).c_str());
-        }
-    }
-
     void DoPanel(UIRect rect, vec4 colorRGBA)
     {
         RectDrawRequest drawRequest;
@@ -476,6 +381,101 @@ namespace KevGui
         drawQueue.push(&corneredRectDrawRequestsBuffer.Back());
     }
 
+    void DoIntegerField(ui_id id, UIRect rect, int* v)
+    {
+        bool bSetInactiveAndReturnValue = false;
+
+        if (IsActive(id))
+        {
+            for (int i = 0; i < keyboardInputASCIIKeycodeThisFrame.count; ++i)
+            {
+                i32 keycodeASCII = keyboardInputASCIIKeycodeThisFrame.At(i);
+                if (48 <= keycodeASCII && keycodeASCII <= 57)
+                {
+                    if (activeTextInputBuffer.count == 1 && activeTextInputBuffer.At(0) == '0')
+                    {
+                        activeTextInputBuffer.At(0) = char(keycodeASCII);
+                    }
+                    else if (activeTextInputBuffer.count < 9) // just to prevent integers that are too big
+                    {
+                        activeTextInputBuffer.PushBack(char(keycodeASCII));
+                    }
+                }
+                else if (keycodeASCII == 45 /* minus sign */ && activeTextInputBuffer.count == 0)
+                {
+                    activeTextInputBuffer.PushBack(char(keycodeASCII));
+                }
+                else if (keycodeASCII == SDLK_RETURN)
+                {
+                    bSetInactiveAndReturnValue = true;
+                }
+                else if (keycodeASCII == SDLK_BACKSPACE)
+                {
+                    if (activeTextInputBuffer.count > 0)
+                    {
+                        activeTextInputBuffer.Back() = '\0';
+                        --activeTextInputBuffer.count;
+                    }
+                }
+            }
+
+            if (MouseWentDown() && !MouseInside(rect))
+            {
+                bSetInactiveAndReturnValue = true;
+            }
+        }
+        else if (IsHovered(id))
+        {
+            if (MouseWentDown())
+            {
+                std::string intValueAsString = std::to_string(*v);
+                activeTextInputBuffer.ResetToZero();
+                memcpy(activeTextInputBuffer.data, intValueAsString.c_str(), intValueAsString.size());
+                activeTextInputBuffer.count = (int)intValueAsString.size();
+                SetActive(id);
+            }
+        }
+
+        if (bSetInactiveAndReturnValue)
+        {
+            int inputtedInteger = 0;
+            bool inputIsNotEmpty = activeTextInputBuffer.count > 0;
+            bool onlyInputIsMinusSign = activeTextInputBuffer.count == 1 && activeTextInputBuffer.At(0) == '-';
+            if (inputIsNotEmpty && !onlyInputIsMinusSign)
+            {
+                inputtedInteger = std::stoi(activeTextInputBuffer.data);
+            }
+            *v = inputtedInteger;
+            activeTextInputBuffer.ResetCount();
+            activeTextInputBuffer.ResetToZero();
+            SetActive(null_ui_id);
+        }
+
+        if (MouseInside(rect))
+        {
+            SetHovered(id);
+        }
+
+        RectDrawRequest drawRequest;
+        drawRequest.rect = rect;
+        drawRequest.color = IsActive(id) ? vec4(0.f, 0.f, 0.f, 1.f) : vec4(0.2f, 0.2f, 0.2f, 1.f);//vec4(1.f, 1.f, 1.f, 1.f) : vec4(0.8f, 0.8f, 0.8f, 1.f);
+
+        rectDrawRequestsBuffer.PushBack(drawRequest);
+        drawQueue.push(&rectDrawRequestsBuffer.Back());
+
+        if (IsActive(id))
+        {
+            if (activeTextInputBuffer.count > 0)
+            {
+                DoText(rect.x + rect.w, rect.y + rect.h, 14, TextAlignment::Right, activeTextInputBuffer.data);
+            }
+        }
+        else
+        {
+            DoText(rect.x + rect.w, rect.y + rect.h, 14, TextAlignment::Right, std::to_string(*v).c_str());
+        }
+    }
+
 
 
 
@@ -494,8 +494,15 @@ namespace KevGui
         int h = 20;
 
         DoPanel(UIRect(x, y, 38, h), vec4(0.4f, 0.4f, 0.4f, 1.f));
-        DoButton(FreshID(), UIRect(x + 40, y + 1, 20, (h / 2) - 1), vec4(0.18f, 0.18f, 0.18f, 1.f), vec4(0.08f, 0.08f, 0.08f, 1.f), vec4(0.06f, 0.06f, 0.06f, 1.f));
-        DoButton(FreshID(), UIRect(x + 40, y + (h / 2) + 1, 20, (h / 2) - 1), vec4(0.18f, 0.18f, 0.18f, 1.f), vec4(0.08f, 0.08f, 0.08f, 1.f), vec4(0.06f, 0.06f, 0.06f, 1.f));
+        DoIntegerField(FreshID(), UIRect(x+1, y+1, 36, h-2), v);
+        if (DoButton(FreshID(), UIRect(x + 40, y + 1, 20, (h / 2) - 1), vec4(0.18f, 0.18f, 0.18f, 1.f), vec4(0.08f, 0.08f, 0.08f, 1.f), vec4(0.06f, 0.06f, 0.06f, 1.f)))
+        {
+            (*v)++;
+        }
+        if (DoButton(FreshID(), UIRect(x + 40, y + (h / 2) + 1, 20, (h / 2) - 1), vec4(0.18f, 0.18f, 0.18f, 1.f), vec4(0.08f, 0.08f, 0.08f, 1.f), vec4(0.06f, 0.06f, 0.06f, 1.f)))
+        {
+            (*v)--;
+        }
         DoTextUnformatted(label, x + 62, y + h, 20, TextAlignment::Left);
     }
 

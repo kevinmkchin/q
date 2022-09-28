@@ -22,7 +22,7 @@ void EditorRuntime::UpdateEditor()
 
 	KevGui::Temp_TextButton(KevGui::UIRect(drawableWidth - 280, 300, 250, 40), "Click me!");
 
-	//KevGui::Temp_IncrementableIntegerField("Xx", &num);
+	KevGui::Temp_IncrementableIntegerField("Some Integer", &num);
 
 	KevGui::DoIntegerField(KevGui::FreshID(), KevGui::UIRect(300, 300, 100, 25), &num);
 }
