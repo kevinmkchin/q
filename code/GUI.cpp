@@ -179,13 +179,25 @@ namespace KevGui
         int size = 8;
         int x = 0;
         int y = 0;
+        TextAlignment alignment = TextAlignment::Left;
 
         void Draw()
         {
             vtxt_setflags(VTXT_CREATE_INDEX_BUFFER);
             vtxt_clear_buffer();
             vtxt_move_cursor(x, y);
-            vtxt_append_line(text, __text_font.ptr, size);
+            switch (alignment)
+            {
+            case TextAlignment::Left:{
+                vtxt_append_line(text, __text_font.ptr, size);
+            }break;
+            case TextAlignment::Center:{
+                vtxt_append_line_centered(text, __text_font.ptr, size);
+            }break;
+            case TextAlignment::Right:{
+                vtxt_append_line_align_right(text, __text_font.ptr, size);
+            }break;
+            }
             vtxt_vertex_buffer _txt = vtxt_grab_buffer();
             __text_mesh.RebindBufferObjects(_txt.vertex_buffer, _txt.index_buffer, _txt.vertices_array_count, _txt.indices_array_count, GL_DYNAMIC_DRAW);
             vtxt_clear_buffer();
@@ -315,7 +327,7 @@ namespace KevGui
                     {
                         activeTextInputBuffer.At(0) = char(keycodeASCII);
                     }
-                    else
+                    else if(activeTextInputBuffer.count < 9) // just to prevent integers that are too big
                     {
                         activeTextInputBuffer.PushBack(char(keycodeASCII));
                     }
@@ -386,12 +398,12 @@ namespace KevGui
         {
             if (activeTextInputBuffer.count > 0)
             {
-                DoText(rect.x, rect.y + rect.h, 14, activeTextInputBuffer.data);
+                DoText(rect.x + rect.w, rect.y + rect.h, 14, TextAlignment::Right, activeTextInputBuffer.data);
             }
         }
         else
         {
-            DoText(rect.x, rect.y + rect.h, 14, std::to_string(*v).c_str());
+            DoText(rect.x + rect.w, rect.y + rect.h, 14, TextAlignment::Right, std::to_string(*v).c_str());
         }
     }
 
@@ -418,7 +430,7 @@ namespace KevGui
         drawQueue.push(&corneredRectDrawRequestsBuffer.Back());
     }
 
-    void DoText(int x, int y, int size, const char* textFmt, ...)
+    void DoText(int x, int y, int size, TextAlignment alignment, const char* textFmt, ...)
     {
 #if INTERNAL_BUILD & SLOW_BUILD
         if (__reservedFormattedTextMemIndexer >= ARRAY_COUNT(__reservedFormattedTextMem) / __formattedTextLineSizeBytes)
@@ -434,16 +446,17 @@ namespace KevGui
         va_end(argptr);
         ++__reservedFormattedTextMemIndexer;
 
-        DoTextUnformatted(formattedTextBuffer, x, y, size);
+        DoTextUnformatted(formattedTextBuffer, x, y, size, alignment);
     }
 
-    void DoTextUnformatted(const char* text, int x, int y, int size)
+    void DoTextUnformatted(const char* text, int x, int y, int size, TextAlignment alignment)
     {
         TextDrawRequest drawRequest;
         drawRequest.text = text;
         drawRequest.size = size;
         drawRequest.x = x;
         drawRequest.y = y;
+        drawRequest.alignment = alignment;
         drawRequest.color = vec4(1.f, 1.f, 1.f, 1.f);
 
         textDrawRequestsBuffer.PushBack(drawRequest);
@@ -469,7 +482,7 @@ namespace KevGui
     bool Temp_TextButton(UIRect rect, const char* label)
     {
         bool buttonValue = DoButton(FreshID(), rect, vec4(0.18f, 0.18f, 0.18f, 1.f), vec4(0.08f, 0.08f, 0.08f, 1.f), vec4(0.06f, 0.06f, 0.06f, 1.f));
-        DoTextUnformatted(label, rect.x + 10, rect.y + rect.h - 10, 16);
+        DoTextUnformatted(label, rect.x + 10, rect.y + rect.h - 10, 16, TextAlignment::Left);
         return buttonValue;
     }
 
@@ -483,7 +496,7 @@ namespace KevGui
         DoPanel(UIRect(x, y, 38, h), vec4(0.4f, 0.4f, 0.4f, 1.f));
         DoButton(FreshID(), UIRect(x + 40, y + 1, 20, (h / 2) - 1), vec4(0.18f, 0.18f, 0.18f, 1.f), vec4(0.08f, 0.08f, 0.08f, 1.f), vec4(0.06f, 0.06f, 0.06f, 1.f));
         DoButton(FreshID(), UIRect(x + 40, y + (h / 2) + 1, 20, (h / 2) - 1), vec4(0.18f, 0.18f, 0.18f, 1.f), vec4(0.08f, 0.08f, 0.08f, 1.f), vec4(0.06f, 0.06f, 0.06f, 1.f));
-        DoTextUnformatted(label, x + 62, y + h, 20);
+        DoTextUnformatted(label, x + 62, y + h, 20, TextAlignment::Left);
     }
 
 

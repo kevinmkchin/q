@@ -10,6 +10,13 @@ typedef int ui_id;
 
 namespace KevGui
 {
+    enum class TextAlignment
+    {
+        Left,
+        Center,
+        Right
+    };
+
     struct UIRect
     {
         UIRect() : x(0), y(0), w(0), h(0) {};
@@ -37,9 +44,9 @@ namespace KevGui
 
     bool DoButton(ui_id id, UIRect rect, vec4 normalColor, vec4 hoveredColor, vec4 activeColor);
 
-    void DoText(int x, int y, int size, const char* textFmt, ...);
+    void DoText(int x, int y, int size, TextAlignment alignment, const char* textFmt, ...);
 
-    void DoTextUnformatted(const char* text, int x, int y, int size/*, font*/);
+    void DoTextUnformatted(const char* text, int x, int y, int size, TextAlignment alignment);
 
     void DoImage(UIRect rect, u32 glTextureId = 0);
 

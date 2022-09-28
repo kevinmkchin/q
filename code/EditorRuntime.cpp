@@ -11,7 +11,7 @@ int num = 10;
 
 void EditorRuntime::UpdateEditor()
 {
-	KevGui::DoText(25, 40, 16, "EDITOR");
+	KevGui::DoText(25, 40, 16, KevGui::TextAlignment::Left, "EDITOR");
 
 	i32 drawableWidth;
 	i32 drawableHeight;

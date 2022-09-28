@@ -14,6 +14,10 @@ i32 ModifyASCIIBasedOnModifiers(i32 keycodeASCII, bool shift);
 
 template<typename T, int _count> struct NiceArray
 {
+    /** Nice array wrapper for when you want to keep track of how many active/relevant 
+        elements are in the array. Essentially a dynamic sized array/vector with a 
+        maximum defined capacity (s.t. it can be defined on stack or static storage). */
+
     T data[_count] = {};
     int count = 0;
     const int capacity = _count;
