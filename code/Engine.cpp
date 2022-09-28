@@ -1,3 +1,35 @@
+/**  TODO
+
+GUI
+- Float field
+- Button that repeatedly returns true if held
+- Incrementable float field
+- Checkbox
+
+- Auto formatting GUI window
+- Capture mouse click -> save visible window areas of previous frame
+
+- Dropdown
+- List
+- Selectable
+
+- make pretty
+- push pop style struct
+
+
+GAME & EDITOR
+- Mouse input
+- Editor handles like scene tooling
+
+- Asset management? do i need to?
+
+- Camera
+
+- get FPS display and debug info display stuff from XNGINE
+
+
+*/
+
 #include <iostream>
 
 #include <SDL.h>
