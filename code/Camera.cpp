@@ -6,46 +6,12 @@
 #include "GameRenderer.h"
 #include "Input.h"
 
-void GameCamera::CameraUpdate()
+void GameCamera::CameraUpdate(vec3 newPosition, float yawDelta, float pitchDelta)
 {
-    //if (bMouseControl)
-    //{
-    //    rotation.y /*yaw*/ -= ((float)gMouseDelta.x) * turnSpeed;
-    //    rotation.z /*pitch*/ -= ((float)gMouseDelta.y) * turnSpeed;
-    //}
+    rotation.y -= yawDelta * turnSpeed;
+    rotation.z -= pitchDelta * turnSpeed;
 
-    //if (gGamepadStates[0].isConnected)
-    //{
-    //    rotation.y -= gGamepadStates[0].rightThumbStickDir.x * turnSpeed * gDeltaTime * 1100.f;
-    //    rotation.z += gGamepadStates[0].rightThumbStickDir.y * turnSpeed * gDeltaTime * 1100.f;
-    //}
-
-    float moveSpeed = 1.f;
-
-    if (Input::IsKeyPressed(SDL_SCANCODE_W))
-    {
-        position += calculatedDirection * moveSpeed * Time.deltaTime;
-    }
-    if (Input::IsKeyPressed(SDL_SCANCODE_A))
-    {
-        position += -calculatedRight * moveSpeed * Time.deltaTime;
-    }
-    if (Input::IsKeyPressed(SDL_SCANCODE_S))
-    {
-        position += -calculatedDirection * moveSpeed * Time.deltaTime;
-    }
-    if (Input::IsKeyPressed(SDL_SCANCODE_D))
-    {
-        position += calculatedRight * moveSpeed * Time.deltaTime;
-    }
-    if (Input::IsKeyPressed(SDL_SCANCODE_Q))
-    {
-        position.y += -moveSpeed * Time.deltaTime;
-    }
-    if (Input::IsKeyPressed(SDL_SCANCODE_E))
-    {
-        position.y += moveSpeed * Time.deltaTime;
-    }
+    position = newPosition;
 
     if (rotation.z > 89.f)
     {
@@ -56,7 +22,6 @@ void GameCamera::CameraUpdate()
         rotation.z = -89.f;
     }
 
-    // Calcuate direction, right, and up vectors
     calculatedDirection = OrientationToDirection(EulerToQuat(rotation * GM_DEG2RAD));
     calculatedDirection = Normalize(calculatedDirection);
     calculatedRight = Normalize(Cross(calculatedDirection, GM_UP_VECTOR));

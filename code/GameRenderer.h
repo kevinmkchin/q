@@ -3,6 +3,7 @@
 #include "Common.h"
 #include "Resources.h"
 #include "Shader.h"
+#include "Camera.h"
 
 
 struct BasicFrameBuffer
@@ -62,5 +63,8 @@ private:
 
 private:
 	Mesh screenSizeQuad;
+
+public:
+	GameCamera* activeGameCamera;
 
 };

@@ -1,566 +1,591 @@
 #include "Input.h"
 
-#include <SDL.h>
-
 #include "Common.h"
+
+InputManager Input;
 
 //////////////////////////////////////////////////////////////////////
 // GAME SPECIFIC FUNCTIONS
 //////////////////////////////////////////////////////////////////////
 
-bool Input::GameUpHasBeenPressed()
+bool InputManager::GameUpHasBeenPressed()
 {
-    return Input::HasKeyBeenPressed(SDL_SCANCODE_UP)
-        || Input::GetGamepad(0).HasBeenPressed(GAMEPAD_DPAD_UP)
-        || Input::GetGamepad(0).leftThumbStickDelta.y > 0.5f;
+    return InputManager::HasKeyBeenPressed(SDL_SCANCODE_UP)
+        || InputManager::GetGamepad(0).HasBeenPressed(GAMEPAD_DPAD_UP)
+        || InputManager::GetGamepad(0).leftThumbStickDelta.y > 0.5f;
 }
 
-bool Input::GameDownHasBeenPressed()
+bool InputManager::GameDownHasBeenPressed()
 {
-    return Input::HasKeyBeenPressed(SDL_SCANCODE_DOWN)
-        || Input::GetGamepad(0).HasBeenPressed(GAMEPAD_DPAD_DOWN)
-        || Input::GetGamepad(0).leftThumbStickDelta.y < -0.5f;
+    return InputManager::HasKeyBeenPressed(SDL_SCANCODE_DOWN)
+        || InputManager::GetGamepad(0).HasBeenPressed(GAMEPAD_DPAD_DOWN)
+        || InputManager::GetGamepad(0).leftThumbStickDelta.y < -0.5f;
 }
 
-bool Input::GameLeftHasBeenPressed()
+bool InputManager::GameLeftHasBeenPressed()
 {
-    return Input::HasKeyBeenPressed(SDL_SCANCODE_LEFT)
-        || Input::GetGamepad(0).HasBeenPressed(GAMEPAD_DPAD_LEFT)
-        || Input::GetGamepad(0).leftThumbStickDelta.x > 0.5f;
+    return InputManager::HasKeyBeenPressed(SDL_SCANCODE_LEFT)
+        || InputManager::GetGamepad(0).HasBeenPressed(GAMEPAD_DPAD_LEFT)
+        || InputManager::GetGamepad(0).leftThumbStickDelta.x > 0.5f;
 }
 
-bool Input::GameRightHasBeenPressed()
+bool InputManager::GameRightHasBeenPressed()
 {
-    return Input::HasKeyBeenPressed(SDL_SCANCODE_RIGHT)
-        || Input::GetGamepad(0).HasBeenPressed(GAMEPAD_DPAD_RIGHT)
-        || Input::GetGamepad(0).leftThumbStickDelta.y < -0.5f;
+    return InputManager::HasKeyBeenPressed(SDL_SCANCODE_RIGHT)
+        || InputManager::GetGamepad(0).HasBeenPressed(GAMEPAD_DPAD_RIGHT)
+        || InputManager::GetGamepad(0).leftThumbStickDelta.y < -0.5f;
 }
 
-bool Input::GameUpIsPressed()
+bool InputManager::GameUpIsPressed()
 {
-    return Input::IsKeyPressed(SDL_SCANCODE_UP)
-        || Input::GetGamepad(0).IsPressed(GAMEPAD_DPAD_UP)
-        || Input::GetGamepad(0).leftThumbStickDir.y < -0.5f;
+    return InputManager::IsKeyPressed(SDL_SCANCODE_UP)
+        || InputManager::GetGamepad(0).IsPressed(GAMEPAD_DPAD_UP)
+        || InputManager::GetGamepad(0).leftThumbStickDir.y < -0.5f;
     // || dot(Input::GetGamepad(0).leftThumbStickDir, {0.f, 1.f}) < QUARTER_PI;
 }
 
-bool Input::GameDownIsPressed()
+bool InputManager::GameDownIsPressed()
 {
-    return Input::IsKeyPressed(SDL_SCANCODE_DOWN)
-        || Input::GetGamepad(0).IsPressed(GAMEPAD_DPAD_DOWN)
-        || Input::GetGamepad(0).leftThumbStickDir.y > 0.5f;
+    return InputManager::IsKeyPressed(SDL_SCANCODE_DOWN)
+        || InputManager::GetGamepad(0).IsPressed(GAMEPAD_DPAD_DOWN)
+        || InputManager::GetGamepad(0).leftThumbStickDir.y > 0.5f;
     // || dot(Input::GetGamepad(0).leftThumbStickDir, {0.f, -1.f}) < QUARTER_PI;
 }
 
-bool Input::GameLeftIsPressed()
+bool InputManager::GameLeftIsPressed()
 {
-    return Input::IsKeyPressed(SDL_SCANCODE_LEFT)
-        || Input::GetGamepad(0).IsPressed(GAMEPAD_DPAD_LEFT)
-        || Input::GetGamepad(0).leftThumbStickDir.x < -0.5f;
+    return InputManager::IsKeyPressed(SDL_SCANCODE_LEFT)
+        || InputManager::GetGamepad(0).IsPressed(GAMEPAD_DPAD_LEFT)
+        || InputManager::GetGamepad(0).leftThumbStickDir.x < -0.5f;
     // || dot(Input::GetGamepad(0).leftThumbStickDir, {1.f, 0.f}) < QUARTER_PI;
 }
 
-bool Input::GameRightIsPressed()
+bool InputManager::GameRightIsPressed()
 {
-    return Input::IsKeyPressed(SDL_SCANCODE_RIGHT)
-        || Input::GetGamepad(0).IsPressed(GAMEPAD_DPAD_RIGHT)
-        || Input::GetGamepad(0).leftThumbStickDir.x > 0.5f;
+    return InputManager::IsKeyPressed(SDL_SCANCODE_RIGHT)
+        || InputManager::GetGamepad(0).IsPressed(GAMEPAD_DPAD_RIGHT)
+        || InputManager::GetGamepad(0).leftThumbStickDir.x > 0.5f;
     // || dot(Input::GetGamepad(0).leftThumbStickDir, {-1.f, 0.f}) < QUARTER_PI;
 }
 
-bool Input::GameJumpHasBeenPressed()
+bool InputManager::GameJumpHasBeenPressed()
 {
-    return Input::HasKeyBeenPressed(SDL_SCANCODE_SPACE) || Input::GetGamepad(0).HasBeenPressed(GAMEPAD_A);
+    return InputManager::HasKeyBeenPressed(SDL_SCANCODE_SPACE) || InputManager::GetGamepad(0).HasBeenPressed(GAMEPAD_A);
 }
 
-bool Input::GameJumpHasBeenReleased()
+bool InputManager::GameJumpHasBeenReleased()
 {
-    return Input::HasKeyBeenReleased(SDL_SCANCODE_SPACE) || Input::GetGamepad(0).HasBeenReleased(GAMEPAD_A);
+    return InputManager::HasKeyBeenReleased(SDL_SCANCODE_SPACE) || InputManager::GetGamepad(0).HasBeenReleased(GAMEPAD_A);
 }
 
-bool Input::GameJumpIsPressed()
+bool InputManager::GameJumpIsPressed()
 {
-    return Input::IsKeyPressed(SDL_SCANCODE_SPACE) || Input::GetGamepad(0).IsPressed(GAMEPAD_A);
+    return InputManager::IsKeyPressed(SDL_SCANCODE_SPACE) || InputManager::GetGamepad(0).IsPressed(GAMEPAD_A);
 }
 
-bool Input::GameAttackHasBeenPressed()
+bool InputManager::GameAttackHasBeenPressed()
 {
-    return Input::HasKeyBeenPressed(SDL_SCANCODE_Z) || Input::GetGamepad(0).HasBeenPressed(GAMEPAD_X);
+    return InputManager::HasKeyBeenPressed(SDL_SCANCODE_Z) || InputManager::GetGamepad(0).HasBeenPressed(GAMEPAD_X);
 }
 
-bool Input::GamePickUpHasBeenPressed()
+bool InputManager::GamePickUpHasBeenPressed()
 {
-    return Input::HasKeyBeenPressed(SDL_SCANCODE_C) || Input::GetGamepad(0).HasBeenPressed(GAMEPAD_B);
+    return InputManager::HasKeyBeenPressed(SDL_SCANCODE_C) || InputManager::GetGamepad(0).HasBeenPressed(GAMEPAD_B);
 }
 
-bool Input::GamePauseHasBeenPressed()
+bool InputManager::GamePauseHasBeenPressed()
 {
-    return Input::HasKeyBeenPressed(SDL_SCANCODE_ESCAPE) || Input::GetGamepad(0).HasBeenPressed(GAMEPAD_START);
+    return InputManager::HasKeyBeenPressed(SDL_SCANCODE_ESCAPE) || InputManager::GetGamepad(0).HasBeenPressed(GAMEPAD_START);
 }
 
-bool Input::GameCycleItemLeftBeenPressed()
+bool InputManager::GameCycleItemLeftBeenPressed()
 {
-    return Input::GetGamepad(0).HasBeenPressed(GAMEPAD_LB); //Input::HasKeyBeenPressed(SDL_SCANCODE_Q) || 
+    return InputManager::GetGamepad(0).HasBeenPressed(GAMEPAD_LB); //Input::HasKeyBeenPressed(SDL_SCANCODE_Q) || 
 }
 
-bool Input::GameCycleItemRightBeenPressed()
+bool InputManager::GameCycleItemRightBeenPressed()
 {
-    return Input::HasKeyBeenPressed(SDL_SCANCODE_X) || Input::GetGamepad(0).HasBeenPressed(GAMEPAD_RB);
+    return InputManager::HasKeyBeenPressed(SDL_SCANCODE_X) || InputManager::GetGamepad(0).HasBeenPressed(GAMEPAD_RB);
 }
 
-bool Input::GameInteractButtonHasBeenPressed()
+bool InputManager::GameInteractButtonHasBeenPressed()
 {
-    return Input::GameUpHasBeenPressed();
+    return InputManager::GameUpHasBeenPressed();
 }
 
 //////////////////////////////////////////////////////////////////////
 // GENERIC CLASSES AND FUNCTIONS BELOW
 //////////////////////////////////////////////////////////////////////
 
-/** Input States **/
-// Keyboard State - Access via SDL_Scancode https://wiki.libsdl.org/SDL_Scancode
-INTERNAL u8 gCurrentKeyState[256];
-INTERNAL u8 gJustPressedKeyState[256];
-INTERNAL u8 gJustReleasedKeyState[256];
-// Gamepad State - Look inside GamepadStatesWrapper and GamepadStates
-INTERNAL Input::GamepadStatesWrapper gGamepadStates;
-
-INTERNAL bool invertYAxis = false;
-INTERNAL i16 SDL_JOYSTICK_DEAD_ZONE = 8000;
-INTERNAL i16 SDL_JOYSTICK_MAX = 32767;
-
-namespace Input {
-
-    /** Keyboard **/
-    bool IsKeyPressed(SDL_Scancode scancode)
+/** Global **/
+void InputManager::ProcessAllSDLInputEvents(const SDL_Event event)
+{
+    switch (event.type)
     {
-        return gCurrentKeyState[scancode];
+        case SDL_MOUSEBUTTONUP | SDL_MOUSEBUTTONDOWN: {
+            ProcessSDLMouseButtonEvent(event.button);
+        }break;
+        case SDL_MOUSEMOTION: {
+            ProcessSDLMouseMotionEvent(event.motion);
+        }break;
+        case SDL_KEYDOWN: {
+            ProcessSDLKeyDownEvent(event.key);
+        }break;
+        case SDL_KEYUP: {
+            ProcessSDLKeyUpEvent(event.key);
+        }break;
+        case SDL_CONTROLLERBUTTONDOWN: {
+            ProcessSDLControllerButtonDownEvent(event.cbutton);
+        }break;
+        case SDL_CONTROLLERBUTTONUP: {
+            ProcessSDLControllerButtonUpEvent(event.cbutton);
+        }break;
+        case SDL_CONTROLLERAXISMOTION: {
+            ProcessSDLControllerAxisEvent(event.caxis);
+        }break;
+        case SDL_CONTROLLERDEVICEADDED: {
+            ProcessSDLControllerConnected(event.cdevice.which);
+        }break;
+        case SDL_CONTROLLERDEVICEREMOVED: {
+            ProcessSDLControllerRemoved(event.cdevice.which);
+        }break;
     }
+}
 
-    bool IsKeyReleased(SDL_Scancode scancode)
-    {
-        return !IsKeyPressed(scancode);
+void InputManager::ResetInputStatesAtEndOfFrame()
+{
+    mouseDelta = vec2(0.f, 0.f);
+
+    memset(justPressedKeyState, 0, 256);
+    memset(justReleasedKeyState, 0, 256);
+
+    for (int i = 0; i < MAX_GAMEPAD_COUNT; ++i) {
+        gamepadStates[i].justPressedButtonState = 0;
+        gamepadStates[i].justReleasedButtonState = 0;
     }
+}
 
-    bool HasKeyBeenPressed(SDL_Scancode scancode)
-    {
-        return gJustPressedKeyState[scancode];
+
+
+void InputManager::ProcessSDLMouseButtonEvent(SDL_MouseButtonEvent mouseButtonEvent)
+{
+    if (mouseButtonEvent.button == SDL_BUTTON_LEFT) mouseLMBPressed = mouseButtonEvent.type == SDL_MOUSEBUTTONDOWN;
+    if (mouseButtonEvent.button == SDL_BUTTON_RIGHT) mouseRMBPressed = mouseButtonEvent.type == SDL_MOUSEBUTTONDOWN;
+    if (mouseButtonEvent.button == SDL_BUTTON_MIDDLE) mouseMMBPressed = mouseButtonEvent.type == SDL_MOUSEBUTTONDOWN;
+}
+
+void InputManager::ProcessSDLMouseMotionEvent(SDL_MouseMotionEvent mouseMotionEvent)
+{
+    mouseDelta = vec2((float)mouseMotionEvent.xrel, (float)mouseMotionEvent.yrel);
+}
+
+
+bool InputManager::IsKeyPressed(SDL_Scancode scancode)
+{
+    return currentKeyState[scancode];
+}
+
+bool InputManager::IsKeyReleased(SDL_Scancode scancode)
+{
+    return !IsKeyPressed(scancode);
+}
+
+bool InputManager::HasKeyBeenPressed(SDL_Scancode scancode)
+{
+    return justPressedKeyState[scancode];
+}
+
+bool InputManager::HasKeyBeenReleased(SDL_Scancode scancode)
+{
+    return justReleasedKeyState[scancode];
+}
+
+void InputManager::ProcessSDLKeyDownEvent(SDL_KeyboardEvent keyEvent) {
+    SDL_Scancode key = keyEvent.keysym.scancode;
+    currentKeyState[key] = 1;
+    if (!keyEvent.repeat) {
+        justPressedKeyState[key] = 1;
     }
+}
 
-    bool HasKeyBeenReleased(SDL_Scancode scancode)
-    {
-        return gJustReleasedKeyState[scancode];
+void InputManager::ProcessSDLKeyUpEvent(SDL_KeyboardEvent keyEvent) {
+    // Never set JustPressed or JustReleased to 0 here.
+    SDL_Scancode key = keyEvent.keysym.scancode;
+    currentKeyState[key] = 0;
+    justReleasedKeyState[key] = 1;
+}
+
+GamepadState& InputManager::GetGamepad(i32 playerNumber)
+{
+    return gamepadStates[playerNumber];
+}
+
+void InputManager::ProcessSDLControllerButtonDownEvent(SDL_ControllerButtonEvent gamepadButtonEvent) {
+    /* SDL_GameControllerButton reference:
+    SDL_CONTROLLER_BUTTON_A 0
+    SDL_CONTROLLER_BUTTON_B 1
+    SDL_CONTROLLER_BUTTON_X 2
+    SDL_CONTROLLER_BUTTON_Y 3
+    SDL_CONTROLLER_BUTTON_BACK 4
+    SDL_CONTROLLER_BUTTON_GUIDE 5
+    SDL_CONTROLLER_BUTTON_START 6
+    SDL_CONTROLLER_BUTTON_LEFTSTICK 7
+    SDL_CONTROLLER_BUTTON_RIGHTSTICK 8
+    SDL_CONTROLLER_BUTTON_LEFTSHOULDER 9
+    SDL_CONTROLLER_BUTTON_RIGHTSHOULDER 10
+    SDL_CONTROLLER_BUTTON_DPAD_UP 11
+    SDL_CONTROLLER_BUTTON_DPAD_DOWN 12
+    SDL_CONTROLLER_BUTTON_DPAD_LEFT 13
+    SDL_CONTROLLER_BUTTON_DPAD_RIGHT 14
+    */
+
+    i32 joystickInstanceID = gamepadButtonEvent.which;
+    i32 gamepadIndex = gamepadStates.GamepadIndexFromInstanceID(joystickInstanceID);
+    u8 buttonIndex = gamepadButtonEvent.button;
+
+    switch (buttonIndex) {
+    case 0: {
+        gamepadStates[gamepadIndex].currentButtonState |= GAMEPAD_A;
+        gamepadStates[gamepadIndex].justPressedButtonState |= GAMEPAD_A;
     }
+            break;
+    case 1: {
+        gamepadStates[gamepadIndex].currentButtonState |= GAMEPAD_B;
+        gamepadStates[gamepadIndex].justPressedButtonState |= GAMEPAD_B;
+    }
+            break;
+    case 2: {
+        gamepadStates[gamepadIndex].currentButtonState |= GAMEPAD_X;
+        gamepadStates[gamepadIndex].justPressedButtonState |= GAMEPAD_X;
+    }
+            break;
+    case 3: {
+        gamepadStates[gamepadIndex].currentButtonState |= GAMEPAD_Y;
+        gamepadStates[gamepadIndex].justPressedButtonState |= GAMEPAD_Y;
+    }
+            break;
+    case 4: {
+        gamepadStates[gamepadIndex].currentButtonState |= GAMEPAD_BACK;
+        gamepadStates[gamepadIndex].justPressedButtonState |= GAMEPAD_BACK;
+    }
+            break;
+    case 6: {
+        gamepadStates[gamepadIndex].currentButtonState |= GAMEPAD_START;
+        gamepadStates[gamepadIndex].justPressedButtonState |= GAMEPAD_START;
+    }
+            break;
+    case 7: {
+        gamepadStates[gamepadIndex].currentButtonState |= GAMEPAD_LTHUMB;
+        gamepadStates[gamepadIndex].justPressedButtonState |= GAMEPAD_LTHUMB;
+    }
+            break;
+    case 8: {
+        gamepadStates[gamepadIndex].currentButtonState |= GAMEPAD_RTHUMB;
+        gamepadStates[gamepadIndex].justPressedButtonState |= GAMEPAD_RTHUMB;
+    }
+            break;
+    case 9: {
+        gamepadStates[gamepadIndex].currentButtonState |= GAMEPAD_LB;
+        gamepadStates[gamepadIndex].justPressedButtonState |= GAMEPAD_LB;
+    }
+            break;
+    case 10: {
+        gamepadStates[gamepadIndex].currentButtonState |= GAMEPAD_RB;
+        gamepadStates[gamepadIndex].justPressedButtonState |= GAMEPAD_RB;
+    }
+            break;
+    case 11: {
+        gamepadStates[gamepadIndex].currentButtonState |= GAMEPAD_DPAD_UP;
+        gamepadStates[gamepadIndex].justPressedButtonState |= GAMEPAD_DPAD_UP;
+    }
+            break;
+    case 12: {
+        gamepadStates[gamepadIndex].currentButtonState |= GAMEPAD_DPAD_DOWN;
+        gamepadStates[gamepadIndex].justPressedButtonState |= GAMEPAD_DPAD_DOWN;
+    }
+            break;
+    case 13: {
+        gamepadStates[gamepadIndex].currentButtonState |= GAMEPAD_DPAD_LEFT;
+        gamepadStates[gamepadIndex].justPressedButtonState |= GAMEPAD_DPAD_LEFT;
+    }
+            break;
+    case 14: {
+        gamepadStates[gamepadIndex].currentButtonState |= GAMEPAD_DPAD_RIGHT;
+        gamepadStates[gamepadIndex].justPressedButtonState |= GAMEPAD_DPAD_RIGHT;
+    }
+            break;
+    }
+}
 
-    void ProcessSDLKeyDownEvent(SDL_KeyboardEvent keyEvent) {
-        SDL_Scancode key = keyEvent.keysym.scancode;
-        gCurrentKeyState[key] = 1;
-        if (!keyEvent.repeat) {
-            gJustPressedKeyState[key] = 1;
+void InputManager::ProcessSDLControllerButtonUpEvent(SDL_ControllerButtonEvent gamepadButtonEvent) {
+    i32 joystickInstanceID = gamepadButtonEvent.which;
+    i32 gamepadIndex = gamepadStates.GamepadIndexFromInstanceID(joystickInstanceID);
+    u8 buttonIndex = gamepadButtonEvent.button;
+
+    switch (buttonIndex) {
+    case 0: {
+        gamepadStates[gamepadIndex].currentButtonState ^= GAMEPAD_A;
+        gamepadStates[gamepadIndex].justReleasedButtonState |= GAMEPAD_A;
+    }
+            break;
+    case 1: {
+        gamepadStates[gamepadIndex].currentButtonState ^= GAMEPAD_B;
+        gamepadStates[gamepadIndex].justReleasedButtonState |= GAMEPAD_B;
+    }
+            break;
+    case 2: {
+        gamepadStates[gamepadIndex].currentButtonState ^= GAMEPAD_X;
+        gamepadStates[gamepadIndex].justReleasedButtonState |= GAMEPAD_X;
+    }
+            break;
+    case 3: {
+        gamepadStates[gamepadIndex].currentButtonState ^= GAMEPAD_Y;
+        gamepadStates[gamepadIndex].justReleasedButtonState |= GAMEPAD_Y;
+    }
+            break;
+    case 4: {
+        gamepadStates[gamepadIndex].currentButtonState ^= GAMEPAD_BACK;
+        gamepadStates[gamepadIndex].justReleasedButtonState |= GAMEPAD_BACK;
+    }
+            break;
+    case 6: {
+        gamepadStates[gamepadIndex].currentButtonState ^= GAMEPAD_START;
+        gamepadStates[gamepadIndex].justReleasedButtonState |= GAMEPAD_START;
+    }
+            break;
+    case 7: {
+        gamepadStates[gamepadIndex].currentButtonState ^= GAMEPAD_LTHUMB;
+        gamepadStates[gamepadIndex].justReleasedButtonState |= GAMEPAD_LTHUMB;
+    }
+            break;
+    case 8: {
+        gamepadStates[gamepadIndex].currentButtonState ^= GAMEPAD_RTHUMB;
+        gamepadStates[gamepadIndex].justReleasedButtonState |= GAMEPAD_RTHUMB;
+    }
+            break;
+    case 9: {
+        gamepadStates[gamepadIndex].currentButtonState ^= GAMEPAD_LB;
+        gamepadStates[gamepadIndex].justReleasedButtonState |= GAMEPAD_LB;
+    }
+            break;
+    case 10: {
+        gamepadStates[gamepadIndex].currentButtonState ^= GAMEPAD_RB;
+        gamepadStates[gamepadIndex].justReleasedButtonState |= GAMEPAD_RB;
+    }
+            break;
+    case 11: {
+        gamepadStates[gamepadIndex].currentButtonState ^= GAMEPAD_DPAD_UP;
+        gamepadStates[gamepadIndex].justReleasedButtonState |= GAMEPAD_DPAD_UP;
+    }
+            break;
+    case 12: {
+        gamepadStates[gamepadIndex].currentButtonState ^= GAMEPAD_DPAD_DOWN;
+        gamepadStates[gamepadIndex].justReleasedButtonState |= GAMEPAD_DPAD_DOWN;
+    }
+            break;
+    case 13: {
+        gamepadStates[gamepadIndex].currentButtonState ^= GAMEPAD_DPAD_LEFT;
+        gamepadStates[gamepadIndex].justReleasedButtonState |= GAMEPAD_DPAD_LEFT;
+    }
+            break;
+    case 14: {
+        gamepadStates[gamepadIndex].currentButtonState ^= GAMEPAD_DPAD_RIGHT;
+        gamepadStates[gamepadIndex].justReleasedButtonState |= GAMEPAD_DPAD_RIGHT;
+    }
+            break;
+    }
+}
+
+void InputManager::ProcessSDLControllerAxisEvent(SDL_ControllerAxisEvent gamepadAxisEvent) {
+    i32 joystickInstanceID = gamepadAxisEvent.which;
+    i32 gamepadIndex = gamepadStates.GamepadIndexFromInstanceID(joystickInstanceID);
+    u8 axisIndex = gamepadAxisEvent.axis;
+    i16 axisValue = gamepadAxisEvent.value;
+
+    switch (axisIndex) {
+    case SDL_CONTROLLER_AXIS_LEFTX: {
+        if (GM_abs(axisValue) > SDL_JOYSTICK_DEAD_ZONE) {
+            vec2 leftAxisDir = gamepadStates[gamepadIndex].leftThumbStickDir * (float)SDL_JOYSTICK_MAX;
+            float oldX = leftAxisDir.x;
+            leftAxisDir.x = (float)axisValue;
+            leftAxisDir /= (float)SDL_JOYSTICK_MAX;
+            gamepadStates[gamepadIndex].leftThumbStickDir = leftAxisDir;
+
+            vec2 leftAxisDelta = gamepadStates[gamepadIndex].leftThumbStickDelta;
+            leftAxisDelta.x = leftAxisDir.x - oldX;
+            gamepadStates[gamepadIndex].leftThumbStickDelta = leftAxisDelta / (float)SDL_JOYSTICK_MAX;
+        }
+        else {
+            float oldX = gamepadStates[gamepadIndex].leftThumbStickDir.x * (float)SDL_JOYSTICK_MAX;
+            gamepadStates[gamepadIndex].leftThumbStickDir.x = 0.f;
+
+            vec2 leftAxisDelta = gamepadStates[gamepadIndex].leftThumbStickDelta;
+            leftAxisDelta.x = -oldX;
+            gamepadStates[gamepadIndex].leftThumbStickDelta = leftAxisDelta / (float)SDL_JOYSTICK_MAX;
         }
     }
+                                    break;
+    case SDL_CONTROLLER_AXIS_LEFTY: {
+        if (GM_abs(axisValue) > SDL_JOYSTICK_DEAD_ZONE) {
+            vec2 leftAxisDir = gamepadStates[gamepadIndex].leftThumbStickDir * (float)SDL_JOYSTICK_MAX;
+            float oldY = leftAxisDir.y;
+            leftAxisDir.y = (float)(invertYAxis ? -axisValue : axisValue);
+            leftAxisDir /= (float)SDL_JOYSTICK_MAX;
+            gamepadStates[gamepadIndex].leftThumbStickDir = leftAxisDir;
 
-    void ProcessSDLKeyUpEvent(SDL_KeyboardEvent keyEvent) {
-        // Never set JustPressed or JustReleased to 0 here.
-        SDL_Scancode key = keyEvent.keysym.scancode;
-        gCurrentKeyState[key] = 0;
-        gJustReleasedKeyState[key] = 1;
-    }
+            vec2 leftAxisDelta = gamepadStates[gamepadIndex].leftThumbStickDelta;
+            leftAxisDelta.y = leftAxisDir.y - oldY;
+            gamepadStates[gamepadIndex].leftThumbStickDelta = leftAxisDelta / (float)SDL_JOYSTICK_MAX;
+        }
+        else {
+            float oldY = gamepadStates[gamepadIndex].leftThumbStickDir.y * (float)SDL_JOYSTICK_MAX;
+            gamepadStates[gamepadIndex].leftThumbStickDir.y = 0.f;
 
-    void ResetKeyboardStates() {
-        memset(gJustPressedKeyState, 0, 256);
-        memset(gJustReleasedKeyState, 0, 256);
-    }
-
-
-    /** Gamepad **/
-
-    GamepadState& GetGamepad(i32 playerNumber)
-    {
-        return gGamepadStates[playerNumber];
-    }
-
-    void ProcessSDLControllerButtonDownEvent(SDL_ControllerButtonEvent gamepadButtonEvent) {
-        /* SDL_GameControllerButton reference:
-        SDL_CONTROLLER_BUTTON_A 0
-        SDL_CONTROLLER_BUTTON_B 1
-        SDL_CONTROLLER_BUTTON_X 2
-        SDL_CONTROLLER_BUTTON_Y 3
-        SDL_CONTROLLER_BUTTON_BACK 4
-        SDL_CONTROLLER_BUTTON_GUIDE 5
-        SDL_CONTROLLER_BUTTON_START 6
-        SDL_CONTROLLER_BUTTON_LEFTSTICK 7
-        SDL_CONTROLLER_BUTTON_RIGHTSTICK 8
-        SDL_CONTROLLER_BUTTON_LEFTSHOULDER 9
-        SDL_CONTROLLER_BUTTON_RIGHTSHOULDER 10
-        SDL_CONTROLLER_BUTTON_DPAD_UP 11
-        SDL_CONTROLLER_BUTTON_DPAD_DOWN 12
-        SDL_CONTROLLER_BUTTON_DPAD_LEFT 13
-        SDL_CONTROLLER_BUTTON_DPAD_RIGHT 14
-        */
-
-        i32 joystickInstanceID = gamepadButtonEvent.which;
-        i32 gamepadIndex = gGamepadStates.GamepadIndexFromInstanceID(joystickInstanceID);
-        u8 buttonIndex = gamepadButtonEvent.button;
-
-        switch (buttonIndex) {
-        case 0: {
-            gGamepadStates[gamepadIndex].currentButtonState |= GAMEPAD_A;
-            gGamepadStates[gamepadIndex].justPressedButtonState |= GAMEPAD_A;
-        }
-              break;
-        case 1: {
-            gGamepadStates[gamepadIndex].currentButtonState |= GAMEPAD_B;
-            gGamepadStates[gamepadIndex].justPressedButtonState |= GAMEPAD_B;
-        }
-              break;
-        case 2: {
-            gGamepadStates[gamepadIndex].currentButtonState |= GAMEPAD_X;
-            gGamepadStates[gamepadIndex].justPressedButtonState |= GAMEPAD_X;
-        }
-              break;
-        case 3: {
-            gGamepadStates[gamepadIndex].currentButtonState |= GAMEPAD_Y;
-            gGamepadStates[gamepadIndex].justPressedButtonState |= GAMEPAD_Y;
-        }
-              break;
-        case 4: {
-            gGamepadStates[gamepadIndex].currentButtonState |= GAMEPAD_BACK;
-            gGamepadStates[gamepadIndex].justPressedButtonState |= GAMEPAD_BACK;
-        }
-              break;
-        case 6: {
-            gGamepadStates[gamepadIndex].currentButtonState |= GAMEPAD_START;
-            gGamepadStates[gamepadIndex].justPressedButtonState |= GAMEPAD_START;
-        }
-              break;
-        case 7: {
-            gGamepadStates[gamepadIndex].currentButtonState |= GAMEPAD_LTHUMB;
-            gGamepadStates[gamepadIndex].justPressedButtonState |= GAMEPAD_LTHUMB;
-        }
-              break;
-        case 8: {
-            gGamepadStates[gamepadIndex].currentButtonState |= GAMEPAD_RTHUMB;
-            gGamepadStates[gamepadIndex].justPressedButtonState |= GAMEPAD_RTHUMB;
-        }
-              break;
-        case 9: {
-            gGamepadStates[gamepadIndex].currentButtonState |= GAMEPAD_LB;
-            gGamepadStates[gamepadIndex].justPressedButtonState |= GAMEPAD_LB;
-        }
-              break;
-        case 10: {
-            gGamepadStates[gamepadIndex].currentButtonState |= GAMEPAD_RB;
-            gGamepadStates[gamepadIndex].justPressedButtonState |= GAMEPAD_RB;
-        }
-               break;
-        case 11: {
-            gGamepadStates[gamepadIndex].currentButtonState |= GAMEPAD_DPAD_UP;
-            gGamepadStates[gamepadIndex].justPressedButtonState |= GAMEPAD_DPAD_UP;
-        }
-               break;
-        case 12: {
-            gGamepadStates[gamepadIndex].currentButtonState |= GAMEPAD_DPAD_DOWN;
-            gGamepadStates[gamepadIndex].justPressedButtonState |= GAMEPAD_DPAD_DOWN;
-        }
-               break;
-        case 13: {
-            gGamepadStates[gamepadIndex].currentButtonState |= GAMEPAD_DPAD_LEFT;
-            gGamepadStates[gamepadIndex].justPressedButtonState |= GAMEPAD_DPAD_LEFT;
-        }
-               break;
-        case 14: {
-            gGamepadStates[gamepadIndex].currentButtonState |= GAMEPAD_DPAD_RIGHT;
-            gGamepadStates[gamepadIndex].justPressedButtonState |= GAMEPAD_DPAD_RIGHT;
-        }
-               break;
+            vec2 leftAxisDelta = gamepadStates[gamepadIndex].leftThumbStickDelta;
+            leftAxisDelta.y = -oldY;
+            gamepadStates[gamepadIndex].leftThumbStickDelta = leftAxisDelta / (float)SDL_JOYSTICK_MAX;
         }
     }
+                                    break;
+    case SDL_CONTROLLER_AXIS_RIGHTX: {
+        if (GM_abs(axisValue) > SDL_JOYSTICK_DEAD_ZONE) {
+            vec2 rightAxisDir = gamepadStates[gamepadIndex].rightThumbStickDir * (float)SDL_JOYSTICK_MAX;
+            float oldX = rightAxisDir.x;
+            rightAxisDir.x = (float)axisValue;
+            rightAxisDir /= (float)SDL_JOYSTICK_MAX;
+            gamepadStates[gamepadIndex].rightThumbStickDir = rightAxisDir;
 
-    void ProcessSDLControllerButtonUpEvent(SDL_ControllerButtonEvent gamepadButtonEvent) {
-        i32 joystickInstanceID = gamepadButtonEvent.which;
-        i32 gamepadIndex = gGamepadStates.GamepadIndexFromInstanceID(joystickInstanceID);
-        u8 buttonIndex = gamepadButtonEvent.button;
+            vec2 rightAxisDelta = gamepadStates[gamepadIndex].rightThumbStickDelta;
+            rightAxisDelta.x = rightAxisDir.x - oldX;
+            gamepadStates[gamepadIndex].leftThumbStickDelta = rightAxisDelta / (float)SDL_JOYSTICK_MAX;
+        }
+        else {
+            float oldX = gamepadStates[gamepadIndex].rightThumbStickDir.x * (float)SDL_JOYSTICK_MAX;
+            gamepadStates[gamepadIndex].rightThumbStickDir.x = 0.f;
 
-        switch (buttonIndex) {
-        case 0: {
-            gGamepadStates[gamepadIndex].currentButtonState ^= GAMEPAD_A;
-            gGamepadStates[gamepadIndex].justReleasedButtonState |= GAMEPAD_A;
-        }
-              break;
-        case 1: {
-            gGamepadStates[gamepadIndex].currentButtonState ^= GAMEPAD_B;
-            gGamepadStates[gamepadIndex].justReleasedButtonState |= GAMEPAD_B;
-        }
-              break;
-        case 2: {
-            gGamepadStates[gamepadIndex].currentButtonState ^= GAMEPAD_X;
-            gGamepadStates[gamepadIndex].justReleasedButtonState |= GAMEPAD_X;
-        }
-              break;
-        case 3: {
-            gGamepadStates[gamepadIndex].currentButtonState ^= GAMEPAD_Y;
-            gGamepadStates[gamepadIndex].justReleasedButtonState |= GAMEPAD_Y;
-        }
-              break;
-        case 4: {
-            gGamepadStates[gamepadIndex].currentButtonState ^= GAMEPAD_BACK;
-            gGamepadStates[gamepadIndex].justReleasedButtonState |= GAMEPAD_BACK;
-        }
-              break;
-        case 6: {
-            gGamepadStates[gamepadIndex].currentButtonState ^= GAMEPAD_START;
-            gGamepadStates[gamepadIndex].justReleasedButtonState |= GAMEPAD_START;
-        }
-              break;
-        case 7: {
-            gGamepadStates[gamepadIndex].currentButtonState ^= GAMEPAD_LTHUMB;
-            gGamepadStates[gamepadIndex].justReleasedButtonState |= GAMEPAD_LTHUMB;
-        }
-              break;
-        case 8: {
-            gGamepadStates[gamepadIndex].currentButtonState ^= GAMEPAD_RTHUMB;
-            gGamepadStates[gamepadIndex].justReleasedButtonState |= GAMEPAD_RTHUMB;
-        }
-              break;
-        case 9: {
-            gGamepadStates[gamepadIndex].currentButtonState ^= GAMEPAD_LB;
-            gGamepadStates[gamepadIndex].justReleasedButtonState |= GAMEPAD_LB;
-        }
-              break;
-        case 10: {
-            gGamepadStates[gamepadIndex].currentButtonState ^= GAMEPAD_RB;
-            gGamepadStates[gamepadIndex].justReleasedButtonState |= GAMEPAD_RB;
-        }
-               break;
-        case 11: {
-            gGamepadStates[gamepadIndex].currentButtonState ^= GAMEPAD_DPAD_UP;
-            gGamepadStates[gamepadIndex].justReleasedButtonState |= GAMEPAD_DPAD_UP;
-        }
-               break;
-        case 12: {
-            gGamepadStates[gamepadIndex].currentButtonState ^= GAMEPAD_DPAD_DOWN;
-            gGamepadStates[gamepadIndex].justReleasedButtonState |= GAMEPAD_DPAD_DOWN;
-        }
-               break;
-        case 13: {
-            gGamepadStates[gamepadIndex].currentButtonState ^= GAMEPAD_DPAD_LEFT;
-            gGamepadStates[gamepadIndex].justReleasedButtonState |= GAMEPAD_DPAD_LEFT;
-        }
-               break;
-        case 14: {
-            gGamepadStates[gamepadIndex].currentButtonState ^= GAMEPAD_DPAD_RIGHT;
-            gGamepadStates[gamepadIndex].justReleasedButtonState |= GAMEPAD_DPAD_RIGHT;
-        }
-               break;
+            vec2 rightAxisDelta = gamepadStates[gamepadIndex].rightThumbStickDelta;
+            rightAxisDelta.x = -oldX;
+            gamepadStates[gamepadIndex].rightThumbStickDelta = rightAxisDelta / (float)SDL_JOYSTICK_MAX;
         }
     }
+                                    break;
+    case SDL_CONTROLLER_AXIS_RIGHTY: {
+        if (GM_abs(axisValue) > SDL_JOYSTICK_DEAD_ZONE) {
+            vec2 rightAxisDir = gamepadStates[gamepadIndex].rightThumbStickDir * (float)SDL_JOYSTICK_MAX;
+            float oldY = rightAxisDir.y;
+            rightAxisDir.y = (float)(invertYAxis ? -axisValue : axisValue);
+            rightAxisDir /= (float)SDL_JOYSTICK_MAX;
+            gamepadStates[gamepadIndex].rightThumbStickDir = rightAxisDir;
 
-    void ProcessSDLControllerAxisEvent(SDL_ControllerAxisEvent gamepadAxisEvent) {
-        i32 joystickInstanceID = gamepadAxisEvent.which;
-        i32 gamepadIndex = gGamepadStates.GamepadIndexFromInstanceID(joystickInstanceID);
-        u8 axisIndex = gamepadAxisEvent.axis;
-        i16 axisValue = gamepadAxisEvent.value;
-
-        switch (axisIndex) {
-        case SDL_CONTROLLER_AXIS_LEFTX: {
-            if (GM_abs(axisValue) > SDL_JOYSTICK_DEAD_ZONE) {
-                vec2 leftAxisDir = gGamepadStates[gamepadIndex].leftThumbStickDir * (float)SDL_JOYSTICK_MAX;
-                float oldX = leftAxisDir.x;
-                leftAxisDir.x = (float)axisValue;
-                leftAxisDir /= (float)SDL_JOYSTICK_MAX;
-                gGamepadStates[gamepadIndex].leftThumbStickDir = leftAxisDir;
-
-                vec2 leftAxisDelta = gGamepadStates[gamepadIndex].leftThumbStickDelta;
-                leftAxisDelta.x = leftAxisDir.x - oldX;
-                gGamepadStates[gamepadIndex].leftThumbStickDelta = leftAxisDelta / (float)SDL_JOYSTICK_MAX;
-            }
-            else {
-                float oldX = gGamepadStates[gamepadIndex].leftThumbStickDir.x * (float)SDL_JOYSTICK_MAX;
-                gGamepadStates[gamepadIndex].leftThumbStickDir.x = 0.f;
-
-                vec2 leftAxisDelta = gGamepadStates[gamepadIndex].leftThumbStickDelta;
-                leftAxisDelta.x = -oldX;
-                gGamepadStates[gamepadIndex].leftThumbStickDelta = leftAxisDelta / (float)SDL_JOYSTICK_MAX;
-            }
+            vec2 rightAxisDelta = gamepadStates[gamepadIndex].rightThumbStickDelta;
+            rightAxisDelta.y = rightAxisDir.y - oldY;
+            gamepadStates[gamepadIndex].leftThumbStickDelta = rightAxisDelta;
         }
-                                      break;
-        case SDL_CONTROLLER_AXIS_LEFTY: {
-            if (GM_abs(axisValue) > SDL_JOYSTICK_DEAD_ZONE) {
-                vec2 leftAxisDir = gGamepadStates[gamepadIndex].leftThumbStickDir * (float)SDL_JOYSTICK_MAX;
-                float oldY = leftAxisDir.y;
-                leftAxisDir.y = (float)(invertYAxis ? -axisValue : axisValue);
-                leftAxisDir /= (float)SDL_JOYSTICK_MAX;
-                gGamepadStates[gamepadIndex].leftThumbStickDir = leftAxisDir;
+        else {
+            float oldY = gamepadStates[gamepadIndex].rightThumbStickDir.y * (float)SDL_JOYSTICK_MAX;
+            gamepadStates[gamepadIndex].rightThumbStickDir.y = 0.f;
 
-                vec2 leftAxisDelta = gGamepadStates[gamepadIndex].leftThumbStickDelta;
-                leftAxisDelta.y = leftAxisDir.y - oldY;
-                gGamepadStates[gamepadIndex].leftThumbStickDelta = leftAxisDelta / (float)SDL_JOYSTICK_MAX;
-            }
-            else {
-                float oldY = gGamepadStates[gamepadIndex].leftThumbStickDir.y * (float)SDL_JOYSTICK_MAX;
-                gGamepadStates[gamepadIndex].leftThumbStickDir.y = 0.f;
-
-                vec2 leftAxisDelta = gGamepadStates[gamepadIndex].leftThumbStickDelta;
-                leftAxisDelta.y = -oldY;
-                gGamepadStates[gamepadIndex].leftThumbStickDelta = leftAxisDelta / (float)SDL_JOYSTICK_MAX;
-            }
+            vec2 rightAxisDelta = gamepadStates[gamepadIndex].rightThumbStickDelta;
+            rightAxisDelta.y = -oldY;
+            gamepadStates[gamepadIndex].rightThumbStickDelta = rightAxisDelta / (float)SDL_JOYSTICK_MAX;
         }
-                                      break;
-        case SDL_CONTROLLER_AXIS_RIGHTX: {
-            if (GM_abs(axisValue) > SDL_JOYSTICK_DEAD_ZONE) {
-                vec2 rightAxisDir = gGamepadStates[gamepadIndex].rightThumbStickDir * (float)SDL_JOYSTICK_MAX;
-                float oldX = rightAxisDir.x;
-                rightAxisDir.x = (float)axisValue;
-                rightAxisDir /= (float)SDL_JOYSTICK_MAX;
-                gGamepadStates[gamepadIndex].rightThumbStickDir = rightAxisDir;
-
-                vec2 rightAxisDelta = gGamepadStates[gamepadIndex].rightThumbStickDelta;
-                rightAxisDelta.x = rightAxisDir.x - oldX;
-                gGamepadStates[gamepadIndex].leftThumbStickDelta = rightAxisDelta / (float)SDL_JOYSTICK_MAX;
-            }
-            else {
-                float oldX = gGamepadStates[gamepadIndex].rightThumbStickDir.x * (float)SDL_JOYSTICK_MAX;
-                gGamepadStates[gamepadIndex].rightThumbStickDir.x = 0.f;
-
-                vec2 rightAxisDelta = gGamepadStates[gamepadIndex].rightThumbStickDelta;
-                rightAxisDelta.x = -oldX;
-                gGamepadStates[gamepadIndex].rightThumbStickDelta = rightAxisDelta / (float)SDL_JOYSTICK_MAX;
-            }
+    }
+                                    break;
+    case SDL_CONTROLLER_AXIS_TRIGGERLEFT: {
+        if (GM_abs(axisValue) > SDL_JOYSTICK_DEAD_ZONE) {
+            gamepadStates[gamepadIndex].leftTrigger =
+                (axisValue + ((float)SDL_JOYSTICK_MAX)) / (2 * ((float)SDL_JOYSTICK_MAX));
         }
-                                       break;
-        case SDL_CONTROLLER_AXIS_RIGHTY: {
-            if (GM_abs(axisValue) > SDL_JOYSTICK_DEAD_ZONE) {
-                vec2 rightAxisDir = gGamepadStates[gamepadIndex].rightThumbStickDir * (float)SDL_JOYSTICK_MAX;
-                float oldY = rightAxisDir.y;
-                rightAxisDir.y = (float)(invertYAxis ? -axisValue : axisValue);
-                rightAxisDir /= (float)SDL_JOYSTICK_MAX;
-                gGamepadStates[gamepadIndex].rightThumbStickDir = rightAxisDir;
-
-                vec2 rightAxisDelta = gGamepadStates[gamepadIndex].rightThumbStickDelta;
-                rightAxisDelta.y = rightAxisDir.y - oldY;
-                gGamepadStates[gamepadIndex].leftThumbStickDelta = rightAxisDelta;
-            }
-            else {
-                float oldY = gGamepadStates[gamepadIndex].rightThumbStickDir.y * (float)SDL_JOYSTICK_MAX;
-                gGamepadStates[gamepadIndex].rightThumbStickDir.y = 0.f;
-
-                vec2 rightAxisDelta = gGamepadStates[gamepadIndex].rightThumbStickDelta;
-                rightAxisDelta.y = -oldY;
-                gGamepadStates[gamepadIndex].rightThumbStickDelta = rightAxisDelta / (float)SDL_JOYSTICK_MAX;
-            }
+        else {
+            gamepadStates[gamepadIndex].leftTrigger = 0.f;
         }
-                                       break;
-        case SDL_CONTROLLER_AXIS_TRIGGERLEFT: {
-            if (GM_abs(axisValue) > SDL_JOYSTICK_DEAD_ZONE) {
-                gGamepadStates[gamepadIndex].leftTrigger =
-                    (axisValue + ((float)SDL_JOYSTICK_MAX)) / (2 * ((float)SDL_JOYSTICK_MAX));
-            }
-            else {
-                gGamepadStates[gamepadIndex].leftTrigger = 0.f;
-            }
+    }
+                                        break;
+    case SDL_CONTROLLER_AXIS_TRIGGERRIGHT: {
+        if (GM_abs(axisValue) > SDL_JOYSTICK_DEAD_ZONE) {
+            gamepadStates[gamepadIndex].rightTrigger =
+                (axisValue + ((float)SDL_JOYSTICK_MAX)) / (2 * ((float)SDL_JOYSTICK_MAX));
         }
+        else {
+            gamepadStates[gamepadIndex].rightTrigger = 0.f;
+        }
+    }
                                             break;
-        case SDL_CONTROLLER_AXIS_TRIGGERRIGHT: {
-            if (GM_abs(axisValue) > SDL_JOYSTICK_DEAD_ZONE) {
-                gGamepadStates[gamepadIndex].rightTrigger =
-                    (axisValue + ((float)SDL_JOYSTICK_MAX)) / (2 * ((float)SDL_JOYSTICK_MAX));
-            }
-            else {
-                gGamepadStates[gamepadIndex].rightTrigger = 0.f;
-            }
+    }
+}
+
+
+void InputManager::ProcessSDLControllerConnected(i32 deviceIndex) {
+    SDL_GameController* deviceHandle = SDL_GameControllerOpen(deviceIndex);
+    i32 joystickInstanceID = SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(deviceHandle));
+    gamepadStates.OnConnect(joystickInstanceID);
+
+    printf("Gamepad connected. Instance ID: %d\n", joystickInstanceID);
+}
+
+void InputManager::ProcessSDLControllerRemoved(i32 joystickInstanceID) {
+    gamepadStates.OnDisconnect(joystickInstanceID);
+    SDL_GameControllerClose(SDL_GameControllerFromInstanceID(joystickInstanceID));
+
+    printf("Gamepad disconnected. Instance ID: %d\n", joystickInstanceID);
+}
+
+
+bool GamepadState::IsPressed(u16 button /* bitwise-OR-able */) const {
+    return currentButtonState & button;
+}
+
+bool GamepadState::IsReleased(u16 button /* bitwise-OR-able */) const {
+    return !IsPressed(button);
+}
+
+bool GamepadState::HasBeenPressed(u16 button) const {
+    return justPressedButtonState & button;
+}
+
+bool GamepadState::HasBeenReleased(u16 button) const {
+    return justReleasedButtonState & button;
+}
+
+
+GamepadState& GamepadStatesWrapper::AtInstanceID(const i32 instanceID) {
+    return states[mapInstanceIDtoGamepadIndex[instanceID]];
+}
+
+u8 GamepadStatesWrapper::GamepadIndexFromInstanceID(const i32 instanceID) {
+    return mapInstanceIDtoGamepadIndex[instanceID];
+}
+
+void GamepadStatesWrapper::OnConnect(i32 instanceID) {
+    mapInstanceIDtoGamepadIndex[instanceID] = gamepadCount;
+    states[gamepadCount].isConnected = true;
+    ++gamepadCount;
+}
+
+void GamepadStatesWrapper::OnDisconnect(i32 instanceID) {
+    i32 gamepadIndex = mapInstanceIDtoGamepadIndex[instanceID];
+
+    // shift game states left
+    for (i32 i = gamepadIndex; i < gamepadCount - 1; ++i) {
+        states[i] = states[i + 1];
+    }
+
+    // reset last game state. we shift these over so just resetting the last is enough.
+    states[gamepadCount - 1].isConnected = false;
+    states[gamepadCount - 1].currentButtonState = 0;
+    states[gamepadCount - 1].justPressedButtonState = 0;
+    states[gamepadCount - 1].justReleasedButtonState = 0;
+    states[gamepadCount - 1].leftTrigger = 0.f;
+    states[gamepadCount - 1].rightTrigger = 0.f;
+    states[gamepadCount - 1].leftThumbStickDir = { 0.f, 0.f };
+    states[gamepadCount - 1].leftThumbStickDir = { 0.f, 0.f };
+
+    // shift indices left
+    for (int i = 0; i < 128; ++i) {
+        if (gamepadIndex < mapInstanceIDtoGamepadIndex[i]) {
+            --mapInstanceIDtoGamepadIndex[i];
         }
-                                             break;
-        }
     }
 
-    void ResetControllerStates() {
-        for (int i = 0; i < MAX_GAMEPAD_COUNT; ++i) {
-            gGamepadStates[i].justPressedButtonState = 0;
-            gGamepadStates[i].justReleasedButtonState = 0;
-        }
-    }
-
-    void SDLControllerConnected(i32 deviceIndex) {
-        SDL_GameController* deviceHandle = SDL_GameControllerOpen(deviceIndex);
-        i32 joystickInstanceID = SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(deviceHandle));
-        gGamepadStates.OnConnect(joystickInstanceID);
-
-        printf("Gamepad connected. Instance ID: %d\n", joystickInstanceID);
-    }
-
-    void SDLControllerRemoved(i32 joystickInstanceID) {
-        gGamepadStates.OnDisconnect(joystickInstanceID);
-        SDL_GameControllerClose(SDL_GameControllerFromInstanceID(joystickInstanceID));
-
-        printf("Gamepad disconnected. Instance ID: %d\n", joystickInstanceID);
-    }
-
-    void SetInvertYAxis(bool invert)
-    {
-        invertYAxis = invert;
-    }
-
-    /** GamepadState Implementation **/
-
-    bool GamepadState::IsPressed(u16 button /* bitwise-OR-able */) const {
-        return currentButtonState & button;
-    }
-
-    bool GamepadState::IsReleased(u16 button /* bitwise-OR-able */) const {
-        return !IsPressed(button);
-    }
-
-    bool GamepadState::HasBeenPressed(u16 button) const {
-        return justPressedButtonState & button;
-    }
-
-    bool GamepadState::HasBeenReleased(u16 button) const {
-        return justReleasedButtonState & button;
-    }
-
-
-    /** GamepadStatesWrapper Implementation **/
-
-    GamepadState& GamepadStatesWrapper::AtInstanceID(const i32 instanceID) {
-        return states[mapInstanceIDtoGamepadIndex[instanceID]];
-    }
-
-    u8 GamepadStatesWrapper::GamepadIndexFromInstanceID(const i32 instanceID) {
-        return mapInstanceIDtoGamepadIndex[instanceID];
-    }
-
-    void GamepadStatesWrapper::OnConnect(i32 instanceID) {
-        mapInstanceIDtoGamepadIndex[instanceID] = gamepadCount;
-        states[gamepadCount].isConnected = true;
-        ++gamepadCount;
-    }
-
-    void GamepadStatesWrapper::OnDisconnect(i32 instanceID) {
-        i32 gamepadIndex = mapInstanceIDtoGamepadIndex[instanceID];
-
-        // shift game states left
-        for (i32 i = gamepadIndex; i < gamepadCount - 1; ++i) {
-            states[i] = states[i + 1];
-        }
-
-        // reset last game state. we shift these over so just resetting the last is enough.
-        states[gamepadCount - 1].isConnected = false;
-        states[gamepadCount - 1].currentButtonState = 0;
-        states[gamepadCount - 1].justPressedButtonState = 0;
-        states[gamepadCount - 1].justReleasedButtonState = 0;
-        states[gamepadCount - 1].leftTrigger = 0.f;
-        states[gamepadCount - 1].rightTrigger = 0.f;
-        states[gamepadCount - 1].leftThumbStickDir = { 0.f, 0.f };
-        states[gamepadCount - 1].leftThumbStickDir = { 0.f, 0.f };
-
-        // shift indices left
-        for (int i = 0; i < 128; ++i) {
-            if (gamepadIndex < mapInstanceIDtoGamepadIndex[i]) {
-                --mapInstanceIDtoGamepadIndex[i];
-            }
-        }
-
-        --gamepadCount;
-    }
+    --gamepadCount;
 }

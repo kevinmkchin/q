@@ -14,9 +14,8 @@ struct GameCamera
     float nearClip = 0.1f;
     float farClip = 64000.f;
     float turnSpeed = 0.04f;
-    bool  bMouseControl = false;
 
-    virtual void CameraUpdate();
+    void CameraUpdate(vec3 newPosition, float yawDelta, float pitchDelta);
     void CameraCalculatePerspectiveMatrix();
     void CameraCalculateViewMatrix();
 };

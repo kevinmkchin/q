@@ -4,6 +4,7 @@
 
 #include "Common.h"
 #include "LevelGeometry.h"
+#include "Camera.h"
 
 struct EntityTransform
 {
@@ -40,6 +41,8 @@ struct GameState
     std::vector<EntityIndex> npcIds;
 
     EntityIndex rotatingCube;
+
+	GameCamera playerCamera;
 
 	// temporary:
 	LevelGeometry::FaceBatch faces_0;

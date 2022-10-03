@@ -4,6 +4,8 @@
 #include "Resources.h"
 #include "GUI.h"
 #include "LevelGeometry.h"
+#include "GameRenderer.h"
+#include "Input.h"
 
 
 template <class T>
@@ -44,7 +46,8 @@ void GameRuntime::UnloadAllContent()
 
 void GameRuntime::StartGame()
 {
-	GameState* gameState = &state;
+	state.playerCamera.position = vec3(-200.f, 0.f, 0.f);
+	Engine.gfx->activeGameCamera = &state.playerCamera;
 
 	float faces_data[] = {
 		64, -32, 64, 1, 1, 0, 0, 0,
@@ -71,6 +74,25 @@ void GameRuntime::Update()
 	KevGui::DoTextUnformatted("GAME", 25, 40, 16, KevGui::TextAlignment::Left);
 	KevGui::DoPanel(KevGui::UIRect(22, 45, 140, 22), vec4(1.f, 0.f, 0.f, 1.f));
 	KevGui::DoText(25, 64, 16, KevGui::TextAlignment::Left, "Health: 99");
+
+	float moveSpeed = 100.f;
+	vec3 cameraPosition = state.playerCamera.position;
+	if (Input.IsKeyPressed(SDL_SCANCODE_W))
+		cameraPosition += state.playerCamera.calculatedDirection * moveSpeed * Time.deltaTime;
+	if (Input.IsKeyPressed(SDL_SCANCODE_A))
+		cameraPosition += -state.playerCamera.calculatedRight * moveSpeed * Time.deltaTime;
+	if (Input.IsKeyPressed(SDL_SCANCODE_S))
+		cameraPosition += -state.playerCamera.calculatedDirection * moveSpeed * Time.deltaTime;
+	if (Input.IsKeyPressed(SDL_SCANCODE_D))
+		cameraPosition += state.playerCamera.calculatedRight * moveSpeed * Time.deltaTime;
+	if (Input.IsKeyPressed(SDL_SCANCODE_Q))
+		cameraPosition.y += -moveSpeed * Time.deltaTime;
+	if (Input.IsKeyPressed(SDL_SCANCODE_E))
+		cameraPosition.y += moveSpeed * Time.deltaTime;
+
+	SDL_SetRelativeMouseMode(SDL_TRUE);
+	state.playerCamera.CameraUpdate(cameraPosition, Input.mouseDelta.x * 1.7f, Input.mouseDelta.y * 1.7f);
+	state.playerCamera.CameraCalculatePerspectiveMatrix();
 
 	GameState* gameState = &state;
 

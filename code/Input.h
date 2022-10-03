@@ -1,28 +1,13 @@
 #pragma once
 
 #include <SDL.h>
+#include <gmath.h>
 
 #include "Common.h"
-#include "gmath.h"
 
-/** Input manager for SDL
+/** Input manager for SDL **/
 
-    Examples:
-        I want to check if the W key is pressed:
-            if(Input::IsKeyPressed(SDL_SCANCODE_W)) ...
-                or
-            if(Input::gCurrentKeyState[SDL_SCANCODE_W]) ...
-
-        I want to check if the space bar was pressed this frame/step:
-            if(Input::HasKeyBeenPressed(SDL_SCANCODE_SPACE)) ...
-                or
-            if(Input::gJustPressedKeyState[SDL_SCANCODE_SPACE]) ...
-
-        I want to check if Player 1 on gamepad is pressing X button:
-            if(Input::GetGamepad(0).IsPressed(GAMEPAD_X)) ...
-*/
-
-/** Gamepad **/
+/** Gamepad input codes **/
 #define MAX_GAMEPAD_COUNT   4
 #define GAMEPAD_A           0x0001  // bit 0
 #define GAMEPAD_B           0x0002  // bit 1
@@ -39,12 +24,74 @@
 #define GAMEPAD_DPAD_LEFT   0x4000  // bit 14
 #define GAMEPAD_DPAD_RIGHT  0x8000  // bit 15
 
-namespace Input 
+enum class QKey : u8
+{
+    Q,
+    W,
+    E,
+    R,
+    T,
+    Y,
+    // ... and so on
+    InvalidKey
+
+    // TODO(Kevin): replace SDL keycodes with my QKey
+};
+
+struct GamepadState 
+{
+    /* Stores the state of an Xbox 360 style controller */
+    bool16 isConnected = 0;
+    u16 currentButtonState = 0; // check button state using AND (e.g. buttonState & GAMEPAD_A)
+    u16 justPressedButtonState = 0;
+    u16 justReleasedButtonState = 0;
+    float leftTrigger = 0.f; // 0.0 to 1.0
+    float rightTrigger = 0.f; // 0.0 to 1.0
+    vec2 leftThumbStickDir = { 0.f, 0.f }; // normalized vector representing offset
+    vec2 leftThumbStickDelta = { 0.f, 0.f }; // difference in vector since last frame
+    vec2 rightThumbStickDir = { 0.f, 0.f }; // normalized vector representing offset
+    vec2 rightThumbStickDelta = { 0.f, 0.f }; // difference in vector since last frame
+
+    bool IsPressed(u16 button /* bitwise-OR-able */) const;
+    bool IsReleased(u16 button /* bitwise-OR-able */) const;
+    bool HasBeenPressed(u16 button) const;
+    bool HasBeenReleased(u16 button) const;
+    bool LeftThumbStickUp() const;
+    bool LeftThumbStickDown() const;
+};
+
+struct GamepadStatesWrapper 
+{
+    /** InstanceID is an id of an SDL gamepad instance - this increments
+        during runtime if a controller is disconnected then reconnected.
+        Wrapper is necessary because SDL_JoystickInstanceID doesn't
+        necessarily match the gamepad index. This wrapper also
+        shifts gamepad indices down when a controller disconnects.
+        e.g. if player 1 disconnects, player 2 becomes player 1. */
+
+    u8 mapInstanceIDtoGamepadIndex[128];
+    GamepadState states[MAX_GAMEPAD_COUNT];
+    u8 gamepadCount = 0;
+
+    // USE THIS OPERATOR TO GET GAMEPAD STATES - 0 = player 1, 1 = player 2, etc.
+    GamepadState& operator[](const i32 gamepadIndex) 
+    {
+        return states[gamepadIndex];
+    }
+
+    // Not part of public API
+    GamepadState& AtInstanceID(const i32 instanceID);
+    u8 GamepadIndexFromInstanceID(const i32 instanceID);
+    void OnConnect(i32 instanceID);
+    void OnDisconnect(i32 instanceID);
+};
+
+class InputManager 
 {
     //////////////////////////////////////////////////////////////////////
     // GAME SPECIFIC FUNCTIONS
     //////////////////////////////////////////////////////////////////////
-
+public:
     bool GameUpHasBeenPressed();
     bool GameDownHasBeenPressed();
     bool GameLeftHasBeenPressed();
@@ -63,81 +110,50 @@ namespace Input
     bool GameCycleItemRightBeenPressed();
     bool GameInteractButtonHasBeenPressed();
 
+
     //////////////////////////////////////////////////////////////////////
     // GENERIC CLASSES AND FUNCTIONS BELOW
     //////////////////////////////////////////////////////////////////////
+public:
+    void ProcessAllSDLInputEvents(const SDL_Event event);
+    void ResetInputStatesAtEndOfFrame();
 
-    struct GamepadState {
-        /* Stores the state of an Xbox 360 style controller */
-        bool16 isConnected = 0;
-        u16 currentButtonState = 0; // check button state using AND (e.g. buttonState & GAMEPAD_A)
-        u16 justPressedButtonState = 0;
-        u16 justReleasedButtonState = 0;
-        float leftTrigger = 0.f; // 0.0 to 1.0
-        float rightTrigger = 0.f; // 0.0 to 1.0
-        vec2 leftThumbStickDir = { 0.f, 0.f }; // normalized vector representing offset
-        vec2 leftThumbStickDelta = { 0.f, 0.f }; // difference in vector since last frame
-        vec2 rightThumbStickDir = { 0.f, 0.f }; // normalized vector representing offset
-        vec2 rightThumbStickDelta = { 0.f, 0.f }; // difference in vector since last frame
-
-        bool IsPressed(u16 button /* bitwise-OR-able */) const;
-
-        bool IsReleased(u16 button /* bitwise-OR-able */) const;
-
-        bool HasBeenPressed(u16 button) const;
-
-        bool HasBeenReleased(u16 button) const;
-
-        bool LeftThumbStickUp() const;
-
-        bool LeftThumbStickDown() const;
-    };
-
-    struct GamepadStatesWrapper {
-        /** InstanceID is an id of an SDL gamepad instance - this increments
-            during runtime if a controller is disconnected then reconnected.
-            Wrapper is necessary because SDL_JoystickInstanceID doesn't
-            necessarily match the gamepad index. This wrapper also
-            shifts gamepad indices down when a controller disconnects.
-            e.g. if player 1 disconnects, player 2 becomes player 1. */
-
-        u8 mapInstanceIDtoGamepadIndex[128];
-        GamepadState states[MAX_GAMEPAD_COUNT];
-        u8 gamepadCount = 0;
-
-        // USE THIS OPERATOR TO GET GAMEPAD STATES - 0 = player 1, 1 = player 2, etc.
-        GamepadState& operator[](const i32 gamepadIndex) {
-            return states[gamepadIndex];
-        }
-
-        // IGNORE THESE
-        GamepadState& AtInstanceID(const i32 instanceID);
-
-        u8 GamepadIndexFromInstanceID(const i32 instanceID);
-
-        void OnConnect(i32 instanceID);
-
-        void OnDisconnect(i32 instanceID);
-    };
-
-    /** Keyboard **/
     bool IsKeyPressed(SDL_Scancode scancode);
     bool IsKeyReleased(SDL_Scancode scancode);
     bool HasKeyBeenPressed(SDL_Scancode scancode);
     bool HasKeyBeenReleased(SDL_Scancode scancode);
 
-    void ProcessSDLKeyDownEvent(SDL_KeyboardEvent keyEvent);
-    void ProcessSDLKeyUpEvent(SDL_KeyboardEvent keyEvent);
-    void ResetKeyboardStates(); // CALL THIS AT THE END OF AN UPDATE STEP
-
-/** Gamepad **/
     GamepadState& GetGamepad(i32 playerNumber);
 
+public:
+    vec2 mouseDelta; // relative to window
+    ivec2 mousePos; // relative to window
+    bool mouseLMBPressed;
+    bool mouseRMBPressed;
+    bool mouseMMBPressed;
+
+    u8 currentKeyState[256];
+    u8 justPressedKeyState[256];
+    u8 justReleasedKeyState[256];
+
+    bool invertYAxis = false; // TODO(Kevin): fix
+
+private:
+    void ProcessSDLMouseButtonEvent(SDL_MouseButtonEvent mouseButtonEvent);
+    void ProcessSDLMouseMotionEvent(SDL_MouseMotionEvent mouseMotionEvent);
+    void ProcessSDLKeyDownEvent(SDL_KeyboardEvent keyEvent);
+    void ProcessSDLKeyUpEvent(SDL_KeyboardEvent keyEvent);
     void ProcessSDLControllerButtonDownEvent(SDL_ControllerButtonEvent gamepadButtonEvent);
     void ProcessSDLControllerButtonUpEvent(SDL_ControllerButtonEvent gamepadButtonEvent);
     void ProcessSDLControllerAxisEvent(SDL_ControllerAxisEvent gamepadAxisEvent);
-    void ResetControllerStates(); // CALL THIS AT THE END OF AN UPDATE STEP
-    void SDLControllerConnected(i32 deviceIndex);
-    void SDLControllerRemoved(i32 joystickInstanceID);
-    void SetInvertYAxis(bool invert);
-}
+    void ProcessSDLControllerConnected(i32 deviceIndex);
+    void ProcessSDLControllerRemoved(i32 joystickInstanceID);
+
+private:
+    GamepadStatesWrapper gamepadStates;
+    i16 SDL_JOYSTICK_DEAD_ZONE = 8000;
+    i16 SDL_JOYSTICK_MAX = 32767;
+
+};
+
+extern InputManager Input;

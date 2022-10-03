@@ -145,13 +145,12 @@ void EngineClass::SDLProcessEvents()
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
+        Input.ProcessAllSDLInputEvents(event);
         KevGui::SDLProcessEvent(&event);
 
         switch (event.type) 
         {
             case SDL_KEYDOWN: {
-                Input::ProcessSDLKeyDownEvent(event.key);
-
                 if (event.key.keysym.sym == SDLK_BACKQUOTE)
                 {
                     console_toggle();
@@ -176,26 +175,6 @@ void EngineClass::SDLProcessEvents()
                 {
                     SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
                 }
-            }break;
-
-            case SDL_KEYUP: {
-                Input::ProcessSDLKeyUpEvent(event.key);
-            }break;
-
-            case SDL_CONTROLLERBUTTONDOWN: {
-                Input::ProcessSDLControllerButtonDownEvent(event.cbutton);
-            }break;
-            case SDL_CONTROLLERBUTTONUP: {
-                Input::ProcessSDLControllerButtonUpEvent(event.cbutton);
-            }break;
-            case SDL_CONTROLLERAXISMOTION: {
-                Input::ProcessSDLControllerAxisEvent(event.caxis);
-            }break;
-            case SDL_CONTROLLERDEVICEADDED: {
-                Input::SDLControllerConnected(event.cdevice.which);
-            }break;
-            case SDL_CONTROLLERDEVICEREMOVED: {
-                Input::SDLControllerRemoved(event.cdevice.which);
             }break;
 
             case SDL_WINDOWEVENT: {
@@ -252,8 +231,7 @@ int EngineClass::Run()
 
         SDL_GL_SwapWindow(window);
 
-        Input::ResetControllerStates();
-        Input::ResetKeyboardStates();
+        Input.ResetInputStatesAtEndOfFrame();
     }
 
     SDL_DestroyWindow(window);

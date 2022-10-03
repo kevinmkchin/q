@@ -74,23 +74,21 @@ void GameRenderer::Render()
 
 void GameRenderer::RenderGameLayer()
 {
+
     glBindFramebuffer(GL_FRAMEBUFFER, gameLayer.FBO);
     glViewport(0, 0, gameLayer.width, gameLayer.height);
     glClearColor(_RGB(46, 88, 120), 1.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
 
+    if (activeGameCamera == nullptr) return;
+
     GameState* gameState = &(Engine.game->state);
 
-    LOCAL_PERSIST GameCamera camera;
-    camera.position = vec3(-200.f,0.f,0.f);
-    camera.CameraUpdate();
-    camera.CameraCalculatePerspectiveMatrix();
-    
     gameSceneShader.UseShader();
 
-    gameSceneShader.GLBindMatrix4fv("viewMatrix", 1, camera.viewMatrix.ptr());
-    gameSceneShader.GLBindMatrix4fv("projMatrix", 1, camera.perspectiveMatrix.ptr());
+    gameSceneShader.GLBindMatrix4fv("viewMatrix", 1, activeGameCamera->viewMatrix.ptr());
+    gameSceneShader.GLBindMatrix4fv("projMatrix", 1, activeGameCamera->perspectiveMatrix.ptr());
 
     //auto rotatingCube = std::static_pointer_cast<RotatingCube>(gameState->entities[gameState->rotatingCube]);
     //rotatingCube->graphics.Render(gameSceneShader);

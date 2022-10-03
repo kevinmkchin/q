@@ -22,10 +22,13 @@ namespace LevelGeometry
 {
     struct FaceBatch
     {
+        /** Set of triangles that all use the same texture. The position values 
+            of each triangle vertex are defined in world space. */
+
         Texture facesTexture;
         u32 idVAO = 0;
         u32 idVBO = 0;
-        u32 verticesCount = 0; // if a vertex is a set of 8 floats, how many vertices in this mesh?
+        u32 verticesCount = 0;
     };
 
     void CreateFaceBatchMeshOnGPU(u32* idVAO, u32* idVBO);
