@@ -19,15 +19,10 @@ GUI
 
 
 GAME & EDITOR
-- Mouse input
 - Editor handles like scene tooling
-
 - Asset management? do i need to?
-
-- Camera
-
-- get FPS display and debug info display stuff from XNGINE
-
+- debug drawer for primitives https://github.com/kevinmkchin/XNGINE/blob/master/src/debugging/debug_drawer.h
+- need to scale mouse look with something so it's not FPS dependent
 
 */
 
@@ -161,18 +156,6 @@ void EngineClass::SDLProcessEvents()
                     console_keydown(event.key);
                     break;
                 }
-                if (event.key.keysym.sym == SDLK_F1)
-                {
-                    SDL_SetWindowFullscreen(window, 0);
-                }
-                if (event.key.keysym.sym == SDLK_F2)
-                {
-                    SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-                }
-                if(event.key.keysym.sym == SDLK_F3)
-                {
-                    SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
-                }
             }break;
             case SDL_WINDOWEVENT: {
                 switch (event.window.event) {
@@ -212,6 +195,8 @@ int EngineClass::Run()
 
     KevGui::Init();
 
+    RegisterConsoleCommandsAndVariables();
+
     while (!programShouldShutdown) 
     {
         if (Time.UpdateDeltaTime() > 0.1f) { continue; } // if delta time is too large, will cause glitches
@@ -223,6 +208,7 @@ int EngineClass::Run()
         console_update(Time.unscaledDeltaTime);
 
         game->Update(); // editorRuntime.UpdateEditor(); //game->Update();
+        DrawProfilerGUI();
         gfx->Render();
 
         SDL_GL_SwapWindow(window);
@@ -244,6 +230,55 @@ void EngineClass::LoadPerpetualResources()
     Resources.fonts[FONT_Iosevka] = Font::FontCreateFromFile(font_path("iosevka-term-regular.ttf"), 24, false);
 
     Texture::TextureCreateFromFile(Resources.defaultMissingTexture, primitives_path("missing_texture.png").c_str());
+}
+
+void SetSDLFullscreen(int fullscreen)
+{
+    switch (fullscreen)
+    {
+        case 0: {SDL_SetWindowFullscreen(Engine.window, 0); }break;
+        case 1: {SDL_SetWindowFullscreen(Engine.window, SDL_WINDOW_FULLSCREEN_DESKTOP); }break;
+        case 2: {SDL_SetWindowFullscreen(Engine.window, SDL_WINDOW_FULLSCREEN); }break;
+        default: {
+            PrintLog.Message("Invalid fullscreen mode; 0 = windowed, 1 = fullscreen, 2 = fullscreen-windowed");
+        }break;
+    }
+}
+
+void SetSDLWindowSize(int w, int h)
+{
+    SDL_SetWindowSize(Engine.window, w, h);
+}
+
+void SetSDLVSync(int vsync)
+{
+    switch (vsync) { // 0 = immediate (no vsync), 1 = vsync, 2 = adaptive vsync
+        case 0: {SDL_GL_SetSwapInterval(0); }break;
+        case 1: {SDL_GL_SetSwapInterval(1); }break;
+        case 2: {if (SDL_GL_SetSwapInterval(-1) == -1) SDL_GL_SetSwapInterval(1); }break;
+        default: {
+            console_print("Invalid vsync option; 0 = immediate, 1 = vsync, 2 = adaptive vsync\n");
+        }break;
+    }
+}
+
+void EngineClass::RegisterConsoleCommandsAndVariables()
+{
+    get_console().bind_cmd("fullscreen", SetSDLFullscreen);
+    get_console().bind_cmd("windowsize", SetSDLWindowSize);
+    get_console().bind_cmd("vsync", SetSDLVSync);
+    get_console().bind_cvar("profiler", &profilerLevel);
+    get_console().execute("get profiler", std::cout);
+}
+
+void EngineClass::DrawProfilerGUI()
+{
+    if (profilerLevel >= 1)
+    {
+        KevGui::DoText(4, 14, 12, KevGui::TextAlignment::Left, "LAST FRAME TIME: %.2fms   FPS: %dhz",
+            1000.f * Time.unscaledDeltaTime, (i16)(1.f / Time.unscaledDeltaTime));
+    }
+    // if (profilerLevel >= 2) ...
 }
 
 int main(int argc, char* argv[])

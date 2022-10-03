@@ -27,6 +27,12 @@ public:
 	GameRenderer* gfx = nullptr;
 	GameRuntime* game = nullptr;
 
+private:
+	int profilerLevel = 0;
+
+private:
+	void RegisterConsoleCommandsAndVariables();
+	void DrawProfilerGUI();
 };
 
 extern EngineClass Engine;

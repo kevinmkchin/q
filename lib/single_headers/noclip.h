@@ -17,7 +17,7 @@ By Kevin Chin 2021 (https://kevch.in/)
 Single-header C++ library providing a console backend for parsing and
 interpreting commands and arguments from an input stream.
 
-Documentation may be lacking as this library is constantly being worked on.
+Documentation may be lacking as this library is still being worked on.
 
 Uses C++11 features (e.g. parameter pack, lambdas) and a ton of standard
 library goodies: <iostream>, <sstream>, <functional>, <unordered_map> from 
@@ -141,11 +141,6 @@ namespace noclip
                         << "' is of type '" << vt << "'." << std::endl;
 
                         is.clear();
-                        while(!isspace(is.peek()))
-                        {
-                            is.ignore();
-                        }
-                        is.ignore();
                     }
                     else
                     {
@@ -419,8 +414,12 @@ namespace noclip
                     }
 
                     os << "Bound console command names:" << std::endl;
-                    for (auto& it: cmd_table)
+                    for (auto& it : cmd_table)
                     {
+                        if (it.first == "+" || it.first == "-" || it.first == "*" || it.first == "/" 
+                            || it.first == "%" || it.first == "set" || it.first == "get" || it.first == "help" 
+                            || it.first == "listCmds" || it.first == "listCVars") continue;
+
                         os << "   " << it.first << std::endl;
                     }
                 };
