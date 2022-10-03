@@ -13,6 +13,32 @@
 #include "GUI.h"
 #include "LevelGeometry.h"
 
+static const char* __finalpass_shader_vs = 
+    "#version 330\n"
+    "layout(location = 0) in vec2 pos;\n"
+    "layout(location = 1) in vec2 uv;\n"
+    "out vec2 texcoord;\n"
+    "void main()\n"
+    "{\n"
+    "    gl_Position = vec4(pos, 0, 1.0);\n"
+    "    texcoord = uv;\n"
+    "}\n";
+
+static const char* __finalpass_shader_fs =
+    "#version 330\n"
+    "uniform sampler2D screen_texture;\n"
+    "in vec2 texcoord;\n"
+    "out vec4 color;\n"
+    "void main()\n"
+    "{\n"
+    "    vec4 in_color = texture(screen_texture, texcoord);\n"
+    "    if(in_color.w < 0.001)\n"
+    "    {\n"
+    "        discard;\n"
+    "    }\n"
+    "    color = in_color;\n"
+    "}\n";
+
 bool GameRenderer::Init()
 {
     glewExperimental = GL_TRUE;
@@ -29,10 +55,8 @@ bool GameRenderer::Init()
     CreateFrameBuffers();
     UpdateBackBufferSize();
 
-    Shader::GLLoadShaderProgramFromFile(finalPassShader, shader_path("finalpass.vert").c_str(), shader_path("finalpass.frag").c_str());
+    Shader::GLCreateShaderProgram(finalPassShader, __finalpass_shader_vs, __finalpass_shader_fs);
     Shader::GLLoadShaderProgramFromFile(gameSceneShader, shader_path("scene.vert").c_str(), shader_path("scene.frag").c_str());
-    Shader::GLLoadShaderProgramFromFile(consoleUIShader, shader_path("console_ui.vert").c_str(), shader_path("console_ui.frag").c_str());
-    Shader::GLLoadShaderProgramFromFile(consoleTextUIShader, shader_path("console_text_ui.vert").c_str(), shader_path("console_text_ui.frag").c_str());
 
     CreateMiscellaneous();
 

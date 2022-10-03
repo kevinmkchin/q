@@ -14,6 +14,7 @@
 #include "Resources.h"
 #include "Engine.h"
 #include "GameRenderer.h"
+#include "Shader.h"
 
 /**
 
@@ -35,6 +36,88 @@ noclip::console& get_console()
 {
     return console_backend;
 }
+
+
+static const char* __console_ui_shader_vs = 
+    "#version 330 core\n"
+    "\n"
+    "layout (location = 0) in vec2 pos;\n"
+    "layout (location = 1) in vec2 in_tex_coord;\n"
+    "\n"
+    "out vec2 tex_coord;\n"
+    "\n"
+    "uniform mat4 matrix_model;\n"
+    "uniform mat4 matrix_ortho;\n"
+    "\n"
+    "void main()\n"
+    "{\n"
+    "    gl_Position = matrix_ortho * matrix_model * vec4(pos, 0.0, 1.0);\n"
+    "    tex_coord = in_tex_coord;\n"
+    "}\n";
+
+static const char* __console_ui_shader_fs = 
+    "#version 330 core\n"
+    "\n"
+    "in vec2 tex_coord;\n"
+    "\n"
+    "out vec4 colour;\n"
+    "\n"
+    "uniform bool b_use_colour = false;\n"
+    "uniform sampler2D texture_sampler_0;\n"
+    "uniform vec4 ui_element_colour;\n"
+    "\n"
+    "void main()\n"
+    "{\n"
+    "    if(b_use_colour)\n"
+    "    {\n"
+    "        colour = ui_element_colour;\n"
+    "    }\n"
+    "    else\n"
+    "    {\n"
+    "        colour = texture(texture_sampler_0, tex_coord);\n"
+    "    }\n"
+    "}\n";
+
+static const char* __console_text_shader_vs = 
+    "#version 330 core\n"
+    "\n"
+    "// Shader for Rendering Text on Textured Quads\n"
+    "\n"
+    "layout (location = 0) in vec2 pos;\n"
+    "layout (location = 1) in vec2 in_tex_coord;\n"
+    "\n"
+    "out vec2 tex_coord;\n"
+    "\n"
+    "uniform mat4 matrix_model;\n"
+    "uniform mat4 matrix_ortho;\n"
+    "\n"
+    "void main()\n"
+    "{\n"
+    "    gl_Position = matrix_ortho * matrix_model * vec4(pos, 0.0, 1.0);\n"
+    "    tex_coord = in_tex_coord;\n"
+    "}\n";
+
+static const char* __console_text_shader_fs = 
+    "#version 330 core\n"
+    "\n"
+    "// Shader for Rendering Text on Textured Quads\n"
+    "\n"
+    "in vec2 tex_coord;\n"
+    "\n"
+    "out vec4 colour;\n"
+    "\n"
+    "uniform sampler2D font_atlas_sampler;\n"
+    "uniform vec3 text_colour;\n"
+    "\n"
+    "void main()\n"
+    "{\n"
+    "    float text_alpha = texture(font_atlas_sampler, tex_coord).x; // x because bitmap is passed as a GL_R value only\n"
+    "    // Make sure alpha blending is on\n"
+    "    colour = vec4(text_colour, text_alpha);\n"
+    "}\n";
+
+static Shader consoleUIShader;
+static Shader consoleTextShader;
 
 #define CONSOLE_MAX_PRINT_MSGS 4096
 #define CONSOLE_SCROLL_SPEED 2000.0f
@@ -102,6 +185,9 @@ INTERNAL BasicFrameBuffer* debugUILayerPtr = nullptr;
 
 void console_initialize()
 {
+    Shader::GLCreateShaderProgram(consoleUIShader, __console_ui_shader_vs, __console_ui_shader_fs);
+    Shader::GLCreateShaderProgram(consoleTextShader, __console_text_shader_vs, __console_text_shader_fs);
+
     console_font_handle = Resources.fonts[FONT_SourceCodePro].ptr;
     console_font_atlas = Resources.fonts[FONT_SourceCodePro].texture;
     debugUILayerPtr = &Engine.gfx->debugUILayer;
@@ -136,26 +222,26 @@ void console_initialize()
     console_background_vertex_buffer[21] = CONSOLE_HEIGHT;
     glGenVertexArrays(1, &console_background_vao_id);
     glBindVertexArray(console_background_vao_id);
-        glGenBuffers(1, &console_background_vbo_id);
-        glBindBuffer(GL_ARRAY_BUFFER, console_background_vbo_id);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(console_background_vertex_buffer), console_background_vertex_buffer, GL_STATIC_DRAW);
-            glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, 0);
-            glEnableVertexAttribArray(0);
-            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(sizeof(float) * 2));
-            glEnableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glGenBuffers(1, &console_background_vbo_id);
+    glBindBuffer(GL_ARRAY_BUFFER, console_background_vbo_id);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(console_background_vertex_buffer), console_background_vertex_buffer, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, 0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(sizeof(float) * 2));
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
     console_line_vertex_buffer[0] = 0.f;
     console_line_vertex_buffer[1] = CONSOLE_HEIGHT - (float)CONSOLE_TEXT_SIZE - CONSOLE_TEXT_PADDING_BOTTOM - 2.f;
     console_line_vertex_buffer[2] = 4000.f;//(float)buffer_dimensions.x;
     console_line_vertex_buffer[3] = CONSOLE_HEIGHT - (float)CONSOLE_TEXT_SIZE - CONSOLE_TEXT_PADDING_BOTTOM - 2.f;
     glGenVertexArrays(1, &console_line_vao_id);
     glBindVertexArray(console_line_vao_id);
-        glGenBuffers(1, &console_line_vbo_id);
-        glBindBuffer(GL_ARRAY_BUFFER, console_line_vbo_id);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(console_line_vertex_buffer), console_line_vertex_buffer, GL_STATIC_DRAW);
-            glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-            glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glGenBuffers(1, &console_line_vbo_id);
+    glBindBuffer(GL_ARRAY_BUFFER, console_line_vbo_id);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(console_line_vertex_buffer), console_line_vertex_buffer, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
     console_b_initialized = true;
@@ -358,67 +444,64 @@ void console_render()
     float console_translation_y = console_y - (float) CONSOLE_HEIGHT;
     mat4 con_transform = TranslationMatrix(0.f, console_translation_y, 0.f);
 
-    Shader* conUIShader = &Engine.gfx->consoleUIShader;
-    Shader* conTextShader = &Engine.gfx->consoleTextUIShader;
-
     mat4 projectionMatrix = ProjectionMatrixOrthographic2D(0.f, buffer_dimensions.x, buffer_dimensions.y, 0.f);
 
-    // render console
-    conUIShader->UseShader();
-        conUIShader->GLBind1i("b_use_colour", true);
-        conUIShader->GLBindMatrix4fv("matrix_ortho", 1, (GLfloat*) &projectionMatrix);
-        conUIShader->GLBindMatrix4fv("matrix_model", 1, (GLfloat*) &con_transform);
-        glBindVertexArray(console_background_vao_id);
-            conUIShader->GLBind4f("ui_element_colour", 0.1f, 0.1f, 0.1f, 0.9f);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
-        glBindVertexArray(console_line_vao_id);
-            conUIShader->GLBind4f("ui_element_colour", 0.8f, 0.8f, 0.8f, 1.f);
-            glDrawArrays(GL_LINES, 0, 2);
+    // RENDER CONSOLE UI
+    consoleUIShader.UseShader();
+    consoleUIShader.GLBind1i("b_use_colour", true);
+    consoleUIShader.GLBindMatrix4fv("matrix_ortho", 1, (GLfloat*)&projectionMatrix);
+    consoleUIShader.GLBindMatrix4fv("matrix_model", 1, (GLfloat*) &con_transform);
+    glBindVertexArray(console_background_vao_id);
+    consoleUIShader.GLBind4f("ui_element_colour", 0.1f, 0.1f, 0.1f, 0.9f);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(console_line_vao_id);
+    consoleUIShader.GLBind4f("ui_element_colour", 0.8f, 0.8f, 0.8f, 1.f);
+    glDrawArrays(GL_LINES, 0, 2);
+    glBindVertexArray(0);
+    GLHasErrors();
+
+    // RENDER CONSOLE TEXT
+    consoleTextShader.UseShader();
+    GLHasErrors();
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, console_font_atlas.textureId);
+    consoleTextShader.GLBind1i("font_atlas_sampler", 1);
+
+    GLHasErrors();
+
+    // Input text visual
+    con_transform[3][1] -= 5.f;
+    consoleTextShader.GLBind3f("text_colour", 1.f, 1.f, 1.f);
+    consoleTextShader.GLBindMatrix4fv("matrix_ortho", 1, (GLfloat*)&projectionMatrix);
+    consoleTextShader.GLBindMatrix4fv("matrix_model", 1, (GLfloat*)&con_transform);
+    if(console_inputtext_vao.indicesCount > 0)
+    {
+        glBindVertexArray(console_inputtext_vao.idVAO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, console_inputtext_vao.idIBO);
+        glDrawElements(GL_TRIANGLES, console_inputtext_vao.indicesCount, GL_UNSIGNED_INT, nullptr);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
+    }
     GLHasErrors();
+    // move transform matrix up a lil
+    con_transform[3][1] -= (float)CONSOLE_TEXT_SIZE + 7.f;
 
-    conTextShader->UseShader();
-    GLHasErrors();
-        // RENDER CONSOLE TEXT
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, console_font_atlas.textureId);
-        conTextShader->GLBind1i("font_atlas_sampler", 1);
-
-    GLHasErrors();
-
-        // Input text visual
-        con_transform[3][1] -= 5.f;
-        conTextShader->GLBind3f("text_colour", 1.f, 1.f, 1.f);
-        conTextShader->GLBindMatrix4fv("matrix_ortho", 1, (GLfloat*)&projectionMatrix);
-        conTextShader->GLBindMatrix4fv("matrix_model", 1, (GLfloat*)&con_transform);
-        if(console_inputtext_vao.indicesCount > 0)
+    // Messages text visual
+    consoleTextShader.GLBind3f("text_colour", 0.9f, 0.9f, 0.9f);
+    for(int i = 0; i < CONSOLE_ROWS_MAX; ++i)
+    {
+        Mesh m = console_messages_vaos[i];
+        if(m.indicesCount > 0)
         {
-            glBindVertexArray(console_inputtext_vao.idVAO);
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, console_inputtext_vao.idIBO);
-                    glDrawElements(GL_TRIANGLES, console_inputtext_vao.indicesCount, GL_UNSIGNED_INT, nullptr);
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+            consoleTextShader.GLBindMatrix4fv("matrix_model", 1, (GLfloat*)&con_transform);
+            con_transform[3][1] -= (float)CONSOLE_TEXT_SIZE + 3.f;
+            glBindVertexArray(m.idVAO);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.idIBO);
+            glDrawElements(GL_TRIANGLES, m.indicesCount, GL_UNSIGNED_INT, nullptr);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
             glBindVertexArray(0);
         }
-    GLHasErrors();
-        // move transform matrix up a lil
-        con_transform[3][1] -= (float)CONSOLE_TEXT_SIZE + 7.f;
-
-        // Messages text visual
-        conTextShader->GLBind3f("text_colour", 0.9f, 0.9f, 0.9f);
-        for(int i = 0; i < CONSOLE_ROWS_MAX; ++i)
-        {
-            Mesh m = console_messages_vaos[i];
-            if(m.indicesCount > 0)
-            {
-                conTextShader->GLBindMatrix4fv("matrix_model", 1, (GLfloat*)&con_transform);
-                con_transform[3][1] -= (float)CONSOLE_TEXT_SIZE + 3.f;
-                glBindVertexArray(m.idVAO);
-                    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.idIBO);
-                        glDrawElements(GL_TRIANGLES, m.indicesCount, GL_UNSIGNED_INT, nullptr);
-                    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-                glBindVertexArray(0);
-            }
-        }
+    }
     GLHasErrors();
     glUseProgram(0);
 }
