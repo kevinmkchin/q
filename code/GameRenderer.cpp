@@ -11,6 +11,7 @@
 #include "Console.h"
 #include "GameRuntime.h"
 #include "GUI.h"
+#include "LevelGeometry.h"
 
 bool GameRenderer::Init()
 {
@@ -58,7 +59,7 @@ void GameRenderer::RenderGameLayer()
     GameState* gameState = &(Engine.game->state);
 
     LOCAL_PERSIST GameCamera camera;
-    camera.position = vec3(-4.f,0.f,0.f);
+    camera.position = vec3(-200.f,0.f,0.f);
     camera.CameraUpdate();
     camera.CameraCalculatePerspectiveMatrix();
     
@@ -69,6 +70,9 @@ void GameRenderer::RenderGameLayer()
 
     //auto rotatingCube = std::static_pointer_cast<RotatingCube>(gameState->entities[gameState->rotatingCube]);
     //rotatingCube->graphics.Render(gameSceneShader);
+
+    gameSceneShader.GLBindMatrix4fv("modelMatrix", 1, mat4().ptr());
+    LevelGeometry::RenderFaceBatch(gameState->faces_0);
 
     glUseProgram(0);
 }

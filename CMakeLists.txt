@@ -25,7 +25,8 @@ set(SOURCE_FILES
     "code/Collision.cpp" 
     "code/GameRuntime.cpp"
     "code/GUI.cpp"
-    "code/EditorRuntime.cpp")
+    "code/EditorRuntime.cpp"
+    "code/LevelGeometry.cpp")
 
 
 

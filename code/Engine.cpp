@@ -227,10 +227,11 @@ int EngineClass::Run()
     GameRuntime gameRuntime;
     game = &gameRuntime;
 
-    EditorRuntime editorRuntime;
+    // EditorRuntime editorRuntime;
 
     console_initialize();
 
+    game->LoadAllContent();
     game->StartGame();
 
     KevGui::Init();
@@ -245,7 +246,7 @@ int EngineClass::Run()
 
         console_update(Time.unscaledDeltaTime);
 
-        editorRuntime.UpdateEditor(); //game->Update();
+        game->Update(); // editorRuntime.UpdateEditor(); //game->Update();
         gfx->Render();
 
         SDL_GL_SwapWindow(window);

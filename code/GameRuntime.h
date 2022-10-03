@@ -1,7 +1,9 @@
 #pragma once
 
-#include "Common.h"
 #include <gmath.h>
+
+#include "Common.h"
+#include "LevelGeometry.h"
 
 struct EntityTransform
 {
@@ -38,6 +40,9 @@ struct GameState
     std::vector<EntityIndex> npcIds;
 
     EntityIndex rotatingCube;
+
+	// temporary:
+	LevelGeometry::FaceBatch faces_0;
 };
 
 //class Player : Entity

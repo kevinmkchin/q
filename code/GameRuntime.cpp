@@ -3,6 +3,7 @@
 #include "Collision.h"
 #include "Resources.h"
 #include "GUI.h"
+#include "LevelGeometry.h"
 
 
 template <class T>
@@ -29,21 +30,34 @@ INTERNAL EntityIndex MakeSharedPtrAndPushBackToEntitiesVector(GameState* gameSta
 //	return id;
 //}
 
-
 void GameRuntime::LoadAllContent()
 {
 	MeshGroup::MeshGroupAssimpLoad(primitives_path("cube.obj").c_str());
+
+	LevelGeometry::CreateFaceBatchMeshOnGPU(&state.faces_0.idVAO, &state.faces_0.idVBO);
 }
 
 void GameRuntime::UnloadAllContent()
 {
-
+	LevelGeometry::DeleteFaceBatchMeshOnGPU(state.faces_0.idVAO, state.faces_0.idVBO);
 }
 
 void GameRuntime::StartGame()
 {
 	GameState* gameState = &state;
 
+	float faces_data[] = {
+		64, -32, 64, 1, 1, 0, 0, 0,
+		-64, -32, 64, 0, 1, 0, 0, 0,
+		-64, -32, -64, 0, 0, 0, 0, 0,
+
+		-64, -32, -64, 0, 0, 0, 0, 0,
+		64, -32, -64, 1, 0, 0, 0, 0,
+		64, -32, 64, 1, 1, 0, 0, 0,
+	};
+
+	LevelGeometry::RebindFaceBatchBufferObject(&state.faces_0, sizeof(faces_data), faces_data);
+	//faces_0.facesTexture = Resources.defaultMissingTexture;
 	//std::shared_ptr<RotatingCube> p = std::make_shared<RotatingCube>();
 	//EntityIndex id = (EntityIndex)gameState->entities.size();
 	//p->self = id;
