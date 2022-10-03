@@ -136,7 +136,8 @@ public:
     u8 justPressedKeyState[256];
     u8 justReleasedKeyState[256];
 
-    bool invertYAxis = false; // TODO(Kevin): fix
+    bool invertLeftYAxis = false;
+    bool invertRightYAxis = false;
 
 private:
     void ProcessSDLMouseButtonEvent(SDL_MouseButtonEvent mouseButtonEvent);

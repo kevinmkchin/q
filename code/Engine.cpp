@@ -156,13 +156,11 @@ void EngineClass::SDLProcessEvents()
                     console_toggle();
                     break;
                 }
-
                 if (console_is_shown())
                 {
                     console_keydown(event.key);
                     break;
                 }
-
                 if (event.key.keysym.sym == SDLK_F1)
                 {
                     SDL_SetWindowFullscreen(window, 0);
@@ -176,7 +174,6 @@ void EngineClass::SDLProcessEvents()
                     SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
                 }
             }break;
-
             case SDL_WINDOWEVENT: {
                 switch (event.window.event) {
                     case SDL_WINDOWEVENT_RESIZED:
@@ -185,7 +182,6 @@ void EngineClass::SDLProcessEvents()
                     }break;
                 }
             }break;
-
             case SDL_QUIT: {
                 programShouldShutdown = true;
             }break;
