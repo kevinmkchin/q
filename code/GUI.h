@@ -37,7 +37,8 @@ namespace KevGui
 
     void Draw();
 
-
+    // Note(Kevin): I'm going to use the Do prefix for the primitive "building block" GUI elements
+    // more complete GUI elements will not have this prefix.
     void DoPanel(UIRect rect, vec4 colorRGBA);
 
     void DoPanel(UIRect rect, int cornerWidth, u32 glTextureId = 0, float normalizedCornerSizeInUV = 0.3f);

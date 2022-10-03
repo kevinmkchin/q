@@ -15,6 +15,7 @@ GUI
 
 - make pretty
 - push pop style struct
+- anchors
 
 
 GAME & EDITOR
