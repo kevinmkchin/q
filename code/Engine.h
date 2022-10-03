@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Common.h"
-#include "SDL.h"
+#include <SDL.h>
 
 class GameRenderer;
 class GameRuntime;

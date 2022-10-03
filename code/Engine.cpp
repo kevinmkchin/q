@@ -69,7 +69,7 @@ bool EngineClass::SDLInitialize()
 
     // Setup SDL Window
     if ((window = SDL_CreateWindow(
-        "Quake Clone",
+        "Quake+Bioshock Clone",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
         1280,
@@ -268,7 +268,6 @@ void EngineClass::RegisterConsoleCommandsAndVariables()
     get_console().bind_cmd("windowsize", SetSDLWindowSize);
     get_console().bind_cmd("vsync", SetSDLVSync);
     get_console().bind_cvar("profiler", &profilerLevel);
-    get_console().execute("get profiler", std::cout);
 }
 
 void EngineClass::DrawProfilerGUI()
