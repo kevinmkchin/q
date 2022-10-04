@@ -19,6 +19,8 @@ GUI
 
 
 GAME & EDITOR
+- Use std::optional for entity vector? https://en.cppreference.com/w/cpp/utility/optional
+- WorldLevelGeometryCollider that has all its points in WCS
 - Editor handles like scene tooling
 - Asset management? do i need to?
 - debug drawer for primitives https://github.com/kevinmkchin/XNGINE/blob/master/src/debugging/debug_drawer.h

@@ -2,7 +2,7 @@
 
     gmath.h
 
-    A 3D math and linear algebra library for games written by Kevin Chin (https://kevch.in/)
+    A C++ 3D math and linear algebra library for games written by Kevin Chin (https://kevch.in/)
     Just include and use:
         #include "gmath.h"
 

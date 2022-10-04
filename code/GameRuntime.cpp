@@ -107,8 +107,12 @@ MeshCollider col0 = MeshCollider(451, &tra, bruh);
 MeshCollider col1 = MeshCollider(451, &tra, bruh);
 
 
+#include "ConstructiveSolidGeometry.h"
+
 void GameRuntime::StartGame()
 {
+	DoSmth();
+
 	state.playerCamera.position = vec3(-200.f, 0.f, 0.f);
 	Engine.gfx->activeGameCamera = &state.playerCamera;
 
@@ -132,10 +136,10 @@ void GameRuntime::StartGame()
 		vec3(-128, -32, -128),
 		vec3(128, -32, -128),
 
-		vec3(128, -40, 128),
-		vec3(-128, -40, 128),
-		vec3(-128, -40, -128),
-		vec3(128, -40, -128),
+		//vec3(128, -40, 128),
+		//vec3(-128, -40, 128),
+		//vec3(-128, -40, -128),
+		//vec3(128, -40, -128),
 	};
 	CreateNewPlayer(&state);
 	std::shared_ptr<Entity> player = state.entities[state.player];

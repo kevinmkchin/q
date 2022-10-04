@@ -26,7 +26,9 @@ set(SOURCE_FILES
     "code/GameRuntime.cpp"
     "code/GUI.cpp"
     "code/EditorRuntime.cpp"
-    "code/LevelGeometry.cpp")
+    "code/LevelGeometry.cpp"
+    "code/ConstructiveSolidGeometry.cpp"
+)
 
 
 
