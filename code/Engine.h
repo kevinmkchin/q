@@ -28,7 +28,7 @@ public:
 	GameRuntime* game = nullptr;
 
 private:
-	int profilerLevel = 0;
+	int profilerLevel = 1;
 
 private:
 	void RegisterConsoleCommandsAndVariables();
