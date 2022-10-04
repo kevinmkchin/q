@@ -409,6 +409,13 @@ INTERNAL GJKEPACollisionInfo EPA(GJKSimplex& simplex, const Collider* colA, cons
                 }
             }
 
+            if (uniqueEdges.size() == 0)
+            {
+                minNormal = vec3(0.f, 0.f, 0.f);
+                minDistance = 0.f;
+                break;
+            }
+
             std::vector<int> newFaces;
             for (auto edge : uniqueEdges)
             {
@@ -479,7 +486,7 @@ INTERNAL GJKEPACollisionInfo GJK(Collider* colA, Collider* colB)
     }
 
     //NOTE(Kevin): start direction could be origin - (colA owning object position - colB owning object position)
-    vec3 support = GJKSupport(colA, colB, { 0.f,1.f,0.f });
+    vec3 support = GJKSupport(colA, colB, { 1.f,1.f,1.f });
     GJKSimplex capture;
     capture.pushFront(support);
     vec3 direction = -support;
