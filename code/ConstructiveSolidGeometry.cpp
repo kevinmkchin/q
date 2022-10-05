@@ -1,5 +1,7 @@
 #include "ConstructiveSolidGeometry.h"
 
+#include <unordered_map>
+
 #define EPSILON 0.00001f
 
 bool IsPointContainedInHalfSpace(vec3 planeNormal, float planeDist, vec3 point)
@@ -62,30 +64,30 @@ std::vector<vec3> CSGBrushCalculateVerticesFromHalfSpaces(const CSGBrush& brush)
     return vertices;
 }
 
-void DoSmth()//CSGBrush& brush)
+std::vector<float> DoSmth()//CSGBrush& brush)
 {
     CSGPlane p0;
     p0.n = Normalize(vec3(1, 0, 0));
-    p0.d = 1.f;
+    p0.d = 100.f;
     CSGPlane p1;
     p1.n = Normalize(vec3(0, 1, 0));
-    p1.d = 1.f;
+    p1.d = 100.f;
     CSGPlane p2;
     p2.n = Normalize(vec3(0, 0, 1));
-    p2.d = 1.f;
+    p2.d = 100.f;
     CSGPlane p3;
     p3.n = Normalize(vec3(-1, 0, 0));
-    p3.d = 1.f;
+    p3.d = 100.f;
     CSGPlane p4;
     p4.n = Normalize(vec3(0, -1, 0));
-    p4.d = 1.f;
+    p4.d = 100.f;
     CSGPlane p5;
     p5.n = Normalize(vec3(0, 0, -1));
-    p5.d = 1.f;
+    p5.d = 100.f;
 
     CSGPlane slice;
-    slice.n = vec3(0,1,0);
-    slice.d = 0.1f;
+    slice.n = Normalize(vec3(1,1,0));
+    slice.d = 100.f;
 
     CSGBrush brush;
     brush.halfspaces.push_back(p0);
@@ -102,28 +104,158 @@ void DoSmth()//CSGBrush& brush)
     {
         PrintLog.MessageFmt("x: {}, y: {}, z: {}", v.x, v.y, v.z);
     }
+    
+    std::unordered_map<int, std::vector<vec3>> planeVertices;
+    std::unordered_map<int, std::vector<std::pair<vec3, vec3>>> planeEdges;
 
-    for (auto p : brush.halfspaces)
+    for (int i = 0; i < brush.halfspaces.size(); ++i)
     {
+        CSGPlane p = brush.halfspaces[i];
         PrintLog.Message("---");
-        std::vector<vec3> verticesOnThisPlane;
+        //std::vector<vec3> verticesOnThisPlane;
         for (auto v : vertices)
         {
             if (IsPointOnPlane(p.n, p.d, v))
             {
-                verticesOnThisPlane.push_back(v);
+                planeVertices[i].push_back(v);
+                //verticesOnThisPlane.push_back(v);
             }
         }
 
-        for (auto v : verticesOnThisPlane)
+        // if (verticesOnThisPlane.size() < 3) continue;
+
+        //struct {
+        //    // we know all vertices inputted will be on the same plane
+        //    bool operator()(vec3 a, vec3 b) const { return Dot(a, Normalize(vec3(1.f,1.f,1.f))) < Dot(b, Normalize(vec3(1.f, 1.f, 1.f))); }
+        //} customLess;
+        //std::sort(verticesOnThisPlane.begin(), verticesOnThisPlane.end(), customLess);
+        //// TODO(Kevin): fix sorting
+
+        //for (auto v : verticesOnThisPlane)
+        //{
+        //    PrintLog.MessageFmt("x: {}, y: {}, z: {}", v.x, v.y, v.z);
+        //}
+        // we know which vertices are on each plane
+        // this is enough information to form the face polygon
+        // this is enough information to form a collider
+
+        // we only care about which edges/vertices/faces are relevant to which planes ONLY FOR editing purposes
+        // bcs we need to know which planes get modified when we modify an edge/face/vertex
+    }
+
+    for (int i = 0; i < brush.halfspaces.size() - 1; ++i)
+    {
+        for (int j = i + 1; j < brush.halfspaces.size(); ++j)
         {
-            PrintLog.MessageFmt("x: {}, y: {}, z: {}", v.x, v.y, v.z);
+            std::vector<vec3> verticesOfPlaneI = planeVertices[i];
+            std::vector<vec3> verticesOfPlaneJ = planeVertices[j];
+
+            std::vector<vec3> commonVertices;
+
+            for (auto vert : verticesOfPlaneI)
+            {
+                if (std::find(verticesOfPlaneJ.begin(), verticesOfPlaneJ.end(), vert) != verticesOfPlaneJ.end())
+                {
+                    commonVertices.push_back(vert);
+                }
+            }
+
+            if (commonVertices.size() > 1)
+            {
+                for (int commonI = 0; commonI < commonVertices.size() - 1; ++commonI)
+                {
+                    for (int commonJ = commonI + 1; commonJ < commonVertices.size(); ++commonJ)
+                    {
+                        std::pair<vec3, vec3> commonEdge = std::make_pair(commonVertices[commonI], commonVertices[commonJ]);
+                        planeEdges[i].push_back(commonEdge);
+                        planeEdges[j].push_back(commonEdge);
+                    }
+                }
+            }
         }
     }
 
-    // we know x and y connect
-    // we know z and y connect
-    // we know w and z connect
-    // we know x and w connect
+    // planeEdges and planeVertices are populated
+    // we can triangulate now
 
+    std::vector<float> vertexBuffer;
+
+    for (int i = 0; i < brush.halfspaces.size(); ++i)
+    {
+        if (planeEdges[i].size() < 3) continue;
+        std::vector<vec3> verts = planeVertices[i];
+        vec3 pickedVert = verts[0];
+
+        for (int e = 0; e < planeEdges[i].size(); ++e)
+        {
+            std::pair<vec3,vec3> edge = planeEdges[i][e];
+            if (edge.first != pickedVert && edge.second != pickedVert)
+            {
+                // then there is a tri between pickedVert, edge.first, and edge.second
+                vec3 a = pickedVert;
+                vec3 b = edge.first;
+                vec3 c = edge.second;
+                vec3 ba = b - a;
+                vec3 ca = c - a;
+                if (Dot(Normalize(Cross(ba, ca)), brush.halfspaces[i].n) > 0.f)
+                {
+                    // then add in order a b c
+                    vertexBuffer.push_back(a.x);
+                    vertexBuffer.push_back(a.y);
+                    vertexBuffer.push_back(a.z);
+                    vertexBuffer.push_back(0);
+                    vertexBuffer.push_back(0);
+                    vertexBuffer.push_back(brush.halfspaces[i].n.x);
+                    vertexBuffer.push_back(brush.halfspaces[i].n.y);
+                    vertexBuffer.push_back(brush.halfspaces[i].n.z);
+                    vertexBuffer.push_back(b.x);
+                    vertexBuffer.push_back(b.y);
+                    vertexBuffer.push_back(b.z);
+                    vertexBuffer.push_back(0);
+                    vertexBuffer.push_back(0);
+                    vertexBuffer.push_back(brush.halfspaces[i].n.x);
+                    vertexBuffer.push_back(brush.halfspaces[i].n.y);
+                    vertexBuffer.push_back(brush.halfspaces[i].n.z);
+                    vertexBuffer.push_back(c.x);
+                    vertexBuffer.push_back(c.y);
+                    vertexBuffer.push_back(c.z);
+                    vertexBuffer.push_back(0);
+                    vertexBuffer.push_back(0);
+                    vertexBuffer.push_back(brush.halfspaces[i].n.x);
+                    vertexBuffer.push_back(brush.halfspaces[i].n.y);
+                    vertexBuffer.push_back(brush.halfspaces[i].n.z);
+                }
+                else
+                {
+                    // then add in order a c b
+                    vertexBuffer.push_back(a.x);
+                    vertexBuffer.push_back(a.y);
+                    vertexBuffer.push_back(a.z);
+                    vertexBuffer.push_back(0);
+                    vertexBuffer.push_back(0);
+                    vertexBuffer.push_back(brush.halfspaces[i].n.x);
+                    vertexBuffer.push_back(brush.halfspaces[i].n.y);
+                    vertexBuffer.push_back(brush.halfspaces[i].n.z);
+                    vertexBuffer.push_back(c.x);
+                    vertexBuffer.push_back(c.y);
+                    vertexBuffer.push_back(c.z);
+                    vertexBuffer.push_back(0);
+                    vertexBuffer.push_back(0);
+                    vertexBuffer.push_back(brush.halfspaces[i].n.x);
+                    vertexBuffer.push_back(brush.halfspaces[i].n.y);
+                    vertexBuffer.push_back(brush.halfspaces[i].n.z);
+                    vertexBuffer.push_back(b.x);
+                    vertexBuffer.push_back(b.y);
+                    vertexBuffer.push_back(b.z);
+                    vertexBuffer.push_back(0);
+                    vertexBuffer.push_back(0);
+                    vertexBuffer.push_back(brush.halfspaces[i].n.x);
+                    vertexBuffer.push_back(brush.halfspaces[i].n.y);
+                    vertexBuffer.push_back(brush.halfspaces[i].n.z);
+                }
+            }
+        }
+    }
+
+    return vertexBuffer;
 }

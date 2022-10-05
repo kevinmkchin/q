@@ -32,8 +32,8 @@ namespace LevelGeometry
         glBindBuffer(GL_ARRAY_BUFFER, faceBatch->idVBO);
         glBufferData(GL_ARRAY_BUFFER, sizeInBytes, data, GL_DYNAMIC_DRAW);
         faceBatch->verticesCount = sizeInBytes / (sizeof(float) * 8);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
+        //glBindBuffer(GL_ARRAY_BUFFER, 0);
+        //glBindVertexArray(0);
         // TODO(Kevin): What even is the point of unbinding...I'm going to be careful about always binding before doing anything with VAOs anyways...
     }
 
@@ -43,7 +43,7 @@ namespace LevelGeometry
         glBindBuffer(GL_ARRAY_BUFFER, faceBatch.idVBO);
         faceBatch.facesTexture.UseTexture();
         glDrawArrays(GL_TRIANGLES, 0, faceBatch.verticesCount);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
+        //glBindBuffer(GL_ARRAY_BUFFER, 0);
+        //glBindVertexArray(0);
     }
 }

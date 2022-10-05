@@ -26,25 +26,40 @@ public:
 private:
 	virtual void Update()
 	{
+		//float moveSpeed = 100.f;
+		//vec3 dir = Engine.gfx->activeGameCamera->calculatedDirection;
+		//dir.y = 0.f;
+		//dir = Normalize(dir);
+		//if (Input.IsKeyPressed(SDL_SCANCODE_W))
+		//	transform.position += dir * moveSpeed * Time.deltaTime;
+		//if (Input.IsKeyPressed(SDL_SCANCODE_A))
+		//	transform.position += -Engine.gfx->activeGameCamera->calculatedRight * moveSpeed * Time.deltaTime;
+		//if (Input.IsKeyPressed(SDL_SCANCODE_S))
+		//	transform.position += -dir * moveSpeed * Time.deltaTime;
+		//if (Input.IsKeyPressed(SDL_SCANCODE_D))
+		//	transform.position += Engine.gfx->activeGameCamera->calculatedRight * moveSpeed * Time.deltaTime;
+
+		//if (Input.HasKeyBeenPressed(SDL_SCANCODE_SPACE))
+		//{
+		//	yVel = 10.f;
+		//}
+		//yVel -= 9.81f * Time.deltaTime;
+		//transform.position.y += yVel * Time.deltaTime;
+
 		float moveSpeed = 100.f;
-		vec3 dir = Engine.gfx->activeGameCamera->calculatedDirection;
-		dir.y = 0.f;
-		dir = Normalize(dir);
 		if (Input.IsKeyPressed(SDL_SCANCODE_W))
-			transform.position += dir * moveSpeed * Time.deltaTime;
+			transform.position += Engine.gfx->activeGameCamera->calculatedDirection * moveSpeed * Time.deltaTime;
 		if (Input.IsKeyPressed(SDL_SCANCODE_A))
 			transform.position += -Engine.gfx->activeGameCamera->calculatedRight * moveSpeed * Time.deltaTime;
 		if (Input.IsKeyPressed(SDL_SCANCODE_S))
-			transform.position += -dir * moveSpeed * Time.deltaTime;
+			transform.position += -Engine.gfx->activeGameCamera->calculatedDirection * moveSpeed * Time.deltaTime;
 		if (Input.IsKeyPressed(SDL_SCANCODE_D))
 			transform.position += Engine.gfx->activeGameCamera->calculatedRight * moveSpeed * Time.deltaTime;
+		if (Input.IsKeyPressed(SDL_SCANCODE_Q))
+			transform.position.y += -moveSpeed * Time.deltaTime;
+		if (Input.IsKeyPressed(SDL_SCANCODE_E))
+			transform.position.y += moveSpeed * Time.deltaTime;
 
-		if (Input.HasKeyBeenPressed(SDL_SCANCODE_SPACE))
-		{
-			yVel = 10.f;
-		}
-		yVel -= 9.81f * Time.deltaTime;
-		transform.position.y += yVel * Time.deltaTime;
 	}
 
 	virtual void Render()
@@ -111,7 +126,10 @@ MeshCollider col1 = MeshCollider(451, &tra, bruh);
 
 void GameRuntime::StartGame()
 {
-	DoSmth();
+	std::vector<float> vb = DoSmth();
+	float* vbf = &vb[0];
+
+
 
 	state.playerCamera.position = vec3(-200.f, 0.f, 0.f);
 	Engine.gfx->activeGameCamera = &state.playerCamera;
@@ -126,7 +144,8 @@ void GameRuntime::StartGame()
 		128, -32, 128, 1, 1, 0, 0, 0,
 	};
 
-	LevelGeometry::RebindFaceBatchBufferObject(&state.faces_0, sizeof(faces_data), faces_data);
+	LevelGeometry::RebindFaceBatchBufferObject(&state.faces_0, vb.size() * 4, vbf);
+	//LevelGeometry::RebindFaceBatchBufferObject(&state.faces_0, sizeof(faces_data), faces_data);
 	//faces_0.facesTexture = Resources.defaultMissingTexture;
 
 	tra = EntityTransform();
@@ -170,21 +189,6 @@ void GameRuntime::Update()
 	KevGui::DoTextUnformatted("GAME", 25, 40, 16, KevGui::TextAlignment::Left);
 	KevGui::DoPanel(KevGui::UIRect(22, 45, 140, 22), vec4(1.f, 0.f, 0.f, 1.f));
 	KevGui::DoText(25, 64, 16, KevGui::TextAlignment::Left, "Health: 99");
-
-	//float moveSpeed = 100.f;
-	//vec3 cameraPosition = state.playerCamera.position;
-	//if (Input.IsKeyPressed(SDL_SCANCODE_W))
-	//	cameraPosition += state.playerCamera.calculatedDirection * moveSpeed * Time.deltaTime;
-	//if (Input.IsKeyPressed(SDL_SCANCODE_A))
-	//	cameraPosition += -state.playerCamera.calculatedRight * moveSpeed * Time.deltaTime;
-	//if (Input.IsKeyPressed(SDL_SCANCODE_S))
-	//	cameraPosition += -state.playerCamera.calculatedDirection * moveSpeed * Time.deltaTime;
-	//if (Input.IsKeyPressed(SDL_SCANCODE_D))
-	//	cameraPosition += state.playerCamera.calculatedRight * moveSpeed * Time.deltaTime;
-	//if (Input.IsKeyPressed(SDL_SCANCODE_Q))
-	//	cameraPosition.y += -moveSpeed * Time.deltaTime;
-	//if (Input.IsKeyPressed(SDL_SCANCODE_E))
-	//	cameraPosition.y += moveSpeed * Time.deltaTime;
 
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	std::shared_ptr<Entity> player = state.entities[state.player];
