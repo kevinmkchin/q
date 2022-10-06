@@ -46,5 +46,9 @@ inline void MessageLogger::ErrorFmt(const std::string& fmt, Args && ...args)
 template<class ...Args>
 inline std::string MessageLogger::Format(const std::string& fmt, Args && ...args)
 {
+#if _WIN32
     return std::vformat(fmt, std::make_format_args(args...));
+#elif __APPLE__
+    return "";
+#endif
 }

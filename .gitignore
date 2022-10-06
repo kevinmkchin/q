@@ -8,4 +8,4 @@ cmake-build-*/
 .idea/
 *.DS_Store
 
-ext/project_path.hpp
+lib/project_path.h

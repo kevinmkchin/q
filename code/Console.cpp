@@ -2,7 +2,7 @@
 #include <vector>
 
 #include <SDL.h>
-#include <glew.h>
+#include <kevinopengl.h>
 
 #include <stb_sprintf.h>
 #include <vertext.h>
@@ -288,7 +288,11 @@ void console_command(char* text_command)
 {
     // TODO (Check if this bug still exists after switching to noclip) - FUCKING MEMORY BUG TEXT_COMMAND GETS NULL TERMINATED EARLY SOMETIMES
     char text_command_buffer[CONSOLE_COLS_MAX];
+#if _WIN32
     strcpy_s(text_command_buffer, CONSOLE_COLS_MAX, text_command);//because text_command might point to read-only data
+#elif __APPLE__
+    strcpy(text_command_buffer, text_command);//because text_command might point to read-only data
+#endif
 
     if(*text_command_buffer == '\0')
     {

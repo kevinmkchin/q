@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glew.h>
+#include <kevinopengl.h>
 
 #include "Common.h"
 

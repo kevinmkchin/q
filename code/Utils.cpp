@@ -1,7 +1,7 @@
 #include "Utils.h"
 
 #include <assert.h>
-#include <glew.h>
+#include <kevinopengl.h>
 
 #include "Common.h"
 

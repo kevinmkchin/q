@@ -1,6 +1,7 @@
 #include "Collision.h"
 
 #include <array>
+#include <cfloat>
 
 #include "GameRuntime.h"
 
@@ -270,7 +271,7 @@ INTERNAL bool GJKTetrahedron(GJKSimplex& capture, vec3& direction)
 INTERNAL bool GJKNextSimplex(GJKSimplex& capture, vec3& direction)
 {
     /* We need a series of different checks for each shape of simplex
-     * to see what the new simplex should be and what direction we’ll
+     * to see what the new simplex should be and what direction we'll
      * search in next */
     switch (capture.size()) {
     case 2: return GJKLine(capture, direction);

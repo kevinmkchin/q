@@ -1,6 +1,6 @@
 #include "LevelGeometry.h"
 
-#include <glew.h>
+#include <kevinopengl.h>
 
 namespace LevelGeometry
 {

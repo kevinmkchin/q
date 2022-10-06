@@ -1,8 +1,8 @@
 #pragma once
 
-#include <unordered_map>
+#include <kevinopengl.h>
 
-#include <glew.h>
+#include <unordered_map>
 
 #include "Common.h"
 

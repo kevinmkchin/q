@@ -1,6 +1,6 @@
 #include "GameRenderer.h"
 
-#include <glew.h>
+#include <kevinopengl.h>
 #include <SDL.h>
 #include <gmath.h>
 
@@ -41,6 +41,7 @@ static const char* __finalpass_shader_fs =
 
 bool GameRenderer::Init()
 {
+#if KEVIN_USING_GLEW
     glewExperimental = GL_TRUE;
     if (glewInit() != GLEW_OK)
     {
@@ -48,6 +49,7 @@ bool GameRenderer::Init()
         return false;
     }
     PrintLog.Message("GLEW initialized.");
+#endif
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // alpha blending func: a * (rgb) + (1 - a) * (rgb) = final color output
     glBlendEquation(GL_FUNC_ADD);
