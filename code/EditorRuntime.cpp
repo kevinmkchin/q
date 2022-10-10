@@ -20,7 +20,11 @@ void EditorRuntime::UpdateEditor()
 
 	KevGui::DoImage(KevGui::UIRect(drawableWidth - 280, 40, 250, 250), Resources.defaultMissingTexture.textureId);
 
+    KevGui::UIStyle style1 = KevGui::GetActiveUIStyleCopy();
+    style1.textFont = Resources.fonts[FONT_SourceCodePro];
+    KevGui::PushUIStyle(style1);
     KevGui::LabelledButton(KevGui::UIRect(drawableWidth - 280, 300, 250, 40), "Click qpy", 24, KevGui::TextAlignment::Center);
+    KevGui::PopUIStyle();
 
     KevGui::IncrementableIntegerField("Some Integer", &num);
 
