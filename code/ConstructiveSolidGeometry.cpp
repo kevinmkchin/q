@@ -99,11 +99,6 @@ std::vector<float> DoSmth()//CSGBrush& brush)
     brush.halfspaces.push_back(slice);
 
     std::vector<vec3> vertices = CSGBrushCalculateVerticesFromHalfSpaces(brush);
-
-    for (auto v : vertices)
-    {
-        PrintLog.MessageFmt("x: {}, y: {}, z: {}", v.x, v.y, v.z);
-    }
     
     std::unordered_map<int, std::vector<vec3>> planeVertices;
     std::unordered_map<int, std::vector<std::pair<vec3, vec3>>> planeEdges;
@@ -111,30 +106,16 @@ std::vector<float> DoSmth()//CSGBrush& brush)
     for (int i = 0; i < brush.halfspaces.size(); ++i)
     {
         CSGPlane p = brush.halfspaces[i];
-        PrintLog.Message("---");
-        //std::vector<vec3> verticesOnThisPlane;
         for (auto v : vertices)
         {
             if (IsPointOnPlane(p.n, p.d, v))
             {
                 planeVertices[i].push_back(v);
-                //verticesOnThisPlane.push_back(v);
             }
         }
 
         // if (verticesOnThisPlane.size() < 3) continue;
 
-        //struct {
-        //    // we know all vertices inputted will be on the same plane
-        //    bool operator()(vec3 a, vec3 b) const { return Dot(a, Normalize(vec3(1.f,1.f,1.f))) < Dot(b, Normalize(vec3(1.f, 1.f, 1.f))); }
-        //} customLess;
-        //std::sort(verticesOnThisPlane.begin(), verticesOnThisPlane.end(), customLess);
-        //// TODO(Kevin): fix sorting
-
-        //for (auto v : verticesOnThisPlane)
-        //{
-        //    PrintLog.MessageFmt("x: {}, y: {}, z: {}", v.x, v.y, v.z);
-        //}
         // we know which vertices are on each plane
         // this is enough information to form the face polygon
         // this is enough information to form a collider
@@ -191,6 +172,11 @@ std::vector<float> DoSmth()//CSGBrush& brush)
             std::pair<vec3,vec3> edge = planeEdges[i][e];
             if (edge.first != pickedVert && edge.second != pickedVert)
             {
+                // to get the normal of this vertex, we need to transform from a vec3 WCS point
+                // to a vec2 UV coordinate
+
+
+
                 // then there is a tri between pickedVert, edge.first, and edge.second
                 vec3 a = pickedVert;
                 vec3 b = edge.first;

@@ -7,6 +7,7 @@ typedef int ui_id;
 
 #include <gmath.h>
 #include "Common.h"
+#include "Resources.h"
 
 namespace KevGui
 {
@@ -25,6 +26,27 @@ namespace KevGui
         int y;
         int w;
         int h;
+    };
+
+    struct UIStyle
+    {
+        vec4 buttonNormalColor = vec4(0.18f, 0.18f, 0.18f, 1.f);
+        vec4 buttonHoveredColor = vec4(0.08f, 0.08f, 0.08f, 1.f);
+        vec4 buttonActiveColor = vec4(0.06f, 0.06f, 0.06f, 1.f);
+        Font textFont;
+        vec4 textColor = vec4(1.f, 1.f, 1.f, 1.f);
+
+        vec4 editorWindowBackgroundColor = vec4(0.f, 1.f, 0.f, 1.f);
+        int editorTextSize = 16;
+
+    };
+
+    struct UIWindowGuide
+    {
+        ui_id windowId = null_ui_id;
+        UIRect initialWindowRect;
+        int xOffsetFromInitialWindow;
+        int yOffsetFromInitialWindow;
     };
 
     ui_id FreshID();
@@ -54,12 +76,20 @@ namespace KevGui
     void DoIntegerField(ui_id id, UIRect rect, int* v);
 
 
-    bool Temp_TextButton(UIRect rect, const char* label);
+    bool LabelledButton(UIRect rect, const char* label, int textSize, TextAlignment textAlignment);
 
-    void Temp_IncrementableIntegerField(const char* label, int* v);
+    void IncrementableIntegerField(const char* label, int* v);
 
     //void DoCheckbox(const char* label, );
     
     // void DoEditorPanel();
+
+    void EditorBeginWindow(UIRect windowRect);
+
+    void EditorEndWindow();
+
+    // void EditorText(const char* textFmt, ...);
+
+    bool EditorLabelledButton(const char* label);
 }
 

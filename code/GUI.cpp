@@ -69,7 +69,7 @@ namespace KevGui
     static Mesh __ui_mesh;
     static Mesh __text_mesh;
 
-    static Font __text_font;
+    static Font __default_font;
 
     static char __reservedFormattedTextMem[16384];
     static const int __formattedTextLineSizeBytes = 128;
@@ -79,6 +79,13 @@ namespace KevGui
 
     static NiceArray<char, 128> activeTextInputBuffer;
 
+    static UIStyle activeUIStyle;
+    static UIWindowGuide activeWindowGuide;
+
+    static ui_id freshIdCounter = 0;
+    static ui_id hoveredUI = null_ui_id;
+    static ui_id activeUI = null_ui_id;
+    static bool anyElementHoveredThisFrame = false;
 
     struct UIDrawRequest
     {
@@ -180,6 +187,7 @@ namespace KevGui
         int x = 0;
         int y = 0;
         TextAlignment alignment = TextAlignment::Left;
+        Font font;
 
         void Draw()
         {
@@ -189,13 +197,13 @@ namespace KevGui
             switch (alignment)
             {
             case TextAlignment::Left:{
-                vtxt_append_line(text, __text_font.ptr, size);
+                vtxt_append_line(text, font.ptr, size);
             }break;
             case TextAlignment::Center:{
-                vtxt_append_line_centered(text, __text_font.ptr, size);
+                vtxt_append_line_centered(text, font.ptr, size);
             }break;
             case TextAlignment::Right:{
-                vtxt_append_line_align_right(text, __text_font.ptr, size);
+                vtxt_append_line_align_right(text, font.ptr, size);
             }break;
             }
             vtxt_vertex_buffer _txt = vtxt_grab_buffer();
@@ -206,7 +214,7 @@ namespace KevGui
             __text_shader.UseShader();
             __text_shader.GLBindMatrix4fv("matrixModel", 1, matrixModel.ptr());
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, __text_font.texture.textureId);
+            glBindTexture(GL_TEXTURE_2D, font.texture.textureId);
             __text_shader.GLBind1i("textureSampler0", 0);
             __text_shader.GLBind4f("uiColour", color.x, color.y, color.z, color.w);
 
@@ -214,16 +222,11 @@ namespace KevGui
         }
     };
 
-    NiceArray<RectDrawRequest, 256> rectDrawRequestsBuffer;
-    NiceArray<CorneredRectDrawRequest, 256> corneredRectDrawRequestsBuffer;
-    NiceArray<TextDrawRequest, 256> textDrawRequestsBuffer;
-    std::queue<UIDrawRequest*> drawQueue;
+    static NiceArray<RectDrawRequest, 256> rectDrawRequestsBuffer;
+    static NiceArray<CorneredRectDrawRequest, 256> corneredRectDrawRequestsBuffer;
+    static NiceArray<TextDrawRequest, 256> textDrawRequestsBuffer;
+    static std::queue<UIDrawRequest*> drawQueue;
 
-
-    static ui_id freshIdCounter = 0;
-    static ui_id hoveredUI = null_ui_id;
-    static ui_id activeUI = null_ui_id;
-    static bool anyElementHoveredThisFrame = false;
     static bool IsActive(ui_id id)
     {
         return activeUI == id;
@@ -362,7 +365,8 @@ namespace KevGui
         drawRequest.x = x;
         drawRequest.y = y;
         drawRequest.alignment = alignment;
-        drawRequest.color = vec4(1.f, 1.f, 1.f, 1.f);
+        drawRequest.font = activeUIStyle.textFont;
+        drawRequest.color = activeUIStyle.textColor;
 
         textDrawRequestsBuffer.PushBack(drawRequest);
         drawQueue.push(&textDrawRequestsBuffer.Back());
@@ -479,14 +483,28 @@ namespace KevGui
 
 
 
-    bool Temp_TextButton(UIRect rect, const char* label)
+    bool LabelledButton(UIRect rect, const char* label, int textSize, TextAlignment textAlignment)
     {
-        bool buttonValue = DoButton(FreshID(), rect, vec4(0.18f, 0.18f, 0.18f, 1.f), vec4(0.08f, 0.08f, 0.08f, 1.f), vec4(0.06f, 0.06f, 0.06f, 1.f));
-        DoTextUnformatted(label, rect.x + 10, rect.y + rect.h - 10, 16, TextAlignment::Left);
+        float ascenderToFontSizeRatio = activeUIStyle.textFont.ptr->ascender / (activeUIStyle.textFont.ptr->ascender + GM_abs(activeUIStyle.textFont.ptr->descender));
+        float ascenderTextSize = (float) textSize * ascenderToFontSizeRatio;
+        float yTextPaddingRatio = (1.f - (ascenderTextSize / (float) rect.h)) / 2.f;
+        ivec2 textPadding = ivec2(10, (int) (rect.h * yTextPaddingRatio) + 1);
+        int textX = rect.x + textPadding.x;
+        if (textAlignment == TextAlignment::Center)
+        {
+            textX = (int) ((rect.w / 2) + rect.x);
+        }
+        else if (textAlignment == TextAlignment::Right)
+        {
+            textX = (int) rect.x + rect.w - textPadding.x;
+        }
+
+        bool buttonValue = DoButton(FreshID(), rect, activeUIStyle.buttonNormalColor, activeUIStyle.buttonHoveredColor, activeUIStyle.buttonActiveColor);
+        DoTextUnformatted(label, textX, rect.y + rect.h - textPadding.y, textSize, textAlignment);
         return buttonValue;
     }
 
-    void Temp_IncrementableIntegerField(const char* label, int* v)
+    void IncrementableIntegerField(const char* label, int* v)
     {
         int x = 40;
         int y = 100;
@@ -495,18 +513,52 @@ namespace KevGui
 
         DoPanel(UIRect(x, y, 38, h), vec4(0.4f, 0.4f, 0.4f, 1.f));
         DoIntegerField(FreshID(), UIRect(x+1, y+1, 36, h-2), v);
-        if (DoButton(FreshID(), UIRect(x + 40, y + 1, 20, (h / 2) - 1), vec4(0.18f, 0.18f, 0.18f, 1.f), vec4(0.08f, 0.08f, 0.08f, 1.f), vec4(0.06f, 0.06f, 0.06f, 1.f)))
+        if (DoButton(FreshID(), UIRect(x + 40, y + 1, 20, (h / 2) - 1), activeUIStyle.buttonNormalColor, activeUIStyle.buttonHoveredColor, activeUIStyle.buttonActiveColor))
         {
             (*v)++;
         }
-        if (DoButton(FreshID(), UIRect(x + 40, y + (h / 2) + 1, 20, (h / 2) - 1), vec4(0.18f, 0.18f, 0.18f, 1.f), vec4(0.08f, 0.08f, 0.08f, 1.f), vec4(0.06f, 0.06f, 0.06f, 1.f)))
+        if (DoButton(FreshID(), UIRect(x + 40, y + (h / 2) + 1, 20, (h / 2) - 1), activeUIStyle.buttonNormalColor, activeUIStyle.buttonHoveredColor, activeUIStyle.buttonActiveColor))
         {
             (*v)--;
         }
         DoTextUnformatted(label, x + 62, y + h, 20, TextAlignment::Left);
     }
 
+    void EditorBeginWindow(UIRect windowRect)
+    {
+        if (activeWindowGuide.windowId != null_ui_id)
+        {
+            PrintLog.Error("EditorBeginWindow and EditorEndWindows don't match.");
+            return;
+        }
 
+        ui_id windowId = FreshID();
+        activeWindowGuide.windowId = windowId;
+        activeWindowGuide.initialWindowRect = windowRect;
+        activeWindowGuide.xOffsetFromInitialWindow = 5;
+        activeWindowGuide.yOffsetFromInitialWindow = 5;
+        // TODO(Kevin): Set active ui style to editor default style?
+        DoPanel(windowRect, activeUIStyle.editorWindowBackgroundColor);
+    }
+
+    void EditorEndWindow()
+    {
+        activeWindowGuide.windowId = null_ui_id;
+    }
+
+    bool EditorLabelledButton(const char* label)
+    {
+        int buttonX = activeWindowGuide.initialWindowRect.x + activeWindowGuide.xOffsetFromInitialWindow;
+        int buttonY = activeWindowGuide.initialWindowRect.y + activeWindowGuide.yOffsetFromInitialWindow;
+        int buttonW = 50;
+        int buttonH = 20;
+        int buttonPaddingAbove = 0;
+        int buttonPaddingBelow = 5;
+        UIRect buttonRect = UIRect(buttonX, buttonY + buttonPaddingAbove, buttonW, buttonH);
+        bool result = LabelledButton(buttonRect, label, activeUIStyle.editorTextSize, TextAlignment::Center);
+        activeWindowGuide.yOffsetFromInitialWindow += buttonPaddingAbove + buttonH + buttonPaddingBelow;
+        return result;
+    }
 
     ui_id FreshID()
     {
@@ -522,7 +574,11 @@ namespace KevGui
         Mesh::MeshCreate(__ui_mesh, nullptr, nullptr, 0, 0, 2, 2, 0, GL_DYNAMIC_DRAW);
         Mesh::MeshCreate(__text_mesh, nullptr, nullptr, 0, 0, 2, 2, 0, GL_DYNAMIC_DRAW);
 
-        __text_font = Font::FontCreateFromFile(font_path("c64.ttf"), 16, true);
+        __default_font = Font::FontCreateFromFile(font_path("SourceCodePro.ttf"), 40, false);
+        if(activeUIStyle.textFont.filePath.empty())
+        {
+            activeUIStyle.textFont = __default_font;
+        }
     }
 
     void NewFrame()

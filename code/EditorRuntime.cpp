@@ -20,9 +20,20 @@ void EditorRuntime::UpdateEditor()
 
 	KevGui::DoImage(KevGui::UIRect(drawableWidth - 280, 40, 250, 250), Resources.defaultMissingTexture.textureId);
 
-	KevGui::Temp_TextButton(KevGui::UIRect(drawableWidth - 280, 300, 250, 40), "Click me!");
+    KevGui::LabelledButton(KevGui::UIRect(drawableWidth - 280, 300, 250, 40), "Click qpy", 24, KevGui::TextAlignment::Center);
 
-	KevGui::Temp_IncrementableIntegerField("Some Integer", &num);
+    KevGui::IncrementableIntegerField("Some Integer", &num);
 
 	KevGui::DoIntegerField(KevGui::FreshID(), KevGui::UIRect(300, 300, 100, 25), &num);
+
+    KevGui::EditorBeginWindow(KevGui::UIRect(200, 200, 200, 200));
+    if(KevGui::EditorLabelledButton("A"))
+    {
+        printf("A");
+    }
+    if(KevGui::EditorLabelledButton("B"))
+    {
+        printf("B");
+    }
+    KevGui::EditorEndWindow();
 }

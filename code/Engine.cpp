@@ -185,15 +185,15 @@ int EngineClass::Run()
 
     LoadPerpetualResources();
 
-    GameRuntime gameRuntime;
-    game = &gameRuntime;
+//    GameRuntime gameRuntime;
+//    game = &gameRuntime;
 
-    // EditorRuntime editorRuntime;
+    EditorRuntime editorRuntime;
 
     console_initialize();
 
-    game->LoadAllContent();
-    game->StartGame();
+//    game->LoadAllContent();
+//    game->StartGame();
 
     KevGui::Init();
 
@@ -209,7 +209,7 @@ int EngineClass::Run()
 
         console_update(Time.unscaledDeltaTime);
 
-        game->Update(); // editorRuntime.UpdateEditor(); //game->Update();
+        editorRuntime.UpdateEditor(); //game->Update();
         DrawProfilerGUI();
         gfx->Render();
 
