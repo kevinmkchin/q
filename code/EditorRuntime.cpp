@@ -35,7 +35,7 @@ void EditorRuntime::UpdateEditor()
     {
         printf("A");
     }
-    if(KevGui::EditorLabelledButton("B"))
+    if(KevGui::EditorLabelledButton("Longer Button B"))
     {
         printf("B");
     }

@@ -569,14 +569,19 @@ namespace KevGui
 
     bool EditorLabelledButton(const char* label)
     {
+        int labelTextSize = ui_ss.top().editorTextSize;
+        float textW;
+        float textH;
+        vtxt_get_text_bounding_box_info(&textW, &textH, label, ui_ss.top().textFont.ptr, labelTextSize);
+
         int buttonX = activeWindowGuide.initialWindowRect.x + activeWindowGuide.xOffsetFromInitialWindow;
         int buttonY = activeWindowGuide.initialWindowRect.y + activeWindowGuide.yOffsetFromInitialWindow;
-        int buttonW = 50;
-        int buttonH = 20;
+        int buttonW = GM_max((int) textW + 4, 50);
+        int buttonH = labelTextSize + 4;
         int buttonPaddingAbove = 0;
         int buttonPaddingBelow = 5;
         UIRect buttonRect = UIRect(buttonX, buttonY + buttonPaddingAbove, buttonW, buttonH);
-        bool result = LabelledButton(buttonRect, label, ui_ss.top().editorTextSize, TextAlignment::Center);
+        bool result = LabelledButton(buttonRect, label, labelTextSize, TextAlignment::Center);
         activeWindowGuide.yOffsetFromInitialWindow += buttonPaddingAbove + buttonH + buttonPaddingBelow;
         return result;
     }

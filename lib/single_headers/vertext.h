@@ -415,6 +415,15 @@ VTXT_DEF void vtxt_clear_buffer();
 /** Set an offset to font linegap. Default is 0. */
 VTXT_DEF void vtxt_set_linegap_offset(float offset);
 
+/** Returns the width and height of the minimum bounding box containing
+    the given text using the given font and font size. */
+VTXT_DEF void vtxt_get_text_bounding_box_info(float* width_out,
+                                              float* height_out,
+                                              const char* text,
+                                              vtxt_font* font,
+                                              int font_size);
+
+
 #endif // _INCLUDE_VERTEXT_H_
 
 
@@ -846,6 +855,58 @@ vtxt_append_line_centered(const char* line_of_text, vtxt_font* font, int font_si
     {
 
     }
+}
+
+VTXT_DEF void
+vtxt_get_text_bounding_box_info(float* width_out,
+                                float* height_out,
+                                const char* text,
+                                vtxt_font* font,
+                                int font_size)
+{
+    float wSumLargestSoFar = 0;
+    float wSumCurrent = 0;
+    float hSum = 0;
+
+    while (*text != '\0')
+    {
+        if (*text != '\n')
+        {
+            if (*text < VTXT_ASCII_FROM || *text > VTXT_ASCII_TO) // Make sure we have the data for this glyph
+            {
+                continue;
+            }
+
+            bool isLastGlyphInLine = *(text + 1) == '\0' || *(text + 1) == '\n';
+            float scale = ((float)font_size) / (font->ascender - font->descender);
+            vtxt_glyph glyph = font->glyphs[*text - VTXT_ASCII_FROM];
+            glyph.advance *= scale;
+            glyph.width *= scale;
+            glyph.height *= scale;
+            glyph.offset_x *= scale;
+            glyph.offset_y *= scale;
+
+            wSumCurrent += isLastGlyphInLine ? glyph.offset_x + glyph.width : glyph.advance;
+
+            if (isLastGlyphInLine)
+            {
+                if (wSumCurrent > wSumLargestSoFar)
+                {
+                    wSumLargestSoFar = wSumCurrent;
+                }
+
+                float linegap = font->linegap + _vtxt_linegap_offset;
+                float heightOfThisLine = (font->ascender - font->descender + linegap) * scale;
+                // Note(Kevin): honestly could prob just use the tallest glyph.height + glyph.offset_y instead
+                // TODO(Kevin): Only add font->linegap if there is a new line with legit characters
+                hSum += heightOfThisLine;
+            }
+        }
+        ++text; // next character
+    }
+
+    *width_out = wSumLargestSoFar;
+    *height_out = hSum;
 }
 
 VTXT_DEF vtxt_vertex_buffer
