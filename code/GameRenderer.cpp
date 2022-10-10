@@ -41,7 +41,7 @@ static const char* __finalpass_shader_fs =
 
 bool GameRenderer::Init()
 {
-#if KEVIN_USING_GLEW
+#ifdef KEVIN_USING_GLEW
     glewExperimental = GL_TRUE;
     if (glewInit() != GLEW_OK)
     {

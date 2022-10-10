@@ -49,8 +49,8 @@ private:
 	void CreateMiscellaneous();
 
 private:
-	i32 backBufferWidth;
-	i32 backBufferHeight;
+	i32 backBufferWidth = -1;
+	i32 backBufferHeight = -1;
 
 public:
 	BasicFrameBuffer gameLayer;
@@ -65,6 +65,6 @@ private:
 	Mesh screenSizeQuad;
 
 public:
-	GameCamera* activeGameCamera;
+	GameCamera* activeGameCamera = nullptr;
 
 };
