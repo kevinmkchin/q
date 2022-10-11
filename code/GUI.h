@@ -36,7 +36,7 @@ namespace KevGui
         Font textFont;
         vec4 textColor = vec4(1.f, 1.f, 1.f, 1.f);
 
-        vec4 editorWindowBackgroundColor = vec4(0.f, 1.f, 0.f, 1.f);
+        vec4 editorWindowBackgroundColor = vec4(0.3f, 0.3f, 0.3f, 1.f);
         int editorTextSize = 16;
 
     };

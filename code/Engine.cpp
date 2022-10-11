@@ -1,8 +1,10 @@
 /**  TODO
 
 GUI
-- Auto formatting GUI window
 - Capture mouse click -> save visible window areas of previous frame
+- editor gui elements must belong to an editor window
+    - when windows are overlapping, the gui elements belonging to the occluded
+      windows may not receive mouse click (if mouse click pos is within topmost window bb)
 - Button that repeatedly returns true if held
 
 - Checkbox
