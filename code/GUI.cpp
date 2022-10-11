@@ -481,7 +481,7 @@ namespace KevGui
         }
     }
 
-    void DoFloatInputField(ui_id id, UIRect rect, float* v)
+    void DoFloatInputField(ui_id id, UIRect rect, float* v, int numDecimalPointsToDraw)
     {
         bool bSetInactiveAndReturnValue = false;
 
@@ -582,8 +582,8 @@ namespace KevGui
         else
         {
             std::string strToDraw = std::to_string(*v);
-            RemoveCharactersFromEndOfString(strToDraw, '0');
-            if (strToDraw.back() == '.') strToDraw.push_back('0');
+            size_t indexOfDot = strToDraw.find_first_of('.');
+            strToDraw = strToDraw.substr(0, indexOfDot + 1 + numDecimalPointsToDraw);
             DoText(rect.x + rect.w, rect.y + rect.h, 14, TextAlignment::Right, strToDraw.c_str());
         }
     }

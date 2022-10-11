@@ -75,7 +75,7 @@ namespace KevGui
 
     void DoIntegerInputField(ui_id id, UIRect rect, int* v);
 
-    void DoFloatInputField(ui_id id, UIRect rect, float* v);
+    void DoFloatInputField(ui_id id, UIRect rect, float* v, int numDecimalPointsToDraw = 2);
 
 
     void PushUIStyle(UIStyle style);

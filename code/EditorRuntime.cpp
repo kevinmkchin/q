@@ -27,8 +27,8 @@ void EditorRuntime::UpdateEditor()
     {
         printf("B");
     }
-    KevGui::EditorIncrementableIntegerField("Some Integer", &num);
-    KevGui::EditorIncrementableFloatField("Some Float", &numf);
+    KevGui::EditorIncrementableIntegerField("Integer", &num);
+    KevGui::EditorIncrementableFloatField("Float", &numf);
     KevGui::EditorEndWindow();
 
 	KevGui::DoImage(KevGui::UIRect(40, drawableHeight - 290, 250, 250), Resources.defaultMissingTexture.textureId);
