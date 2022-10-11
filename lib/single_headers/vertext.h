@@ -372,7 +372,8 @@ VTXT_DEF void vtxt_move_cursor(int x,
 /** Go to new line and set X location of cursor
 */
 VTXT_DEF void vtxt_new_line(int          x,
-                            vtxt_font*   font);
+                            vtxt_font*   font,
+                            int          text_height_px);
 
 /** Assemble quads for a line of text and append to vertex buffer.
     line_of_text is the text you want to draw e.g. "some text I want to Draw".
@@ -608,30 +609,31 @@ vtxt_move_cursor(int x, int y)
 }
 
 VTXT_DEF void
-vtxt_new_line(int x, vtxt_font* font)
+vtxt_new_line(int x, vtxt_font* font, int text_height_px)
 {
+    float scale = (float)text_height_px / (float)font->font_height_px;
     float linegap = font->linegap + _vtxt_linegap_offset;
     _vtxt_cursor_x = x;
     if(_vtxt_config & VTXT_NEWLINE_ABOVE)
     {
         if(_vtxt_config & VTXT_FLIP_Y)
         {
-            _vtxt_cursor_y += (int) (-font->descender + linegap + font->ascender);
+            _vtxt_cursor_y += (int) ((-font->descender + linegap + font->ascender)*scale);
         }
         else
         {
-            _vtxt_cursor_y -= (int) (-font->descender + linegap + font->ascender);
+            _vtxt_cursor_y -= (int) ((-font->descender + linegap + font->ascender)*scale);
         }
     }
     else
     {
         if(_vtxt_config & VTXT_FLIP_Y)
         {
-            _vtxt_cursor_y -= (int) (-font->descender + linegap + font->ascender);
+            _vtxt_cursor_y -= (int) ((-font->descender + linegap + font->ascender)*scale);
         }
         else
         {
-            _vtxt_cursor_y += (int) (-font->descender + linegap + font->ascender);
+            _vtxt_cursor_y += (int) ((-font->descender + linegap + font->ascender)*scale);
         }
     }
 }
@@ -771,7 +773,7 @@ vtxt_append_line(const char* line_of_text, vtxt_font* font, int text_height_px)
         }
         else
         {
-            vtxt_new_line(line_start_x, font);
+            vtxt_new_line(line_start_x, font, text_height_px);
         }
         ++line_of_text;// next character
     }
@@ -808,7 +810,7 @@ vtxt_append_line_align_right(const char* line_of_text, vtxt_font* font, int text
 
     if (*line_of_text == '\n')
     {
-        vtxt_new_line(line_start_x, font);
+        vtxt_new_line(line_start_x, font, text_height_px);
         ++line_of_text;
         vtxt_append_line_align_right(line_of_text, font, text_height_px);
     }
@@ -850,7 +852,7 @@ vtxt_append_line_centered(const char* line_of_text, vtxt_font* font, int text_he
 
     if(*line_of_text == '\n')
     {
-        vtxt_new_line(line_start_x, font);
+        vtxt_new_line(line_start_x, font, text_height_px);
         ++line_of_text;
         vtxt_append_line_centered(line_of_text, font, text_height_px);
     }

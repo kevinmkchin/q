@@ -374,7 +374,7 @@ void console_update_messages()
                     }
                     else
                     {
-                        vtxt_new_line(CONSOLE_INPUT_DRAW_X, console_font_handle);
+                        vtxt_new_line(CONSOLE_INPUT_DRAW_X, console_font_handle, CONSOLE_TEXT_SIZE);
                     }
                 }
                 vtxt_vertex_buffer vb = vtxt_grab_buffer();
