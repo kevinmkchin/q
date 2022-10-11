@@ -27,13 +27,10 @@ void EditorRuntime::UpdateEditor()
     KevGui::LabelledButton(KevGui::UIRect(drawableWidth - 280, 300, 250, 40), "Click qpy", 24, KevGui::TextAlignment::Center);
     KevGui::PopUIStyle();
 
-    KevGui::IncrementableIntegerField("Some Integer", &num);
 
 	KevGui::DoIntegerInputField(KevGui::FreshID(), KevGui::UIRect(10, 300, 100, 25), &num);
 
     KevGui::DoFloatInputField(KevGui::FreshID(), KevGui::UIRect(10, 340, 100, 25), &numf);
-
-    KevGui::IncrementableFloatField("Some Float", &numf);
 
     KevGui::EditorBeginWindow(KevGui::UIRect(200, 200, 200, 200));
     if(KevGui::EditorLabelledButton("A"))
@@ -44,5 +41,7 @@ void EditorRuntime::UpdateEditor()
     {
         printf("B");
     }
+    KevGui::EditorIncrementableIntegerField("Some Integer", &num);
+    KevGui::EditorIncrementableFloatField("Some Float", &numf);
     KevGui::EditorEndWindow();
 }

@@ -630,46 +630,6 @@ namespace KevGui
         return buttonValue;
     }
 
-    void IncrementableIntegerField(const char* label, int* v, int increment)
-    {
-        int x = 40;
-        int y = 100;
-        int w = 60;
-        int h = 20;
-
-        DoPanel(UIRect(x, y, 38, h), vec4(0.4f, 0.4f, 0.4f, 1.f));
-        DoIntegerInputField(FreshID(), UIRect(x+1, y+1, 36, h-2), v);
-        if (DoButton(FreshID(), UIRect(x + 40, y + 1, 20, (h / 2) - 1), ui_ss.top().buttonNormalColor, ui_ss.top().buttonHoveredColor, ui_ss.top().buttonActiveColor))
-        {
-            (*v) += increment;
-        }
-        if (DoButton(FreshID(), UIRect(x + 40, y + (h / 2) + 1, 20, (h / 2) - 1), ui_ss.top().buttonNormalColor, ui_ss.top().buttonHoveredColor, ui_ss.top().buttonActiveColor))
-        {
-            (*v) -= increment;
-        }
-        DoTextUnformatted(label, x + 62, y + h, 20, TextAlignment::Left);
-    }
-
-    void IncrementableFloatField(const char* label, float* v, float increment)
-    {
-        int x = 100;
-        int y = 140;
-        int w = 60;
-        int h = 20;
-
-        DoPanel(UIRect(x, y, 38, h), vec4(0.4f, 0.4f, 0.4f, 1.f));
-        DoFloatInputField(FreshID(), UIRect(x + 1, y + 1, 36, h - 2), v);
-        if (DoButton(FreshID(), UIRect(x + 40, y + 1, 20, (h / 2) - 1), ui_ss.top().buttonNormalColor, ui_ss.top().buttonHoveredColor, ui_ss.top().buttonActiveColor))
-        {
-            (*v) += increment;
-        }
-        if (DoButton(FreshID(), UIRect(x + 40, y + (h / 2) + 1, 20, (h / 2) - 1), ui_ss.top().buttonNormalColor, ui_ss.top().buttonHoveredColor, ui_ss.top().buttonActiveColor))
-        {
-            (*v) -= increment;
-        }
-        DoTextUnformatted(label, x + 62, y + h, 20, TextAlignment::Left);
-    }
-
 
 
     void EditorBeginWindow(UIRect windowRect)
@@ -712,6 +672,56 @@ namespace KevGui
         activeWindowGuide.yOffsetFromInitialWindow += buttonPaddingAbove + buttonH + buttonPaddingBelow;
         return result;
     }
+
+    void EditorIncrementableIntegerField(const char* label, int* v, int increment)
+    {
+        int x = activeWindowGuide.initialWindowRect.x + activeWindowGuide.xOffsetFromInitialWindow;
+        int y = activeWindowGuide.initialWindowRect.y + activeWindowGuide.yOffsetFromInitialWindow;
+        int w = 120;
+        int h = 20;
+        int paddingAbove = 0;
+        int paddingBelow = 5;
+
+        DoPanel(UIRect(x, y, w-2, h), vec4(0.4f, 0.4f, 0.4f, 1.f));
+        DoIntegerInputField(FreshID(), UIRect(x + 1, y + 1, w-4, h - 2), v);
+        if (DoButton(FreshID(), UIRect(x + w, y + 1, 20, (h / 2) - 1), ui_ss.top().buttonNormalColor, ui_ss.top().buttonHoveredColor, ui_ss.top().buttonActiveColor))
+        {
+            (*v) += increment;
+        }
+        if (DoButton(FreshID(), UIRect(x + w, y + (h / 2) + 1, 20, (h / 2) - 1), ui_ss.top().buttonNormalColor, ui_ss.top().buttonHoveredColor, ui_ss.top().buttonActiveColor))
+        {
+            (*v) -= increment;
+        }
+        DoTextUnformatted(label, x + w + 22, y + h, 20, TextAlignment::Left);
+
+        activeWindowGuide.yOffsetFromInitialWindow += paddingAbove + h + paddingBelow;
+    }
+
+    void EditorIncrementableFloatField(const char* label, float* v, float increment)
+    {
+        int x = activeWindowGuide.initialWindowRect.x + activeWindowGuide.xOffsetFromInitialWindow;
+        int y = activeWindowGuide.initialWindowRect.y + activeWindowGuide.yOffsetFromInitialWindow;
+        int w = 120;
+        int h = 20;
+        int paddingAbove = 0;
+        int paddingBelow = 5;
+
+        DoPanel(UIRect(x, y, w-2, h), vec4(0.4f, 0.4f, 0.4f, 1.f));
+        DoFloatInputField(FreshID(), UIRect(x + 1, y + 1, w-4, h - 2), v);
+        if (DoButton(FreshID(), UIRect(x + w, y + 1, 20, (h / 2) - 1), ui_ss.top().buttonNormalColor, ui_ss.top().buttonHoveredColor, ui_ss.top().buttonActiveColor))
+        {
+            (*v) += increment;
+        }
+        if (DoButton(FreshID(), UIRect(x + w, y + (h / 2) + 1, 20, (h / 2) - 1), ui_ss.top().buttonNormalColor, ui_ss.top().buttonHoveredColor, ui_ss.top().buttonActiveColor))
+        {
+            (*v) -= increment;
+        }
+        DoTextUnformatted(label, x + w + 22, y + h, 20, TextAlignment::Left);
+
+        activeWindowGuide.yOffsetFromInitialWindow += paddingAbove + h + paddingBelow;
+    }
+
+
 
     ui_id FreshID()
     {
