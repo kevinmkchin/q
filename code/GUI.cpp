@@ -535,6 +535,8 @@ namespace KevGui
             if (MouseWentDown())
             {
                 std::string floatValueAsString = std::to_string(*v);
+                RemoveCharactersFromEndOfString(floatValueAsString, '0');
+                if (floatValueAsString.back() == '.') floatValueAsString.push_back('0');
                 activeTextInputBuffer.ResetToZero();
                 memcpy(activeTextInputBuffer.data, floatValueAsString.c_str(), floatValueAsString.size());
                 activeTextInputBuffer.count = (int)floatValueAsString.size();
@@ -579,10 +581,12 @@ namespace KevGui
         }
         else
         {
-            DoText(rect.x + rect.w, rect.y + rect.h, 14, TextAlignment::Right, std::to_string(*v).c_str());
+            std::string strToDraw = std::to_string(*v);
+            RemoveCharactersFromEndOfString(strToDraw, '0');
+            if (strToDraw.back() == '.') strToDraw.push_back('0');
+            DoText(rect.x + rect.w, rect.y + rect.h, 14, TextAlignment::Right, strToDraw.c_str());
         }
     }
-
 
 
     void PushUIStyle(UIStyle style)
@@ -626,7 +630,7 @@ namespace KevGui
         return buttonValue;
     }
 
-    void IncrementableIntegerField(const char* label, int* v)
+    void IncrementableIntegerField(const char* label, int* v, int increment)
     {
         int x = 40;
         int y = 100;
@@ -637,14 +641,36 @@ namespace KevGui
         DoIntegerInputField(FreshID(), UIRect(x+1, y+1, 36, h-2), v);
         if (DoButton(FreshID(), UIRect(x + 40, y + 1, 20, (h / 2) - 1), ui_ss.top().buttonNormalColor, ui_ss.top().buttonHoveredColor, ui_ss.top().buttonActiveColor))
         {
-            (*v)++;
+            (*v) += increment;
         }
         if (DoButton(FreshID(), UIRect(x + 40, y + (h / 2) + 1, 20, (h / 2) - 1), ui_ss.top().buttonNormalColor, ui_ss.top().buttonHoveredColor, ui_ss.top().buttonActiveColor))
         {
-            (*v)--;
+            (*v) -= increment;
         }
         DoTextUnformatted(label, x + 62, y + h, 20, TextAlignment::Left);
     }
+
+    void IncrementableFloatField(const char* label, float* v, float increment)
+    {
+        int x = 100;
+        int y = 140;
+        int w = 60;
+        int h = 20;
+
+        DoPanel(UIRect(x, y, 38, h), vec4(0.4f, 0.4f, 0.4f, 1.f));
+        DoFloatInputField(FreshID(), UIRect(x + 1, y + 1, 36, h - 2), v);
+        if (DoButton(FreshID(), UIRect(x + 40, y + 1, 20, (h / 2) - 1), ui_ss.top().buttonNormalColor, ui_ss.top().buttonHoveredColor, ui_ss.top().buttonActiveColor))
+        {
+            (*v) += increment;
+        }
+        if (DoButton(FreshID(), UIRect(x + 40, y + (h / 2) + 1, 20, (h / 2) - 1), ui_ss.top().buttonNormalColor, ui_ss.top().buttonHoveredColor, ui_ss.top().buttonActiveColor))
+        {
+            (*v) -= increment;
+        }
+        DoTextUnformatted(label, x + 62, y + h, 20, TextAlignment::Left);
+    }
+
+
 
     void EditorBeginWindow(UIRect windowRect)
     {

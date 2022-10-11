@@ -1,12 +1,9 @@
 /**  TODO
 
 GUI
-- cleaner stof with less decimal points (or be able to set precision)
-- Incrementable float field
-- Button that repeatedly returns true if held
-
 - Auto formatting GUI window
 - Capture mouse click -> save visible window areas of previous frame
+- Button that repeatedly returns true if held
 
 - Checkbox
 - Dropdown

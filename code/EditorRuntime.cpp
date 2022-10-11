@@ -33,6 +33,8 @@ void EditorRuntime::UpdateEditor()
 
     KevGui::DoFloatInputField(KevGui::FreshID(), KevGui::UIRect(10, 340, 100, 25), &numf);
 
+    KevGui::IncrementableFloatField("Some Float", &numf);
+
     KevGui::EditorBeginWindow(KevGui::UIRect(200, 200, 200, 200));
     if(KevGui::EditorLabelledButton("A"))
     {

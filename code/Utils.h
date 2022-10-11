@@ -2,6 +2,8 @@
 
 #include "Common.h"
 
+#include <string>
+
 /* Call after OpenGL calls to check for errors. */
 bool GLHasErrors();
 
@@ -13,12 +15,14 @@ int RandomInt(int min, int max);
 i32 ModifyASCIIBasedOnModifiers(i32 keycodeASCII, bool shift);
 
 template<typename T>
-bool IsOneOfArray(T v, T* array, int count)
+inline bool IsOneOfArray(T v, T* array, int count)
 {
     for (int i = 0; i < count; ++i)
         if (v == *(array + i)) return true;
     return false;
 }
+
+std::string& RemoveCharactersFromEndOfString(std::string& str, const char c);
 
 template<typename T, int _count> struct NiceArray
 {

@@ -85,7 +85,9 @@ namespace KevGui
 
     bool LabelledButton(UIRect rect, const char* label, int textSize, TextAlignment textAlignment);
 
-    void IncrementableIntegerField(const char* label, int* v);
+    void IncrementableIntegerField(const char* label, int* v, int increment = 1);
+
+    void IncrementableFloatField(const char* label, float* v, float increment = 0.1f);
 
     //void DoCheckbox(const char* label, );
 

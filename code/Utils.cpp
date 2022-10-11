@@ -104,3 +104,12 @@ i32 ModifyASCIIBasedOnModifiers(i32 keycodeASCII, bool shift)
 
     return keycode;
 }
+
+std::string& RemoveCharactersFromEndOfString(std::string& str, const char c)
+{
+    while (str.back() == c)
+    {
+        str.pop_back();
+    }
+    return str;
+}
