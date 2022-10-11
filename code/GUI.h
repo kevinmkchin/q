@@ -73,7 +73,9 @@ namespace KevGui
 
     void DoImage(UIRect rect, u32 glTextureId = 0);
 
-    void DoIntegerField(ui_id id, UIRect rect, int* v);
+    void DoIntegerInputField(ui_id id, UIRect rect, int* v);
+
+    void DoFloatInputField(ui_id id, UIRect rect, float* v);
 
 
     void PushUIStyle(UIStyle style);
@@ -86,8 +88,7 @@ namespace KevGui
     void IncrementableIntegerField(const char* label, int* v);
 
     //void DoCheckbox(const char* label, );
-    
-    // void DoEditorPanel();
+
 
     void EditorBeginWindow(UIRect windowRect);
 

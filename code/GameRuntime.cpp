@@ -144,7 +144,7 @@ void GameRuntime::StartGame()
 		128, -32, 128, 1, 1, 0, 0, 0,
 	};
 
-	LevelGeometry::RebindFaceBatchBufferObject(&state.faces_0, vb.size() * 4, vbf);
+	LevelGeometry::RebindFaceBatchBufferObject(&state.faces_0, (u32) vb.size() * 4, vbf);
 	//LevelGeometry::RebindFaceBatchBufferObject(&state.faces_0, sizeof(faces_data), faces_data);
 	//faces_0.facesTexture = Resources.defaultMissingTexture;
 

@@ -12,6 +12,14 @@ int RandomInt(int min, int max);
 
 i32 ModifyASCIIBasedOnModifiers(i32 keycodeASCII, bool shift);
 
+template<typename T>
+bool IsOneOfArray(T v, T* array, int count)
+{
+    for (int i = 0; i < count; ++i)
+        if (v == *(array + i)) return true;
+    return false;
+}
+
 template<typename T, int _count> struct NiceArray
 {
     /** Nice array wrapper for when you want to keep track of how many active/relevant 

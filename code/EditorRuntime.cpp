@@ -8,6 +8,7 @@
 #include "GUI.h"
 
 int num = 10;
+float numf = 6.4f;
 
 void EditorRuntime::UpdateEditor()
 {
@@ -28,7 +29,9 @@ void EditorRuntime::UpdateEditor()
 
     KevGui::IncrementableIntegerField("Some Integer", &num);
 
-	KevGui::DoIntegerField(KevGui::FreshID(), KevGui::UIRect(300, 300, 100, 25), &num);
+	KevGui::DoIntegerInputField(KevGui::FreshID(), KevGui::UIRect(10, 300, 100, 25), &num);
+
+    KevGui::DoFloatInputField(KevGui::FreshID(), KevGui::UIRect(10, 340, 100, 25), &numf);
 
     KevGui::EditorBeginWindow(KevGui::UIRect(200, 200, 200, 200));
     if(KevGui::EditorLabelledButton("A"))

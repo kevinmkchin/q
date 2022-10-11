@@ -25,8 +25,6 @@ inline std::string level_path(const std::string& name) { return data_path() + "l
 inline std::string font_path(const std::string& name) { return data_path() + "fonts/" + std::string(name); }
 inline std::string primitives_path(const std::string& name) { return data_path() + "primitives/" + std::string(name); }
 
-#define ARRAY_COUNT(a) (sizeof(a) / (sizeof(a[0])))
-
 /** HELPER FUNCTIONS **/
 #if SLOW_BUILD
 #if (defined _WIN64)
@@ -42,6 +40,13 @@ inline std::string primitives_path(const std::string& name) { return data_path()
 #define LOCAL_PERSIST static
 
 #define _RGB(r,g,b) ((float)r)/255.f, ((float)g)/255.f, ((float)b)/255.f
+
+#define ARRAY_COUNT(a) (sizeof(a) / (sizeof(a[0])))
+
+#define ISANYOF1(a, x) ((a) == (x))
+#define ISANYOF2(a, x, y) ((a) == (x) || (a) == (y))
+#define ISANYOF3(a, x, y, z) ((a) == (x) || (a) == (y) || (a) == (z))
+#define ISANYOF4(a, x, y, z, w) ((a) == (x) || (a) == (y) || (a) == (z) || (a) == (w))
 
 typedef uint8_t       u8;
 typedef uint16_t      u16;

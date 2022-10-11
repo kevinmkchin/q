@@ -386,7 +386,7 @@ namespace KevGui
         drawQueue.push(&corneredRectDrawRequestsBuffer.Back());
     }
 
-    void DoIntegerField(ui_id id, UIRect rect, int* v)
+    void DoIntegerInputField(ui_id id, UIRect rect, int* v)
     {
         bool bSetInactiveAndReturnValue = false;
 
@@ -481,6 +481,107 @@ namespace KevGui
         }
     }
 
+    void DoFloatInputField(ui_id id, UIRect rect, float* v)
+    {
+        bool bSetInactiveAndReturnValue = false;
+
+        if (IsActive(id))
+        {
+            for (int i = 0; i < keyboardInputASCIIKeycodeThisFrame.count; ++i)
+            {
+                i32 keycodeASCII = keyboardInputASCIIKeycodeThisFrame.At(i);
+                if (48 <= keycodeASCII && keycodeASCII <= 57)
+                {
+                    if (activeTextInputBuffer.count == 1 && activeTextInputBuffer.At(0) == '0')
+                    {
+                        activeTextInputBuffer.At(0) = char(keycodeASCII);
+                    }
+                    else if (activeTextInputBuffer.count < 9) // just to prevent floats that are too big
+                    {
+                        activeTextInputBuffer.PushBack(char(keycodeASCII));
+                    }
+                }
+                else if (keycodeASCII == 45 /* minus sign */ 
+                    && activeTextInputBuffer.count == 0)
+                {
+                    activeTextInputBuffer.PushBack(char(keycodeASCII));
+                }
+                else if (keycodeASCII == 46 /* decimal point */ 
+                    && !IsOneOfArray('.', activeTextInputBuffer.data, activeTextInputBuffer.count))
+                {
+                    activeTextInputBuffer.PushBack(char(keycodeASCII));
+                }
+                else if (keycodeASCII == SDLK_RETURN)
+                {
+                    bSetInactiveAndReturnValue = true;
+                }
+                else if (keycodeASCII == SDLK_BACKSPACE)
+                {
+                    if (activeTextInputBuffer.count > 0)
+                    {
+                        activeTextInputBuffer.Back() = '\0';
+                        --activeTextInputBuffer.count;
+                    }
+                }
+            }
+
+            if (MouseWentDown() && !MouseInside(rect))
+            {
+                bSetInactiveAndReturnValue = true;
+            }
+        }
+        else if (IsHovered(id))
+        {
+            if (MouseWentDown())
+            {
+                std::string floatValueAsString = std::to_string(*v);
+                activeTextInputBuffer.ResetToZero();
+                memcpy(activeTextInputBuffer.data, floatValueAsString.c_str(), floatValueAsString.size());
+                activeTextInputBuffer.count = (int)floatValueAsString.size();
+                SetActive(id);
+            }
+        }
+
+        if (bSetInactiveAndReturnValue)
+        {
+            float inputtedFloat = 0;
+            bool inputIsNotEmpty = activeTextInputBuffer.count > 0;
+            bool onlyInputIsMinusSignOrDot = activeTextInputBuffer.count == 1
+                && ISANYOF2(activeTextInputBuffer.At(0), '-', '.');
+            if (inputIsNotEmpty && !onlyInputIsMinusSignOrDot)
+            {
+                inputtedFloat = std::stof(activeTextInputBuffer.data);
+            }
+            *v = inputtedFloat;
+            activeTextInputBuffer.ResetCount();
+            activeTextInputBuffer.ResetToZero();
+            SetActive(null_ui_id);
+        }
+
+        if (MouseInside(rect))
+        {
+            SetHovered(id);
+        }
+
+        RectDrawRequest drawRequest;
+        drawRequest.rect = rect;
+        drawRequest.color = IsActive(id) ? vec4(0.f, 0.f, 0.f, 1.f) : vec4(0.2f, 0.2f, 0.2f, 1.f);
+
+        rectDrawRequestsBuffer.PushBack(drawRequest);
+        drawQueue.push(&rectDrawRequestsBuffer.Back());
+
+        if (IsActive(id))
+        {
+            if (activeTextInputBuffer.count > 0)
+            {
+                DoText(rect.x + rect.w, rect.y + rect.h, 14, TextAlignment::Right, activeTextInputBuffer.data);
+            }
+        }
+        else
+        {
+            DoText(rect.x + rect.w, rect.y + rect.h, 14, TextAlignment::Right, std::to_string(*v).c_str());
+        }
+    }
 
 
 
@@ -533,7 +634,7 @@ namespace KevGui
         int h = 20;
 
         DoPanel(UIRect(x, y, 38, h), vec4(0.4f, 0.4f, 0.4f, 1.f));
-        DoIntegerField(FreshID(), UIRect(x+1, y+1, 36, h-2), v);
+        DoIntegerInputField(FreshID(), UIRect(x+1, y+1, 36, h-2), v);
         if (DoButton(FreshID(), UIRect(x + 40, y + 1, 20, (h / 2) - 1), ui_ss.top().buttonNormalColor, ui_ss.top().buttonHoveredColor, ui_ss.top().buttonActiveColor))
         {
             (*v)++;

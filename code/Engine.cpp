@@ -1,22 +1,21 @@
 /**  TODO
 
 GUI
-- Float field
-- Button that repeatedly returns true if held
+- cleaner stof with less decimal points (or be able to set precision)
 - Incrementable float field
-- Checkbox
+- Button that repeatedly returns true if held
 
 - Auto formatting GUI window
 - Capture mouse click -> save visible window areas of previous frame
 
+- Checkbox
 - Dropdown
 - List
 - Selectable
 
 - make pretty
-- push pop style struct
 - anchors
-
+    - push pop anchor point, at which point all ements in between the push pop use that anchor
 
 GAME & EDITOR
 - Use std::optional for entity vector? https://en.cppreference.com/w/cpp/utility/optional
