@@ -170,22 +170,22 @@ Do only once:
     Optional:   vtxt_backbuffersize(window width=1920, window height=1080);  <-- Only required if using VTXT_USE_CLIPSPACE_COORDS
                             |
                             V
-    Required:   vtxt_init_font(font_handle, font_buffer, font_height);   <-- DO ONLY ONCE PER FONT (or per font resolution)
+    Required:   vtxt_init_font(font_handle, font_buffer, font_height_px);   <-- DO ONLY ONCE PER FONT (or per font resolution)
 
 Loop:
     Optional:   vtxt_move_cursor(x = 640, y = 360);                      <-- Set the cursor to x y (where to start drawing)
                             |
                             V
-    Required:   vtxt_append_line("some text", font_handle, font_size);   <-- text to draw
+    Required:   vtxt_append_line("some text", font_handle, text_height_px);   <-- text to draw
                             |
                             V
     Optional:   vtxt_new_line(x = 640, font);                            <-- Go to next line, set cursor x to 640
                             |
                             V
-    Optional:   vtxt_append_line("next lin", font_handle, font_size);    <-- next line to draw
+    Optional:   vtxt_append_line("next lin", font_handle, text_height_px);    <-- next line to draw
                             |
                             V
-    Optional:   vtxt_append_glyph('e', font_handle, font_size);          <-- Can append individual glyphs also
+    Optional:   vtxt_append_glyph('e', font_handle, text_height_px);          <-- Can append individual glyphs also
                             |
                             V
     Required:   vtxt_vertex_buffer grabbedBuffer = vtxt_grab_buffer();    <-- Grabs the buffer
@@ -327,11 +327,12 @@ typedef struct vtxt_glyph
 */
 typedef struct vtxt_font
 {
+    int             font_height_px;             // how tall the font's vertical extent is in pixels
     float           ascender;                   // https://en.wikipedia.org/wiki/Ascender_(typography)
     float           descender;                  // https://en.wikipedia.org/wiki/Descender
     float           linegap;                    // gap between the bottom of the descender of one line to the top of the ascender of the line below
-    vtxt_bitmap    font_atlas;                 // stores the bitmap for the font texture atlas (https://en.wikipedia.org/wiki/Texture_atlas#/media/File:Texture_Atlas.png)
-    vtxt_glyph     glyphs[VTXT_GLYPH_COUNT];  // array for glyphs information
+    vtxt_bitmap     font_atlas;                 // stores the bitmap for the font texture atlas (https://en.wikipedia.org/wiki/Texture_atlas#/media/File:Texture_Atlas.png)
+    vtxt_glyph      glyphs[VTXT_GLYPH_COUNT];   // array for glyphs information
 } vtxt_font;
 
 enum _vtxt_config_flags_t
@@ -357,8 +358,9 @@ VTXT_DEF void vtxt_backbuffersize(int width, int height);
     Collects the glyphs and font information from the font file (given as a binary buffer in memory)
     and generates the font texture atlas (https://en.wikipedia.org/wiki/Texture_atlas#/media/File:Texture_Atlas.png)
     Expensive, so you should only do this ONCE per font (and font size) and just keep the vtxt_font around somewhere.
+    font_height_in_pixels := How tall the font's vertical extent (above the baseline) should be in pixels
 */
-VTXT_DEF void vtxt_init_font(vtxt_font*      font_handle,
+VTXT_DEF void vtxt_init_font(vtxt_font*       font_handle,
                              unsigned char*   font_buffer,
                              int              font_height_in_pixels);
 
@@ -375,29 +377,29 @@ VTXT_DEF void vtxt_new_line(int          x,
 /** Assemble quads for a line of text and append to vertex buffer.
     line_of_text is the text you want to draw e.g. "some text I want to Draw".
     font is the vtxt_font font handle that contains the font you want to use.
-    font_size is the font height in pixels.
+    text_height_px is the desired text height in pixels.
 */
 VTXT_DEF void vtxt_append_line(const char*   line_of_text,
                                vtxt_font*    font,
-                               int           font_size);
+                               int           text_height_px);
 
 /** Same as vtxt_append_line but center horizontally where the cursor is. */
 VTXT_DEF void vtxt_append_line_centered(const char* line_of_text,
                                         vtxt_font*  font,
-                                        int         font_size);
+                                        int         text_height_px);
 
 /** Same as vtxt_append_line but with text using right-alignment (the text is to the left of the cursor). */
 VTXT_DEF void vtxt_append_line_align_right(const char* line_of_text, 
                                            vtxt_font*  font, 
-                                           int         font_size);
+                                           int         text_height_px);
 
 /** Assemble quad for a glyph and append to vertex buffer.
     font is the vtxt_font font handle that contains the font you want to use.
-    font_size is the font height in pixels
+    text_height_px is the maximum vertical extent of the glyph in pixels
 */
 VTXT_DEF void vtxt_append_glyph(const char   in_glyph,
                                 vtxt_font*   font,
-                                int          font_size);
+                                int          text_height_px);
 
 /** Get vtxt_vertex_buffer with a pointer to the vertex buffer array
     and vertex buffer information.
@@ -416,12 +418,12 @@ VTXT_DEF void vtxt_clear_buffer();
 VTXT_DEF void vtxt_set_linegap_offset(float offset);
 
 /** Returns the width and height of the minimum bounding box containing
-    the given text using the given font and font size. */
+    the given text using the given font and text height. */
 VTXT_DEF void vtxt_get_text_bounding_box_info(float* width_out,
                                               float* height_out,
                                               const char* text,
                                               vtxt_font* font,
-                                              int font_size);
+                                              int text_height_px);
 
 
 #endif // _INCLUDE_VERTEXT_H_
@@ -498,6 +500,7 @@ vtxt_init_font(vtxt_font* font_handle, unsigned char* font_buffer, int font_heig
     int stb_descender;
     int stb_linegap;
     stbtt_GetFontVMetrics(&stb_font_info, &stb_ascender, &stb_descender, &stb_linegap);
+    font_handle->font_height_px = font_height_in_pixels;
     font_handle->ascender = (float)stb_ascender * stb_scale;
     font_handle->descender = (float)stb_descender * stb_scale;
     font_handle->linegap = (float)stb_linegap * stb_scale;
@@ -634,7 +637,7 @@ vtxt_new_line(int x, vtxt_font* font)
 }
 
 VTXT_DEF void
-__private_vtxt_append_glyph(const char in_glyph, vtxt_font* font, int font_size, float x_offset_from_cursor)
+__private_vtxt_append_glyph(const char in_glyph, vtxt_font* font, int text_height_px, float x_offset_from_cursor)
 {
     if(in_glyph < VTXT_ASCII_FROM || in_glyph > VTXT_ASCII_TO) // Make sure we have the data for this glyph
     {
@@ -646,7 +649,7 @@ __private_vtxt_append_glyph(const char in_glyph, vtxt_font* font, int font_size,
         return;
     }
 
-    float scale = ((float) font_size) / (font->ascender - font->descender);
+    float scale = (float)text_height_px / (float)font->font_height_px;
     vtxt_glyph glyph = font->glyphs[in_glyph - VTXT_ASCII_FROM];
     glyph.advance *= scale;
     glyph.width *= scale; // NOTE(Kevin): 2022-06-15 scale was float, but width and height were integers so rounding was causing text to render strangely - fixed by just changing width and height to floats
@@ -747,13 +750,13 @@ __private_vtxt_append_glyph(const char in_glyph, vtxt_font* font, int font_size,
 }
 
 VTXT_DEF void
-vtxt_append_glyph(const char in_glyph, vtxt_font* font, int font_size)
+vtxt_append_glyph(const char in_glyph, vtxt_font* font, int text_height_px)
 {
-    __private_vtxt_append_glyph(in_glyph, font, font_size, 0.f);
+    __private_vtxt_append_glyph(in_glyph, font, text_height_px, 0.f);
 }
 
 VTXT_DEF void
-vtxt_append_line(const char* line_of_text, vtxt_font* font, int font_size)
+vtxt_append_line(const char* line_of_text, vtxt_font* font, int text_height_px)
 {
     int line_start_x = _vtxt_cursor_x;
     while(*line_of_text != '\0')
@@ -764,7 +767,7 @@ vtxt_append_line(const char* line_of_text, vtxt_font* font, int font_size)
             {
                 break;
             }
-            vtxt_append_glyph(*line_of_text, font, font_size);
+            vtxt_append_glyph(*line_of_text, font, text_height_px);
         }
         else
         {
@@ -775,7 +778,7 @@ vtxt_append_line(const char* line_of_text, vtxt_font* font, int font_size)
 }
 
 VTXT_DEF void
-vtxt_append_line_align_right(const char* line_of_text, vtxt_font* font, int font_size)
+vtxt_append_line_align_right(const char* line_of_text, vtxt_font* font, int text_height_px)
 {
     int line_start_x = _vtxt_cursor_x;
     char line_buffer[256];
@@ -788,7 +791,7 @@ vtxt_append_line_align_right(const char* line_of_text, vtxt_font* font, int font
     for (int i = 0; i < lb_index; ++i)
     {
         char in_glyph = line_buffer[i];
-        float scale = ((float)font_size) / (font->ascender - font->descender);
+        float scale = (float)text_height_px / (float)font->font_height_px;
         vtxt_glyph glyph = font->glyphs[in_glyph - VTXT_ASCII_FROM];
         glyph.advance *= scale;
         line_length += glyph.advance;
@@ -800,14 +803,14 @@ vtxt_append_line_align_right(const char* line_of_text, vtxt_font* font, int font
         {
             break;
         }
-        __private_vtxt_append_glyph(in_glyph, font, font_size, -line_length);
+        __private_vtxt_append_glyph(in_glyph, font, text_height_px, -line_length);
     }
 
     if (*line_of_text == '\n')
     {
         vtxt_new_line(line_start_x, font);
         ++line_of_text;
-        vtxt_append_line_align_right(line_of_text, font, font_size);
+        vtxt_append_line_align_right(line_of_text, font, text_height_px);
     }
     else // terminate
     {
@@ -816,7 +819,7 @@ vtxt_append_line_align_right(const char* line_of_text, vtxt_font* font, int font
 }
 
 VTXT_DEF void
-vtxt_append_line_centered(const char* line_of_text, vtxt_font* font, int font_size)
+vtxt_append_line_centered(const char* line_of_text, vtxt_font* font, int text_height_px)
 {
     int line_start_x = _vtxt_cursor_x;
     char line_buffer[256];
@@ -829,7 +832,7 @@ vtxt_append_line_centered(const char* line_of_text, vtxt_font* font, int font_si
     for(int i = 0; i < lb_index; ++i)
     {
         char in_glyph = line_buffer[i];
-        float scale = ((float) font_size) / (font->ascender - font->descender);
+        float scale = (float)text_height_px / (float)font->font_height_px;
         vtxt_glyph glyph = font->glyphs[in_glyph - VTXT_ASCII_FROM];
         glyph.advance *= scale;
         line_length += glyph.advance;
@@ -842,14 +845,14 @@ vtxt_append_line_centered(const char* line_of_text, vtxt_font* font, int font_si
         {
             break;
         }
-        __private_vtxt_append_glyph(in_glyph, font, font_size, -half_line_length);
+        __private_vtxt_append_glyph(in_glyph, font, text_height_px, -half_line_length);
     }
 
     if(*line_of_text == '\n')
     {
         vtxt_new_line(line_start_x, font);
         ++line_of_text;
-        vtxt_append_line_centered(line_of_text, font, font_size);
+        vtxt_append_line_centered(line_of_text, font, text_height_px);
     }
     else // terminate
     {
@@ -862,7 +865,7 @@ vtxt_get_text_bounding_box_info(float* width_out,
                                 float* height_out,
                                 const char* text,
                                 vtxt_font* font,
-                                int font_size)
+                                int text_height_px)
 {
     float wSumLargestSoFar = 0;
     float wSumCurrent = 0;
@@ -878,7 +881,7 @@ vtxt_get_text_bounding_box_info(float* width_out,
             }
 
             bool isLastGlyphInLine = *(text + 1) == '\0' || *(text + 1) == '\n';
-            float scale = ((float)font_size) / (font->ascender - font->descender);
+            float scale = (float)text_height_px / (float)font->font_height_px;
             vtxt_glyph glyph = font->glyphs[*text - VTXT_ASCII_FROM];
             glyph.advance *= scale;
             glyph.width *= scale;

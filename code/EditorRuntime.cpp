@@ -38,6 +38,7 @@ void EditorRuntime::UpdateEditor()
     KevGui::PushUIStyle(style1);
     KevGui::LabelledButton(KevGui::UIRect(40, drawableHeight - 340, 250, 40), "Click me!", 24, KevGui::TextAlignment::Center);
     KevGui::PopUIStyle();
+    KevGui::LabelledButton(KevGui::UIRect(300, drawableHeight - 340, 250, 40), "Click me!", 24, KevGui::TextAlignment::Center);
 
 	KevGui::DoIntegerInputField(KevGui::FreshID(), KevGui::UIRect(10, 300, 100, 25), &num);
     KevGui::DoFloatInputField(KevGui::FreshID(), KevGui::UIRect(2, 310, 100, 25), &numf);

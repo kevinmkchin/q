@@ -611,10 +611,9 @@ namespace KevGui
 
     bool LabelledButton(UIRect rect, const char* label, int textSize, TextAlignment textAlignment)
     {
-        float ascenderToFontSizeRatio = ui_ss.top().textFont.ptr->ascender / (ui_ss.top().textFont.ptr->ascender + GM_abs(ui_ss.top().textFont.ptr->descender));
-        float ascenderTextSize = (float) textSize * ascenderToFontSizeRatio;
+        float ascenderTextSize = (float)textSize;
         float yTextPaddingRatio = (1.f - (ascenderTextSize / (float) rect.h)) / 2.f;
-        ivec2 textPadding = ivec2(10, (int) (rect.h * yTextPaddingRatio) + 1);
+        ivec2 textPadding = ivec2(10, (int) roundf(rect.h * yTextPaddingRatio));
         int textX = rect.x + textPadding.x;
         if (textAlignment == TextAlignment::Center)
         {
