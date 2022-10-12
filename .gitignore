@@ -1,4 +1,5 @@
 build/
+xbuild/
 bin/
 out/
 cmake-build-*/

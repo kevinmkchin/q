@@ -253,7 +253,7 @@ void console_print(const char* message)
 {
 
 #if INTERNAL_BUILD & SLOW_BUILD
-    printf(message);
+    printf("%s", message);
 #endif
 
     // commands get con_printed when returned
@@ -435,6 +435,7 @@ void console_update(float delta_time)
 
             console_update_messages();
         } break;
+        case CONSOLE_HIDDEN: break;
     }
 }
 

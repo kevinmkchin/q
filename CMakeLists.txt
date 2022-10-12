@@ -3,49 +3,90 @@ set (CMAKE_CXX_STANDARD 20)
 
 project(Game)
 
-set(IS_WIN32PROGRAM 0)
-
 add_compile_definitions(
         INTERNAL_BUILD=1
         SLOW_BUILD=1
 )
 
-set(SOURCE_FILES 
-    "code/Engine.cpp"
-    "code/Timer.cpp"
-    "code/Input.cpp" 
-    "code/GameRenderer.cpp" 
-    "code/MessageLogger.cpp" 
-    "code/Shader.cpp"
-    "code/FileSystem.cpp"
-    "code/Utils.cpp" 
-    "code/Resources.cpp" 
-    "code/Console.cpp" 
-    "code/Camera.cpp" 
-    "code/Collision.cpp" 
-    "code/GameRuntime.cpp"
-    "code/GUI.cpp"
-    "code/EditorRuntime.cpp"
-    "code/LevelGeometry.cpp"
-    "code/ConstructiveSolidGeometry.cpp"
+#########################################################################
+######### Project setup                                         #########
+#########################################################################
+
+set(SOURCE_FILES
+    code/Common.h
+    code/Engine.h
+    code/Engine.cpp
+    code/Timer.h
+    code/Timer.cpp
+    code/Input.h
+    code/Input.cpp
+    code/GameRenderer.h
+    code/GameRenderer.cpp
+    code/MessageLogger.h
+    code/MessageLogger.cpp
+    code/Shader.h
+    code/Shader.cpp
+    code/FileSystem.h
+    code/FileSystem.cpp
+    code/Utils.h
+    code/Utils.cpp
+    code/Resources.h
+    code/Resources.cpp
+    code/Console.h
+    code/Console.cpp
+    code/Camera.h
+    code/Camera.cpp
+    code/Collision.h
+    code/Collision.cpp
+    code/GameRuntime.h
+    code/GameRuntime.cpp
+    code/GUI.h
+    code/GUI.cpp
+    code/EditorRuntime.h
+    code/EditorRuntime.cpp
+    code/LevelGeometry.h
+    code/LevelGeometry.cpp
+    code/ConstructiveSolidGeometry.h
+    code/ConstructiveSolidGeometry.cpp
 )
 
+# Even tho these are added as target sources, CMake won't try to compile them if they don't have source file extension.
+set(STUFF_TO_SHOW_IN_IDE_PROJECT
+    lib
+    wd
+    readme.md
+)
 
+#source_group(code FILES ${SOURCE_FILES})
+
+set(IS_WIN32PROGRAM 0)
 
 # Create executable target
 if (IS_WIN32PROGRAM)
-    add_executable(${PROJECT_NAME} WIN32 ${SOURCE_FILES})
+    add_executable(${PROJECT_NAME} WIN32 ${SOURCE_FILES} ${STUFF_TO_SHOW_IN_IDE_PROJECT})
 else()
-    add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+    add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${STUFF_TO_SHOW_IN_IDE_PROJECT})
 endif()
 
 # Generate the shader folder location to the header
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/lib/project_path.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/lib/project_path.h")
 
+set(MY_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/wd")
+
 target_include_directories(${PROJECT_NAME} PUBLIC code/)
 target_include_directories(${PROJECT_NAME} PUBLIC lib/single_headers/)
 
+
+
+
+#########################################################################
+######### Build options, additional include directories,        #########
+######### library linking, copying DLLs to executable directory #########
+#########################################################################
+
 if(WIN32)
+    # Set working directory for Visual Studio
+    set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${MY_WORKING_DIRECTORY})
 
     if(MSVC)
       add_definitions(/MP)
@@ -102,7 +143,9 @@ else(APPLE)
 
     set_target_properties(${PROJECT_NAME} PROPERTIES
             MACOSX_BUNDLE TRUE
-            MACOSX_FRAMEWORK_IDENTIFIER org.cmake.${PROJECT_NAME})
+            MACOSX_FRAMEWORK_IDENTIFIER org.cmake.${PROJECT_NAME}
+            XCODE_GENERATE_SCHEME TRUE
+            XCODE_SCHEME_WORKING_DIRECTORY ${MY_WORKING_DIRECTORY})
 
     find_package(SDL2 REQUIRED)
     if(SDL2_FOUND)
