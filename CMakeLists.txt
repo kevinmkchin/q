@@ -1,16 +1,11 @@
 cmake_minimum_required(VERSION 3.20)
 set (CMAKE_CXX_STANDARD 20)
 
-project(Game)
-
-add_compile_definitions(
-        INTERNAL_BUILD=1
-        SLOW_BUILD=1
-)
-
 #########################################################################
 ######### Project setup                                         #########
 #########################################################################
+
+project(Game)
 
 set(SOURCE_FILES
     code/Common.h
@@ -76,8 +71,11 @@ set(MY_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/wd")
 target_include_directories(${PROJECT_NAME} PUBLIC code/)
 target_include_directories(${PROJECT_NAME} PUBLIC lib/single_headers/)
 
-
-
+# My custom preprocessor defines
+add_compile_definitions(
+    INTERNAL_BUILD=1
+    SLOW_BUILD=1
+)
 
 #########################################################################
 ######### Build options, additional include directories,        #########
