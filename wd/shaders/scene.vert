@@ -27,12 +27,12 @@ void main()
 
     gl_Position = vertInClipSpace;
 
-    // const vec4 sunlightWCS = vec4(-0.5, -1.0, -1.0, 0.0);
-    // vec3 normalWCS = transpose(inverse(mat3(modelMatrix))) * vertex_normal;
-    // 
-    // float ambientIntensity = 0.3;
-    // float diffuseIntensity = max(0.0, dot(normalize(normalWCS), normalize(-vec3(sunlightWCS))));
-    // vec3 lightAMB = vec3(1.0) * ambientIntensity;
-    // vec3 lightDIFF = vec3(1.0) * diffuseIntensity;
-    LIGHT = vec3(1.0,1.0,1.0); //lightAMB + lightDIFF;
+    const vec4 sunlightWCS = vec4(-0.5, -1.0, -1.0, 0.0);
+    vec3 normalWCS = transpose(inverse(mat3(modelMatrix))) * vertex_normal;
+    
+    float ambientIntensity = 0.3;
+    float diffuseIntensity = max(0.0, dot(normalize(normalWCS), normalize(-vec3(sunlightWCS))));
+    vec3 lightAMB = vec3(1.0) * ambientIntensity;
+    vec3 lightDIFF = vec3(1.0) * diffuseIntensity;
+    LIGHT = lightAMB + lightDIFF;
 }

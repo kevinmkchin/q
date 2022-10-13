@@ -22,7 +22,22 @@ struct CSGBrush
 {
     std::vector<CSGPlane> halfspaces; // one face per plane
 
-
+    /// TODO(Kevin)
+    ///
+    /// -selected brush shows up as translucent (only translucent to show its own edges, not brushes behind it)
+    /// -brush edges show up in red
+    /// -brush surfaces are highlighted in red
+    /// -yellow filled circular handles show up; occluded circles are darker
+    /// -hover mouse near circular handle to show bigger red unfilled circle around yellow circle; hover one at a time (follow z order)
+    /// -yellow circular handle turns red upon click and release
+    /// -upon click, user can drag mouse to move circle/vertex
+    /// -with vertex tool, clicking and holding down left click on circle shows translucent yellow lines along the axes
+    ///
+    /// -update intersections function
+    /// -face tool and edge tool is just vertex tool w diff num of vertices selected
+    ///
+    /// -the things that move show up in yellow, so vertices if vertex mode, edges if edge mode, faces if face mode
+    
     // place points and extrude tool: extrude in direction of normal (cross product) thus extrude only available when placed points are 2D. 
     //                                if points are in a 3D cloud, then do a bunch of cross products to get a bunch of planes, clean up unused or duplicate planes,
     //                                then update intersections,faces,vertices,etc.

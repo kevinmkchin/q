@@ -17,7 +17,6 @@ GUI
     - push pop anchor point, at which point all ements in between the push pop use that anchor
 
 GAME & EDITOR
-- Use std::optional for entity vector? https://en.cppreference.com/w/cpp/utility/optional
 - WorldLevelGeometryCollider that has all its points in WCS
 - Editor handles like scene tooling
 - Asset management? do i need to?
@@ -183,15 +182,15 @@ int EngineClass::Run()
 
     LoadPerpetualResources();
 
-//    GameRuntime gameRuntime;
-//    game = &gameRuntime;
+    GameRuntime gameRuntime;
+    game = &gameRuntime;
 
     EditorRuntime editorRuntime;
 
     console_initialize();
 
-//    game->LoadAllContent();
-//    game->StartGame();
+    game->LoadAllContent();
+    game->StartGame();
 
     KevGui::Init();
 
@@ -207,7 +206,7 @@ int EngineClass::Run()
 
         console_update(Time.unscaledDeltaTime);
 
-        editorRuntime.UpdateEditor(); //game->Update();
+        game->Update(); //editorRuntime.UpdateEditor(); //game->Update();
         DrawProfilerGUI();
         gfx->Render();
 
