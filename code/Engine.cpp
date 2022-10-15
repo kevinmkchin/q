@@ -181,16 +181,17 @@ int EngineClass::Run()
     if (!gfx->Init()) return EXIT_FAILURE;
 
     LoadPerpetualResources();
-
-    GameRuntime gameRuntime;
-    game = &gameRuntime;
-
+    
+//    GameRuntime gameRuntime;
+//    game = &gameRuntime;
+//    game->LoadAllContent();
+//    game->StartGame();
+    
     EditorRuntime editorRuntime;
-
+    editor = &editorRuntime;
+    editor->StartEditor();
+    
     console_initialize();
-
-    game->LoadAllContent();
-    game->StartGame();
 
     KevGui::Init();
 
@@ -206,7 +207,7 @@ int EngineClass::Run()
 
         console_update(Time.unscaledDeltaTime);
 
-        game->Update(); //editorRuntime.UpdateEditor(); //game->Update();
+        editorRuntime.UpdateEditor(); //game->Update();
         DrawProfilerGUI();
         gfx->Render();
 

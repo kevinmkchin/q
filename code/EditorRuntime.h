@@ -1,10 +1,14 @@
 #pragma once
 
+struct CSGBrush;
 
 class EditorRuntime
 {
 public:
-	//void InitiateEditor();
+	void StartEditor();
 
 	void UpdateEditor();
+    
+public:
+    CSGBrush* brush_0;
 };

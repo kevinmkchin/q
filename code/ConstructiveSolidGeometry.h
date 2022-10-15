@@ -1,17 +1,18 @@
 #pragma once
 
 #include <vector>
+#include <utility>
+#include <unordered_map>
 
 #include <gmath.h>
 
 #include "Common.h"
+#include "LevelGeometry.h"
 
 struct CSGPlane
 {
     vec3 n; // normal of the plane
     float d; // distance from origin
-
-    // probably need a unique identifier
 };
 
 bool IsPointContainedInHalfSpace(vec3 planeNormal, float planeDist, vec3 point);
@@ -21,7 +22,16 @@ bool IsPointOnPlane(vec3 planeNormal, float planeDist, vec3 point);
 struct CSGBrush
 {
     std::vector<CSGPlane> halfspaces; // one face per plane
+    std::vector<vec3> pointCloud;
+    std::vector<std::vector<CSGPlane>> pointToPlanes; // when we move vertices, this is going to be used to find which planes we need to modify
+    std::unordered_map<int, std::vector<vec3>> planeToVertices;
+    std::unordered_map<int, std::vector<std::pair<vec3, vec3>>> planeToEdges;
+    
+    std::vector<LevelGeometry::FaceBatch> facesForDrawing;
+    
+    // face information
 
+    
     /// TODO(Kevin)
     ///
     /// -selected brush shows up as translucent (only translucent to show its own edges, not brushes behind it)
@@ -48,11 +58,9 @@ struct CSGBrush
     // face tool: vertex tool but with multiple vertices selected
     // if multiple brushes are selected, and we want to move an vertex/edge, same vertices between brushes should be treated as one
 
-    // vertices information (point cloud?)
-    // edge information (pairs of vertices?)
-    // face/side polygon information (also need link to the plane the face lies on)
-
 };
 
-std::vector<vec3> CSGBrushCalculateVerticesFromHalfSpaces(const CSGBrush& brush);
-std::vector<float> DoSmth();
+void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush);
+void UpdateBrushFacesForDrawing(CSGBrush* brush);
+
+CSGBrush* DoSmth();

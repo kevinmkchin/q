@@ -10,6 +10,7 @@
 #include "Camera.h"
 #include "Console.h"
 #include "GameRuntime.h"
+#include "EditorRuntime.h"
 #include "GUI.h"
 #include "LevelGeometry.h"
 
@@ -86,18 +87,18 @@ void GameRenderer::RenderGameLayer()
 
     if (activeGameCamera == nullptr) return;
 
-    GameState* gameState = &(Engine.game->state);
-
     gameSceneShader.UseShader();
 
     gameSceneShader.GLBindMatrix4fv("viewMatrix", 1, activeGameCamera->viewMatrix.ptr());
     gameSceneShader.GLBindMatrix4fv("projMatrix", 1, activeGameCamera->perspectiveMatrix.ptr());
 
-    //auto rotatingCube = std::static_pointer_cast<RotatingCube>(gameState->entities[gameState->rotatingCube]);
-    //rotatingCube->graphics.Render(gameSceneShader);
-
     gameSceneShader.GLBindMatrix4fv("modelMatrix", 1, mat4().ptr());
-    LevelGeometry::RenderFaceBatch(gameState->faces_0);
+    
+    //GameState* gameState = &(Engine.game->state);
+    for (auto fb : Engine.editor->brush_0->facesForDrawing)
+    {
+        LevelGeometry::RenderFaceBatch(fb);
+    }
 
     glUseProgram(0);
 }

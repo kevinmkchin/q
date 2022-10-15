@@ -6,9 +6,26 @@
 #include "Engine.h"
 #include "GameRenderer.h"
 #include "GUI.h"
+#include "Input.h"
+#include "ConstructiveSolidGeometry.h"
 
 int num = 10;
 float numf = 6.4f;
+
+// brush visual data is bound to gpu on creation -> take vao vbo id
+// vao vbo is updated when brush is modified
+
+// TODO(Kevin): probably need optimization like face batching or smth eventually
+
+
+static GameCamera editorCamera;
+
+void EditorRuntime::StartEditor()
+{
+    Engine.gfx->activeGameCamera = &editorCamera;
+    
+    brush_0 = DoSmth();
+}
 
 void EditorRuntime::UpdateEditor()
 {
@@ -30,16 +47,30 @@ void EditorRuntime::UpdateEditor()
     KevGui::EditorIncrementableIntegerField("Integer", &num);
     KevGui::EditorIncrementableFloatField("Float", &numf);
     KevGui::EditorEndWindow();
-
-	KevGui::DoImage(KevGui::UIRect(40, drawableHeight - 290, 250, 250), Resources.defaultMissingTexture.textureId);
-
-    KevGui::UIStyle style1 = KevGui::GetActiveUIStyleCopy();
-    style1.textFont = Resources.fonts[FONT_SourceCodePro];
-    KevGui::PushUIStyle(style1);
-    KevGui::LabelledButton(KevGui::UIRect(40, drawableHeight - 340, 250, 40), "Click me!", 24, KevGui::TextAlignment::Center);
-    KevGui::PopUIStyle();
-    KevGui::LabelledButton(KevGui::UIRect(300, drawableHeight - 340, 250, 40), "Click me!", 24, KevGui::TextAlignment::Center);
-
-	KevGui::DoIntegerInputField(KevGui::FreshID(), KevGui::UIRect(10, 300, 100, 25), &num);
-    KevGui::DoFloatInputField(KevGui::FreshID(), KevGui::UIRect(2, 310, 100, 25), &numf);
+    
+    if(Input.mouseRMBPressed)
+    {
+        SDL_SetRelativeMouseMode(SDL_TRUE);
+        vec3 camPos = editorCamera.position;
+        float moveSpeed = 100.f;
+        if (Input.IsKeyPressed(SDL_SCANCODE_W))
+            camPos += Engine.gfx->activeGameCamera->calculatedDirection * moveSpeed * Time.deltaTime;
+        if (Input.IsKeyPressed(SDL_SCANCODE_A))
+            camPos += -Engine.gfx->activeGameCamera->calculatedRight * moveSpeed * Time.deltaTime;
+        if (Input.IsKeyPressed(SDL_SCANCODE_S))
+            camPos += -Engine.gfx->activeGameCamera->calculatedDirection * moveSpeed * Time.deltaTime;
+        if (Input.IsKeyPressed(SDL_SCANCODE_D))
+            camPos += Engine.gfx->activeGameCamera->calculatedRight * moveSpeed * Time.deltaTime;
+        if (Input.IsKeyPressed(SDL_SCANCODE_Q))
+            camPos.y += -moveSpeed * Time.deltaTime;
+        if (Input.IsKeyPressed(SDL_SCANCODE_E))
+            camPos.y += moveSpeed * Time.deltaTime;
+        editorCamera.CameraUpdate(camPos, Input.mouseDelta.x * 1.7f, Input.mouseDelta.y * 1.7f);
+        editorCamera.CameraCalculatePerspectiveMatrix();
+    }
+    else
+    {
+        SDL_SetRelativeMouseMode(SDL_FALSE);
+    }
+    
 }

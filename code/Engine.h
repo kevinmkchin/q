@@ -4,8 +4,9 @@
 #include <SDL.h>
 
 class GameRenderer;
-class GameRuntime;
 struct GameState;
+class GameRuntime;
+class EditorRuntime;
 
 class EngineClass
 {
@@ -26,6 +27,7 @@ public:
 
 	GameRenderer* gfx = nullptr;
 	GameRuntime* game = nullptr;
+    EditorRuntime* editor = nullptr;
 
 private:
 	int profilerLevel = 1;

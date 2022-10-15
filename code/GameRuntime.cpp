@@ -86,12 +86,12 @@ void GameRuntime::LoadAllContent()
 {
 	MeshGroup::MeshGroupAssimpLoad(primitives_path("cube.obj").c_str());
 
-	LevelGeometry::CreateFaceBatchMeshOnGPU(&state.faces_0.idVAO, &state.faces_0.idVBO);
+	//LevelGeometry::CreateFaceBatchMeshOnGPU(&state.faces_0.idVAO, &state.faces_0.idVBO);
 }
 
 void GameRuntime::UnloadAllContent()
 {
-	LevelGeometry::DeleteFaceBatchMeshOnGPU(state.faces_0.idVAO, state.faces_0.idVBO);
+	//LevelGeometry::DeleteFaceBatchMeshOnGPU(state.faces_0.idVAO, state.faces_0.idVBO);
 }
 
 // temporary
@@ -126,11 +126,6 @@ MeshCollider col1 = MeshCollider(451, &tra, bruh);
 
 void GameRuntime::StartGame()
 {
-	std::vector<float> vb = DoSmth();
-	float* vbf = &vb[0];
-
-
-
 	state.playerCamera.position = vec3(-200.f, 0.f, 0.f);
 	Engine.gfx->activeGameCamera = &state.playerCamera;
 
@@ -144,7 +139,6 @@ void GameRuntime::StartGame()
 		128, -32, 128, 1, 1, 0, 0, 0,
 	};
 
-	LevelGeometry::RebindFaceBatchBufferObject(&state.faces_0, (u32) vb.size() * 4, vbf);
 	//LevelGeometry::RebindFaceBatchBufferObject(&state.faces_0, sizeof(faces_data), faces_data);
 	//faces_0.facesTexture = Resources.defaultMissingTexture;
 

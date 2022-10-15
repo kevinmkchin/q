@@ -4,6 +4,7 @@
 
 #include "Common.h"
 #include "LevelGeometry.h"
+#include "ConstructiveSolidGeometry.h"
 #include "Camera.h"
 
 struct EntityTransform
@@ -44,8 +45,6 @@ struct GameState
 
 	GameCamera playerCamera;
 
-	// temporary:
-	LevelGeometry::FaceBatch faces_0;
 };
 
 //class Player : Entity
