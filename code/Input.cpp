@@ -122,7 +122,10 @@ void InputManager::ProcessAllSDLInputEvents(const SDL_Event event)
 {
     switch (event.type)
     {
-        case SDL_MOUSEBUTTONUP | SDL_MOUSEBUTTONDOWN: {
+        case SDL_MOUSEBUTTONUP: {
+            ProcessSDLMouseButtonEvent(event.button);
+        }break;
+        case SDL_MOUSEBUTTONDOWN:{
             ProcessSDLMouseButtonEvent(event.button);
         }break;
         case SDL_MOUSEMOTION: {

@@ -735,7 +735,7 @@ namespace KevGui
         Mesh::MeshCreate(__ui_mesh, nullptr, nullptr, 0, 0, 2, 2, 0, GL_DYNAMIC_DRAW);
         Mesh::MeshCreate(__text_mesh, nullptr, nullptr, 0, 0, 2, 2, 0, GL_DYNAMIC_DRAW);
 
-        __default_font = Font::FontCreateFromFile(font_path("C64.ttf"), 32, false);
+        __default_font = Font::FontCreateFromFile(font_path("C64.ttf"), 32, true);
 
         if(ui_ss.empty())
         {
