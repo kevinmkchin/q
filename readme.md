@@ -1,10 +1,13 @@
 # Untitled game
 
 
-
 ## Build on Windows
 ```
-build.bat
+cmake -S <cmakelists.txt source directory> -B <output directory>
+```
+Then open VS project and build or
+```
+cmake --build <output directory> --config <Debug or Release>
 ```
 
 ## Build on Mac
