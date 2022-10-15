@@ -23,6 +23,7 @@ static GameCamera editorCamera;
 void EditorRuntime::StartEditor()
 {
     Engine.gfx->activeGameCamera = &editorCamera;
+    editorCamera.position.x = -512.f;
     
     brush_0 = DoSmth();
 }
@@ -48,29 +49,32 @@ void EditorRuntime::UpdateEditor()
     KevGui::EditorIncrementableFloatField("Float", &numf);
     KevGui::EditorEndWindow();
     
+    
+    vec2 mouseLook = vec2();
     if(Input.mouseRMBPressed)
     {
         SDL_SetRelativeMouseMode(SDL_TRUE);
-        vec3 camPos = editorCamera.position;
-        float moveSpeed = 100.f;
-        if (Input.IsKeyPressed(SDL_SCANCODE_W))
-            camPos += Engine.gfx->activeGameCamera->calculatedDirection * moveSpeed * Time.deltaTime;
-        if (Input.IsKeyPressed(SDL_SCANCODE_A))
-            camPos += -Engine.gfx->activeGameCamera->calculatedRight * moveSpeed * Time.deltaTime;
-        if (Input.IsKeyPressed(SDL_SCANCODE_S))
-            camPos += -Engine.gfx->activeGameCamera->calculatedDirection * moveSpeed * Time.deltaTime;
-        if (Input.IsKeyPressed(SDL_SCANCODE_D))
-            camPos += Engine.gfx->activeGameCamera->calculatedRight * moveSpeed * Time.deltaTime;
-        if (Input.IsKeyPressed(SDL_SCANCODE_Q))
-            camPos.y += -moveSpeed * Time.deltaTime;
-        if (Input.IsKeyPressed(SDL_SCANCODE_E))
-            camPos.y += moveSpeed * Time.deltaTime;
-        editorCamera.CameraUpdate(camPos, Input.mouseDelta.x * 1.7f, Input.mouseDelta.y * 1.7f);
-        editorCamera.CameraCalculatePerspectiveMatrix();
+        mouseLook = vec2(Input.mouseDelta.x * 1.7f, Input.mouseDelta.y * 1.7f);
     }
     else
     {
         SDL_SetRelativeMouseMode(SDL_FALSE);
     }
+    vec3 camPos = editorCamera.position;
+    float moveSpeed = 100.f;
+    if (Input.IsKeyPressed(SDL_SCANCODE_W))
+        camPos += Engine.gfx->activeGameCamera->calculatedDirection * moveSpeed * Time.deltaTime;
+    if (Input.IsKeyPressed(SDL_SCANCODE_A))
+        camPos += -Engine.gfx->activeGameCamera->calculatedRight * moveSpeed * Time.deltaTime;
+    if (Input.IsKeyPressed(SDL_SCANCODE_S))
+        camPos += -Engine.gfx->activeGameCamera->calculatedDirection * moveSpeed * Time.deltaTime;
+    if (Input.IsKeyPressed(SDL_SCANCODE_D))
+        camPos += Engine.gfx->activeGameCamera->calculatedRight * moveSpeed * Time.deltaTime;
+    if (Input.IsKeyPressed(SDL_SCANCODE_Q))
+        camPos.y += -moveSpeed * Time.deltaTime;
+    if (Input.IsKeyPressed(SDL_SCANCODE_E))
+        camPos.y += moveSpeed * Time.deltaTime;
+    editorCamera.CameraUpdate(camPos, mouseLook.x, mouseLook.y);
+    editorCamera.CameraCalculatePerspectiveMatrix();
     
 }

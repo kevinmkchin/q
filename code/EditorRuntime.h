@@ -2,6 +2,14 @@
 
 struct CSGBrush;
 
+enum class EditorToolMode
+{
+    None,
+    EditVertex,
+    EditEdge,
+    EditFace
+};
+
 class EditorRuntime
 {
 public:
@@ -10,5 +18,7 @@ public:
 	void UpdateEditor();
     
 public:
-    CSGBrush* brush_0;
+    CSGBrush* brush_0 = nullptr;
+    
+    EditorToolMode activeToolMode = EditorToolMode::None;
 };
