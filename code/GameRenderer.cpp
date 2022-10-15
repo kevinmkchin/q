@@ -92,14 +92,21 @@ void GameRenderer::RenderGameLayer()
     gameSceneShader.GLBindMatrix4fv("viewMatrix", 1, activeGameCamera->viewMatrix.ptr());
     gameSceneShader.GLBindMatrix4fv("projMatrix", 1, activeGameCamera->perspectiveMatrix.ptr());
 
-    gameSceneShader.GLBindMatrix4fv("modelMatrix", 1, mat4().ptr());
-    
     //GameState* gameState = &(Engine.game->state);
-    for (auto fb : Engine.editor->brush_0->facesForDrawing)
+    for (int i = 0; i < 50; ++i)
     {
-        LevelGeometry::RenderFaceBatch(fb);
+        for (int j = 0; j < 50; ++j)
+        {
+            mat4 mm = mat4();
+            mm *= TranslationMatrix(0.f, -256 * (j - 25), -256.f * (i - 25));
+            gameSceneShader.GLBindMatrix4fv("modelMatrix", 1, mm.ptr());
+            for (auto fb : Engine.editor->brush_0->facesForDrawing)
+            {
+                LevelGeometry::RenderFaceBatch(fb);
+            }
+        }
     }
-
+    
     glUseProgram(0);
 }
 

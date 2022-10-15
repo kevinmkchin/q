@@ -23,7 +23,7 @@ static GameCamera editorCamera;
 void EditorRuntime::StartEditor()
 {
     Engine.gfx->activeGameCamera = &editorCamera;
-    editorCamera.position.x = -512.f;
+    editorCamera.position.x = -4000.f;
     
     brush_0 = DoSmth();
 }

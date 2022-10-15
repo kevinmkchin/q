@@ -130,6 +130,7 @@ bool EngineClass::SDLInitialize()
     }
     SDL_Surface* windowIcon = SDL_CreateRGBSurfaceFrom(iconMemory, iconWidth, iconHeight, depth, pitch, rmask, gmask, bmask, amask);
     SDL_SetWindowIcon(window, windowIcon);
+    SDL_GL_SetSwapInterval(0);
 
     return true;
 }
