@@ -192,7 +192,21 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
             brush->halfspaces.pop_back();
         }
     }
-    brush->halfspaces.insert(brush->halfspaces.end(), newlyCreatedPlanes.begin(), newlyCreatedPlanes.end());
+
+    for (auto p : newlyCreatedPlanes)
+    {
+        bool samePlaneExists = false;
+        for (auto existingP : brush->halfspaces)
+        {
+            if (existingP.Equals(p, EPSILON))
+            {
+                samePlaneExists = true;
+            }
+        }
+        if (samePlaneExists) continue;
+
+        brush->halfspaces.push_back(p);
+    }
 
     // we know that, as long as brush->halfspaces is correct, all subsequent vectors and calculations will be correct
     brush->pointCloud.clear();

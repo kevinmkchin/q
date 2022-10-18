@@ -74,11 +74,51 @@ void EditorRuntime::UpdateEditor()
         camPos.y += moveSpeed * Time.deltaTime;
     editorCamera.CameraUpdate(camPos, mouseLook.x, mouseLook.y);
     editorCamera.CameraCalculatePerspectiveMatrix();
- 
-    if(Input.HasKeyBeenPressed(SDL_SCANCODE_H))
+
+    static vec3 yolo = vec3(-100, 100, 100);
+    if(Input.HasKeyBeenPressed(SDL_SCANCODE_I))
     {
-        static vec3 yolo = vec3(-100, 100, 100);
-        vec3 newYolo = yolo + vec3(40, 0, 40);
+        vec3 newYolo = yolo + vec3(10, 0, 0);
+        MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0);
+        UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
+        UpdateBrushFacesForDrawing(brush_0);
+        yolo = newYolo;
+    }
+    if(Input.HasKeyBeenPressed(SDL_SCANCODE_K))
+    {
+        vec3 newYolo = yolo + vec3(-10, 0, 0);
+        MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0);
+        UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
+        UpdateBrushFacesForDrawing(brush_0);
+        yolo = newYolo;
+    }
+    if(Input.HasKeyBeenPressed(SDL_SCANCODE_J))
+    {
+        vec3 newYolo = yolo + vec3(0, 0, -10);
+        MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0);
+        UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
+        UpdateBrushFacesForDrawing(brush_0);
+        yolo = newYolo;
+    }
+    if(Input.HasKeyBeenPressed(SDL_SCANCODE_L))
+    {
+        vec3 newYolo = yolo + vec3(0, 0, 10);
+        MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0);
+        UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
+        UpdateBrushFacesForDrawing(brush_0);
+        yolo = newYolo;
+    }
+    if(Input.HasKeyBeenPressed(SDL_SCANCODE_U))
+    {
+        vec3 newYolo = yolo + vec3(0, 10, 0);
+        MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0);
+        UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
+        UpdateBrushFacesForDrawing(brush_0);
+        yolo = newYolo;
+    }
+    if(Input.HasKeyBeenPressed(SDL_SCANCODE_O))
+    {
+        vec3 newYolo = yolo + vec3(0, -10, 0);
         MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0);
         UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
         UpdateBrushFacesForDrawing(brush_0);
