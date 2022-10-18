@@ -23,15 +23,13 @@ static GameCamera editorCamera;
 void EditorRuntime::StartEditor()
 {
     Engine.gfx->activeGameCamera = &editorCamera;
-    editorCamera.position.x = -4000.f;
+    editorCamera.position.x = -512.f;
     
     brush_0 = DoSmth();
 }
 
 void EditorRuntime::UpdateEditor()
 {
-	KevGui::DoText(25, 40, 16, KevGui::TextAlignment::Left, "EDITOR");
-
 	i32 drawableWidth;
 	i32 drawableHeight;
 	Engine.gfx->GetBackBufferSize(&drawableWidth, &drawableHeight);
@@ -61,7 +59,7 @@ void EditorRuntime::UpdateEditor()
         SDL_SetRelativeMouseMode(SDL_FALSE);
     }
     vec3 camPos = editorCamera.position;
-    float moveSpeed = 100.f;
+    float moveSpeed = 512.f;
     if (Input.IsKeyPressed(SDL_SCANCODE_W))
         camPos += Engine.gfx->activeGameCamera->calculatedDirection * moveSpeed * Time.deltaTime;
     if (Input.IsKeyPressed(SDL_SCANCODE_A))
@@ -76,5 +74,15 @@ void EditorRuntime::UpdateEditor()
         camPos.y += moveSpeed * Time.deltaTime;
     editorCamera.CameraUpdate(camPos, mouseLook.x, mouseLook.y);
     editorCamera.CameraCalculatePerspectiveMatrix();
-    
+ 
+    if(Input.HasKeyBeenPressed(SDL_SCANCODE_H))
+    {
+        static vec3 yolo = vec3(-100, 100, 100);
+        vec3 newYolo = yolo + vec3(40, 0, 0);
+        MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0);
+        UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
+        UpdateBrushFacesForDrawing(brush_0);
+        yolo = newYolo;
+    }
+
 }

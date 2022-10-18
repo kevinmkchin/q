@@ -94,6 +94,13 @@ union vec3
         float* address = (float*)this;
         return address[row];
     }
+    
+    inline bool Equals(const vec3& other, float epsilon)
+    {
+        return x - epsilon < other.x && other.x < x + epsilon
+            && y - epsilon < other.y && other.y < y + epsilon
+            && z - epsilon < other.z && other.z < z + epsilon;
+    }
 };
 
 struct vec4

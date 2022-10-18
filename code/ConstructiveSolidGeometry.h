@@ -13,6 +13,11 @@ struct CSGPlane
 {
     vec3 n; // normal of the plane
     float d; // distance from origin
+    
+    inline bool Equals(const CSGPlane& other, float epsilon)
+    {
+        return n.Equals(other.n, epsilon) && d - epsilon < other.d && other.d < d + epsilon;
+    }
 };
 
 bool IsPointContainedInHalfSpace(vec3 planeNormal, float planeDist, vec3 point);
@@ -26,11 +31,10 @@ struct CSGBrush
     std::vector<std::vector<CSGPlane>> pointToPlanes; // when we move vertices, this is going to be used to find which planes we need to modify
     std::unordered_map<int, std::vector<vec3>> planeToVertices;
     std::unordered_map<int, std::vector<std::pair<vec3, vec3>>> planeToEdges;
+    // face information
     
     std::vector<LevelGeometry::FaceBatch> facesForDrawing;
     
-    // face information
-
     
     /// TODO(Kevin)
     ///
@@ -60,6 +64,7 @@ struct CSGBrush
 
 };
 
+void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* brush);
 void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush);
 void UpdateBrushFacesForDrawing(CSGBrush* brush);
 

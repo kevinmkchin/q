@@ -1,8 +1,9 @@
 #include "ConstructiveSolidGeometry.h"
 
 #include <unordered_map>
+#include <algorithm>
 
-#define EPSILON 0.00001f
+#define EPSILON 0.001f // NOTE(Kevin): Not sure if this is large enough...
 
 bool IsPointContainedInHalfSpace(vec3 planeNormal, float planeDist, vec3 point)
 {
@@ -13,6 +14,111 @@ bool IsPointOnPlane(vec3 planeNormal, float planeDist, vec3 point)
 {
     float magnitudeOfPointProjectionToNormal = Dot(point, planeNormal);
     return planeDist - EPSILON < magnitudeOfPointProjectionToNormal && magnitudeOfPointProjectionToNormal < planeDist + EPSILON;
+}
+
+void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* brush)
+{
+    // don't care about updating anything other than the array of halfspaces
+    // unless there are some quick updates we can make that will allow us to optimize moving multiple vertices at once
+    int indexOfPoint = -1;
+    for (int i = 0; i < brush->pointCloud.size(); ++i)
+    {
+        if (brush->pointCloud[i].Equals(point, EPSILON))
+        {
+            indexOfPoint = i;
+            break;
+        }
+    }
+    if (indexOfPoint < 0) return;
+    
+    std::vector<CSGPlane> relevantPlanes = brush->pointToPlanes[indexOfPoint];
+
+    std::vector<CSGPlane> newlyCreatedPlanes;
+ 
+    for (CSGPlane plane : relevantPlanes)
+    {
+        int indexOfPlane = -1;
+        for(int i = 0; i < brush->halfspaces.size(); ++i)
+        {
+            CSGPlane iter = brush->halfspaces[i];
+            if(iter.Equals(plane, EPSILON))
+            {
+                indexOfPlane = i;
+                break;
+            }
+        }
+        // std::vector<vec3> verticesOfPlane = brush->planeToVertices[indexOfPlane];
+        // point belongs on this vertices of plane, replace point with new point, then calculate new set of planes
+        // NO, its same shit as triangulation -> this old point becomes the picked point, then 
+        for (int e = 0; e < brush->planeToEdges[indexOfPlane].size(); ++e)
+        {
+            std::pair<vec3,vec3> edge = brush->planeToEdges[indexOfPlane][e];
+            if (point.Equals(edge.first, EPSILON) == false && point.Equals(edge.second, EPSILON) == false)
+            {
+                // then there is a plane between pickedVert, edge.first, and edge.second
+                vec3 a = newPoint;
+                vec3 b = edge.first;
+                vec3 c = edge.second;
+                vec3 ba = b - a;
+                vec3 ca = c - a;
+                vec3 crossProduct = Normalize(Cross(ba, ca));
+
+                CSGPlane createdPlane;
+                createdPlane.n = crossProduct;
+                createdPlane.d = Dot(newPoint, crossProduct);
+                if (Dot(crossProduct, plane.n) < 0.f) // wrong direction as old plane
+                {
+                    createdPlane.n = -createdPlane.n;
+                    createdPlane.d = -createdPlane.d;
+                }
+
+                // add new plane to list of new planes unless this new plane is already added
+                bool sameExist = false;
+                for (auto iter : newlyCreatedPlanes)
+                {
+                    if (iter.Equals(createdPlane, EPSILON))
+                    {
+                        sameExist = true;
+                        break;
+                    }
+                }
+                if(!sameExist)
+                {
+                    newlyCreatedPlanes.push_back(createdPlane);
+                }
+            }
+        }
+    }
+
+    // remove relevant planes from brush->halfspaces
+    // add unique set of new planes to brush->halfspaces
+    for(auto pl : relevantPlanes)
+    {
+        bool sameExist = false;
+        int indexToRemoveAt = -1;
+        for (int i = 0; i < brush->halfspaces.size(); ++i)
+        {
+            CSGPlane iter = brush->halfspaces[i];
+            if (iter.Equals(pl, EPSILON))
+            {
+                sameExist = true;
+                indexToRemoveAt = i;
+                break;
+            }
+        }
+        if(sameExist)
+        {
+            brush->halfspaces[indexToRemoveAt] = brush->halfspaces.back();
+            brush->halfspaces.pop_back();
+        }
+    }
+    brush->halfspaces.insert(brush->halfspaces.end(), newlyCreatedPlanes.begin(), newlyCreatedPlanes.end());
+
+    // we know that, as long as brush->halfspaces is correct, all subsequent vectors and calculations will be correct
+    brush->pointCloud.clear();
+    brush->pointToPlanes.clear();
+    brush->planeToVertices.clear();
+    brush->planeToEdges.clear();
 }
 
 void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush)
@@ -51,6 +157,20 @@ void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush)
                         break;
                     }
                 }
+                
+                /* Because we are checking intersection between 3 planes, if a point is formed from
+                   intersection of 4+ planes, then the point will be calculated multiple times. Thus,
+                   don't add an intersection point if it was already calculated before and added. */
+                bool flag_pointAlreadyCalculated = false;
+                for(int c = 0; c < brush->pointCloud.size(); ++c)
+                {
+                    if(brush->pointCloud[c].Equals(intersectionPoint, EPSILON))
+                    {
+                        flag_pointAlreadyCalculated = true;
+                        break;
+                    }
+                }
+                if (flag_pointAlreadyCalculated) continue;
 
                 if (containedWithinEveryHalfspace)
                 {

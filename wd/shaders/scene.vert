@@ -27,7 +27,7 @@ void main()
 
     gl_Position = vertInClipSpace;
 
-    const vec4 sunlightWCS = vec4(-0.5, -1.0, -1.0, 0.0);
+    const vec4 sunlightWCS = vec4(0.5, -0.9, -0.8, 0.0);
     vec3 normalWCS = transpose(inverse(mat3(modelMatrix))) * vertex_normal;
     
     float ambientIntensity = 0.3;
