@@ -47,46 +47,126 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
                 break;
             }
         }
-        // std::vector<vec3> verticesOfPlane = brush->planeToVertices[indexOfPlane];
-        // point belongs on this vertices of plane, replace point with new point, then calculate new set of planes
-        // NO, its same shit as triangulation -> this old point becomes the picked point, then 
-        for (int e = 0; e < brush->planeToEdges[indexOfPlane].size(); ++e)
+
+        /* When a vertex belonging to a plane/halfspace with more than 3 vertices is moved, then one
+         * of three cases will occur: the vertex moves inside the halfspace, the vertex moves
+         * outside the halfspace (no longer contained by the halfspace), or the vertex remains on the
+         * plane (the vertex moved perpendicular to the normal of the plane). In the first case, only
+         * one new plane is created (the plane formed from the moved vertex and its neighbours). In
+         * the second case, a new plane is created for every triangle formed from the moved vertex
+         * and the edges of the original plane that aren't edges formed with the old position of the
+         * moved vertex. In the third case, no new planes are created. */
+
+        bool planeCreatedForEveryNonNeighbourEdge = true;
+        if (brush->planeToVertices[indexOfPlane].size() > 3)
         {
-            std::pair<vec3,vec3> edge = brush->planeToEdges[indexOfPlane][e];
-            if (point.Equals(edge.first, EPSILON) == false && point.Equals(edge.second, EPSILON) == false)
+            planeCreatedForEveryNonNeighbourEdge = IsPointOnPlane(plane.n, plane.d, newPoint)
+                    || !IsPointContainedInHalfSpace(plane.n, plane.d, newPoint);
+        }
+
+        if(planeCreatedForEveryNonNeighbourEdge)
+        {
+            for (int e = 0; e < brush->planeToEdges[indexOfPlane].size(); ++e)
             {
-                // then there is a plane between pickedVert, edge.first, and edge.second
-                vec3 a = newPoint;
-                vec3 b = edge.first;
-                vec3 c = edge.second;
-                vec3 ba = b - a;
-                vec3 ca = c - a;
-                vec3 crossProduct = Normalize(Cross(ba, ca));
-
-                CSGPlane createdPlane;
-                createdPlane.n = crossProduct;
-                createdPlane.d = Dot(newPoint, crossProduct);
-                if (Dot(crossProduct, plane.n) < 0.f) // wrong direction as old plane
+                std::pair<vec3,vec3> edge = brush->planeToEdges[indexOfPlane][e];
+                if (!point.Equals(edge.first, EPSILON) && !point.Equals(edge.second, EPSILON))
                 {
-                    createdPlane.n = -createdPlane.n;
-                    createdPlane.d = -createdPlane.d;
-                }
+                    vec3 a = newPoint;
+                    vec3 b = edge.first;
+                    vec3 c = edge.second;
+                    vec3 ba = b - a;
+                    vec3 ca = c - a;
+                    vec3 crossProduct = Normalize(Cross(ba, ca));
 
-                // add new plane to list of new planes unless this new plane is already added
-                bool sameExist = false;
-                for (auto iter : newlyCreatedPlanes)
-                {
-                    if (iter.Equals(createdPlane, EPSILON))
+                    CSGPlane createdPlane;
+                    createdPlane.n = crossProduct;
+                    createdPlane.d = Dot(newPoint, crossProduct);
+                    if (Dot(crossProduct, plane.n) < 0.f) // wrong direction as old plane
                     {
-                        sameExist = true;
-                        break;
+                        createdPlane.n = -createdPlane.n;
+                        createdPlane.d = -createdPlane.d;
+                    }
+
+                    // add new plane to list of new planes unless this new plane is already added
+                    bool sameExist = false;
+                    for (auto iter : newlyCreatedPlanes)
+                    {
+                        if (iter.Equals(createdPlane, EPSILON))
+                        {
+                            sameExist = true;
+                            break;
+                        }
+                    }
+                    if(!sameExist)
+                    {
+                        newlyCreatedPlanes.push_back(createdPlane);
                     }
                 }
-                if(!sameExist)
+            }
+        }
+        else
+        {
+            /* We know that only one *new* plane is added (in addition to the existing plane
+             * defined by the vertices excluding the moved plane. Therefore, we add the old
+             * existing plane, then add the newly created plane from the moved vertex and its
+             * neighbouring vertices. */
+
+            vec3 a = newPoint;
+            vec3 b = vec3();
+            vec3 c = vec3();
+            bool bHasValue = false;
+            for (int e = 0; e < brush->planeToEdges[indexOfPlane].size(); ++e)
+            {
+                std::pair<vec3,vec3> edge = brush->planeToEdges[indexOfPlane][e];
+                vec3 otherOfEdge = vec3();
+                bool otherOfEdgeHasValue = false;
+                if (point.Equals(edge.first, EPSILON))
                 {
-                    newlyCreatedPlanes.push_back(createdPlane);
+                    otherOfEdge = edge.second;
+                    otherOfEdgeHasValue = true;
+                }
+                else if (point.Equals(edge.second, EPSILON))
+                {
+                    otherOfEdge = edge.first;
+                    otherOfEdgeHasValue = true;
+                }
+                if (otherOfEdgeHasValue && !bHasValue)
+                {
+                    b = otherOfEdge;
+                    bHasValue = true;
+                }
+                else if (otherOfEdgeHasValue && bHasValue)
+                {
+                    c = otherOfEdge;
                 }
             }
+            vec3 ba = b - a;
+            vec3 ca = c - a;
+            vec3 crossProduct = Normalize(Cross(ba, ca));
+            CSGPlane createdPlane;
+            createdPlane.n = crossProduct;
+            createdPlane.d = Dot(newPoint, crossProduct);
+            if (Dot(crossProduct, plane.n) < 0.f) // wrong direction as old plane
+            {
+                createdPlane.n = -createdPlane.n;
+                createdPlane.d = -createdPlane.d;
+            }
+
+            bool oldPlaneExist = false;
+            bool newlyCreatedPlaneExist = false;
+            for (auto iter : newlyCreatedPlanes)
+            {
+                if (iter.Equals(plane, EPSILON))
+                {
+                    oldPlaneExist = true;
+                }
+                if (iter.Equals(createdPlane, EPSILON))
+                {
+                    newlyCreatedPlaneExist = true;
+                }
+            }
+            if (!oldPlaneExist) newlyCreatedPlanes.push_back(plane);
+            if (!newlyCreatedPlaneExist) newlyCreatedPlanes.push_back(createdPlane);
         }
     }
 
@@ -162,7 +242,7 @@ void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush)
                    intersection of 4+ planes, then the point will be calculated multiple times. Thus,
                    don't add an intersection point if it was already calculated before and added. */
                 bool flag_pointAlreadyCalculated = false;
-                for(int c = 0; c < brush->pointCloud.size(); ++c)
+                for (int c = 0; c < brush->pointCloud.size(); ++c)
                 {
                     if(brush->pointCloud[c].Equals(intersectionPoint, EPSILON))
                     {

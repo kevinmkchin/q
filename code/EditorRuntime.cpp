@@ -78,7 +78,7 @@ void EditorRuntime::UpdateEditor()
     if(Input.HasKeyBeenPressed(SDL_SCANCODE_H))
     {
         static vec3 yolo = vec3(-100, 100, 100);
-        vec3 newYolo = yolo + vec3(40, 0, 0);
+        vec3 newYolo = yolo + vec3(40, 0, 40);
         MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0);
         UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
         UpdateBrushFacesForDrawing(brush_0);
