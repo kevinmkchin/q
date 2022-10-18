@@ -69,7 +69,10 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
             for (int e = 0; e < brush->planeToEdges[indexOfPlane].size(); ++e)
             {
                 std::pair<vec3,vec3> edge = brush->planeToEdges[indexOfPlane][e];
-                if (!point.Equals(edge.first, EPSILON) && !point.Equals(edge.second, EPSILON))
+                if (!point.Equals(edge.first, EPSILON)
+                && !point.Equals(edge.second, EPSILON)
+                && !newPoint.Equals(edge.first, EPSILON)
+                && !newPoint.Equals(edge.second, EPSILON))
                 {
                     vec3 a = newPoint;
                     vec3 b = edge.first;
@@ -459,7 +462,7 @@ CSGBrush* DoSmth()
     brush->halfspaces.push_back(p3);
     brush->halfspaces.push_back(p4);
     brush->halfspaces.push_back(p5);
-    brush->halfspaces.push_back(slice);
+    //brush->halfspaces.push_back(slice);
 
     UpdateBrushVerticesEdgesDataFromHalfSpaces(brush);
     UpdateBrushFacesForDrawing(brush);
