@@ -16,8 +16,47 @@ bool IsPointOnPlane(vec3 planeNormal, float planeDist, vec3 point)
     return planeDist - EPSILON < magnitudeOfPointProjectionToNormal && magnitudeOfPointProjectionToNormal < planeDist + EPSILON;
 }
 
-void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* brush)
+void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* brush, vec3* ye)
 {
+    /* I can check if any of brush->pointCloud is between point and newPoint i.e.
+     * the point moves through an existing point, in which case THE XISTING POINT BECOMES NEW POINT!!! */
+    // actually, we should be checking planes instead of points see belows
+
+    vec3 vecToNewPoint = newPoint - point;
+    vec3 vecToNewPointNormalized = Normalize(vecToNewPoint);
+
+    for (auto p : brush->pointCloud)
+    {
+        vec3 vecToExistingPoint = p - point;
+        if (!p.Equals(point, EPSILON)
+        && Normalize(vecToExistingPoint).Equals(vecToNewPointNormalized, EPSILON)
+        && Magnitude(vecToExistingPoint) < Magnitude(vecToNewPoint))
+        {
+            newPoint = p;
+            *ye = p;
+            break;
+        }
+    } // this whole thing is unnecessary if we get the plane intersection thing to work first
+
+    /* For each existing plane, need to if vector from point to newPoint crossed that plane
+     * and if so where it intersects -> this intersect point should be newPoint? */
+
+//    for (auto p : brush->halfspaces)
+//    {
+//        if (Dot(vecToNewPoint, p.n) > 0.f) // only if same direction
+//        {
+//            // find intersection of vecToNewPoint and the plane
+//            p.d = Dot(point, p.n);
+//            p.d = a.x * p.n.x + a.y * p.n.y + a.z * p.n.z;
+//            a = point + vecToNewPointNormalized * sf;
+//            p.d =     (point.x + vecToNewPointNormalized.x * sf) * p.n.x
+//                    + (point.y + vecToNewPointNormalized.y * sf) * p.n.y
+//                    + (point.z + vecToNewPointNormalized.z * sf) * p.n.z;
+//
+//            d = ([ x y z ] + [ vpn.x vpn.y vpn.z ] * sf) dot [ p.n.x p.n.y p.n.z ];
+//        }
+//    }
+
     // don't care about updating anything other than the array of halfspaces
     // unless there are some quick updates we can make that will allow us to optimize moving multiple vertices at once
     int indexOfPoint = -1;
@@ -60,8 +99,9 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
         bool planeCreatedForEveryNonNeighbourEdge = true;
         if (brush->planeToVertices[indexOfPlane].size() > 3)
         {
-            planeCreatedForEveryNonNeighbourEdge = IsPointOnPlane(plane.n, plane.d, newPoint)
-                    || !IsPointContainedInHalfSpace(plane.n, plane.d, newPoint);
+            bool onPlane = IsPointOnPlane(plane.n, plane.d, newPoint);
+            bool contained = IsPointContainedInHalfSpace(plane.n, plane.d, newPoint);
+            planeCreatedForEveryNonNeighbourEdge = onPlane || !contained;
         }
 
         if(planeCreatedForEveryNonNeighbourEdge)
@@ -462,7 +502,7 @@ CSGBrush* DoSmth()
     brush->halfspaces.push_back(p3);
     brush->halfspaces.push_back(p4);
     brush->halfspaces.push_back(p5);
-    //brush->halfspaces.push_back(slice);
+    brush->halfspaces.push_back(slice);
 
     UpdateBrushVerticesEdgesDataFromHalfSpaces(brush);
     UpdateBrushFacesForDrawing(brush);

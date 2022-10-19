@@ -64,7 +64,7 @@ struct CSGBrush
 
 };
 
-void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* brush);
+void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* brush, vec3* ye);
 void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush);
 void UpdateBrushFacesForDrawing(CSGBrush* brush);
 

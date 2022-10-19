@@ -1,5 +1,6 @@
 #include "EditorRuntime.h"
 
+#include <stb_sprintf.h>
 #include <gmath.h>
 
 #include "Common.h"
@@ -45,9 +46,8 @@ void EditorRuntime::UpdateEditor()
     }
     KevGui::EditorIncrementableIntegerField("Integer", &num);
     KevGui::EditorIncrementableFloatField("Float", &numf);
-    KevGui::EditorEndWindow();
-    
-    
+
+
     vec2 mouseLook = vec2();
     if(Input.mouseRMBPressed)
     {
@@ -76,10 +76,20 @@ void EditorRuntime::UpdateEditor()
     editorCamera.CameraCalculatePerspectiveMatrix();
 
     static vec3 yolo = vec3(-100, 100, 100);
+    for (auto v : brush_0->pointCloud)
+    {
+        char charbuf[32];
+        stbsp_sprintf(charbuf, "%.1f, %.1f, %.1f", v.x, v.y, v.z);
+        if(KevGui::EditorLabelledButton(charbuf))
+        {
+            yolo = v;
+        }
+    }
+    KevGui::EditorEndWindow();
     if(Input.HasKeyBeenPressed(SDL_SCANCODE_I))
     {
         vec3 newYolo = yolo + vec3(10, 0, 0);
-        MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0);
+        MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0, &newYolo);
         UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
         UpdateBrushFacesForDrawing(brush_0);
         yolo = newYolo;
@@ -87,7 +97,7 @@ void EditorRuntime::UpdateEditor()
     if(Input.HasKeyBeenPressed(SDL_SCANCODE_K))
     {
         vec3 newYolo = yolo + vec3(-10, 0, 0);
-        MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0);
+        MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0, &newYolo);
         UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
         UpdateBrushFacesForDrawing(brush_0);
         yolo = newYolo;
@@ -95,7 +105,7 @@ void EditorRuntime::UpdateEditor()
     if(Input.HasKeyBeenPressed(SDL_SCANCODE_J))
     {
         vec3 newYolo = yolo + vec3(0, 0, -10);
-        MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0);
+        MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0, &newYolo);
         UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
         UpdateBrushFacesForDrawing(brush_0);
         yolo = newYolo;
@@ -103,7 +113,7 @@ void EditorRuntime::UpdateEditor()
     if(Input.HasKeyBeenPressed(SDL_SCANCODE_L))
     {
         vec3 newYolo = yolo + vec3(0, 0, 10);
-        MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0);
+        MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0, &newYolo);
         UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
         UpdateBrushFacesForDrawing(brush_0);
         yolo = newYolo;
@@ -111,7 +121,7 @@ void EditorRuntime::UpdateEditor()
     if(Input.HasKeyBeenPressed(SDL_SCANCODE_U))
     {
         vec3 newYolo = yolo + vec3(0, 10, 0);
-        MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0);
+        MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0, &newYolo);
         UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
         UpdateBrushFacesForDrawing(brush_0);
         yolo = newYolo;
@@ -119,7 +129,7 @@ void EditorRuntime::UpdateEditor()
     if(Input.HasKeyBeenPressed(SDL_SCANCODE_O))
     {
         vec3 newYolo = yolo + vec3(0, -10, 0);
-        MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0);
+        MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0, &newYolo);
         UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
         UpdateBrushFacesForDrawing(brush_0);
         yolo = newYolo;

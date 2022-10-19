@@ -624,7 +624,7 @@ namespace KevGui
         }
 
         bool buttonValue = DoButton(FreshID(), rect, ui_ss.top().buttonNormalColor, ui_ss.top().buttonHoveredColor, ui_ss.top().buttonActiveColor);
-        DoTextUnformatted(label, textX, rect.y + rect.h - textPadding.y, textSize, textAlignment);
+        DoText(textX, rect.y + rect.h - textPadding.y, textSize, textAlignment, label);
         return buttonValue;
     }
 
