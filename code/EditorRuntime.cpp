@@ -86,8 +86,13 @@ void EditorRuntime::UpdateEditor()
         }
     }
     KevGui::EditorEndWindow();
+
+    static std::vector<CSGPlane> previousHalfspaces;
+    static vec3 prevYolo = vec3();
     if(Input.HasKeyBeenPressed(SDL_SCANCODE_I))
     {
+        previousHalfspaces = brush_0->halfspaces;
+        prevYolo = yolo;
         vec3 newYolo = yolo + vec3(10, 0, 0);
         MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0, &newYolo);
         UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
@@ -96,6 +101,8 @@ void EditorRuntime::UpdateEditor()
     }
     if(Input.HasKeyBeenPressed(SDL_SCANCODE_K))
     {
+        previousHalfspaces = brush_0->halfspaces;
+        prevYolo = yolo;
         vec3 newYolo = yolo + vec3(-10, 0, 0);
         MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0, &newYolo);
         UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
@@ -104,6 +111,8 @@ void EditorRuntime::UpdateEditor()
     }
     if(Input.HasKeyBeenPressed(SDL_SCANCODE_J))
     {
+        previousHalfspaces = brush_0->halfspaces;
+        prevYolo = yolo;
         vec3 newYolo = yolo + vec3(0, 0, -10);
         MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0, &newYolo);
         UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
@@ -112,6 +121,8 @@ void EditorRuntime::UpdateEditor()
     }
     if(Input.HasKeyBeenPressed(SDL_SCANCODE_L))
     {
+        previousHalfspaces = brush_0->halfspaces;
+        prevYolo = yolo;
         vec3 newYolo = yolo + vec3(0, 0, 10);
         MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0, &newYolo);
         UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
@@ -120,6 +131,8 @@ void EditorRuntime::UpdateEditor()
     }
     if(Input.HasKeyBeenPressed(SDL_SCANCODE_U))
     {
+        previousHalfspaces = brush_0->halfspaces;
+        prevYolo = yolo;
         vec3 newYolo = yolo + vec3(0, 10, 0);
         MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0, &newYolo);
         UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
@@ -128,11 +141,24 @@ void EditorRuntime::UpdateEditor()
     }
     if(Input.HasKeyBeenPressed(SDL_SCANCODE_O))
     {
+        previousHalfspaces = brush_0->halfspaces;
+        prevYolo = yolo;
         vec3 newYolo = yolo + vec3(0, -10, 0);
         MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0, &newYolo);
         UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
         UpdateBrushFacesForDrawing(brush_0);
         yolo = newYolo;
+    }
+    if (Input.HasKeyBeenPressed(SDL_SCANCODE_M))
+    {
+        brush_0->halfspaces = previousHalfspaces;
+        yolo = prevYolo;
+        brush_0->pointCloud.clear();
+        brush_0->pointToPlanes.clear();
+        brush_0->planeToVertices.clear();
+        brush_0->planeToEdges.clear();
+        UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
+        UpdateBrushFacesForDrawing(brush_0);
     }
 
 }

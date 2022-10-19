@@ -3,66 +3,54 @@
 #include <unordered_map>
 #include <algorithm>
 
-#define EPSILON 0.001f // NOTE(Kevin): Not sure if this is large enough...
+#define EPS_NORMAL 0.001f
+#define EPS_WCS 0.1f
 
 bool IsPointContainedInHalfSpace(vec3 planeNormal, float planeDist, vec3 point)
 {
-	return Dot(point, planeNormal) <= planeDist + EPSILON;
+	return Dot(point, planeNormal) <= planeDist + EPS_WCS;
 }
 
 bool IsPointOnPlane(vec3 planeNormal, float planeDist, vec3 point)
 {
     float magnitudeOfPointProjectionToNormal = Dot(point, planeNormal);
-    return planeDist - EPSILON < magnitudeOfPointProjectionToNormal && magnitudeOfPointProjectionToNormal < planeDist + EPSILON;
+    return planeDist - EPS_WCS < magnitudeOfPointProjectionToNormal && magnitudeOfPointProjectionToNormal < planeDist + EPS_WCS;
 }
 
 void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* brush, vec3* ye)
 {
-    /* I can check if any of brush->pointCloud is between point and newPoint i.e.
-     * the point moves through an existing point, in which case THE XISTING POINT BECOMES NEW POINT!!! */
-    // actually, we should be checking planes instead of points see belows
+    /* For each existing plane, need to if vector from point to newPoint crossed that plane
+     * and if so where it intersects -> this intersect point should be newPoint */
 
     vec3 vecToNewPoint = newPoint - point;
     vec3 vecToNewPointNormalized = Normalize(vecToNewPoint);
-
-    for (auto p : brush->pointCloud)
+    for (auto p : brush->halfspaces)
     {
-        vec3 vecToExistingPoint = p - point;
-        if (!p.Equals(point, EPSILON)
-        && Normalize(vecToExistingPoint).Equals(vecToNewPointNormalized, EPSILON)
-        && Magnitude(vecToExistingPoint) < Magnitude(vecToNewPoint))
+        vec3 l0 = point;
+        vec3 l = vecToNewPointNormalized;
+        float ldotn = Dot(l, p.n);
+        if (ldotn > EPS_NORMAL) // only if same direction as plane normal? AND not zero
         {
-            newPoint = p;
-            *ye = p;
-            break;
+            vec3 p0 = p.n * p.d;
+            float dScalar = Dot((p0 - l0), p.n) / ldotn;
+            vec3 pointOfIntersection = l0 + l * dScalar;
+
+            if (!pointOfIntersection.Equals(point, EPS_WCS)
+                && Magnitude(pointOfIntersection - point) < Magnitude(vecToNewPoint))
+            {
+                newPoint = pointOfIntersection;
+                *ye = pointOfIntersection;
+                break; // NOTE(Kevin): there may be multiple points of intersection before original newPoint..
+            }
         }
-    } // this whole thing is unnecessary if we get the plane intersection thing to work first
-
-    /* For each existing plane, need to if vector from point to newPoint crossed that plane
-     * and if so where it intersects -> this intersect point should be newPoint? */
-
-//    for (auto p : brush->halfspaces)
-//    {
-//        if (Dot(vecToNewPoint, p.n) > 0.f) // only if same direction
-//        {
-//            // find intersection of vecToNewPoint and the plane
-//            p.d = Dot(point, p.n);
-//            p.d = a.x * p.n.x + a.y * p.n.y + a.z * p.n.z;
-//            a = point + vecToNewPointNormalized * sf;
-//            p.d =     (point.x + vecToNewPointNormalized.x * sf) * p.n.x
-//                    + (point.y + vecToNewPointNormalized.y * sf) * p.n.y
-//                    + (point.z + vecToNewPointNormalized.z * sf) * p.n.z;
-//
-//            d = ([ x y z ] + [ vpn.x vpn.y vpn.z ] * sf) dot [ p.n.x p.n.y p.n.z ];
-//        }
-//    }
+    }
 
     // don't care about updating anything other than the array of halfspaces
     // unless there are some quick updates we can make that will allow us to optimize moving multiple vertices at once
     int indexOfPoint = -1;
     for (int i = 0; i < brush->pointCloud.size(); ++i)
     {
-        if (brush->pointCloud[i].Equals(point, EPSILON))
+        if (brush->pointCloud[i].Equals(point, EPS_WCS))
         {
             indexOfPoint = i;
             break;
@@ -80,7 +68,7 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
         for(int i = 0; i < brush->halfspaces.size(); ++i)
         {
             CSGPlane iter = brush->halfspaces[i];
-            if(iter.Equals(plane, EPSILON))
+            if(iter.Equals(plane, EPS_NORMAL))
             {
                 indexOfPlane = i;
                 break;
@@ -109,10 +97,10 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
             for (int e = 0; e < brush->planeToEdges[indexOfPlane].size(); ++e)
             {
                 std::pair<vec3,vec3> edge = brush->planeToEdges[indexOfPlane][e];
-                if (!point.Equals(edge.first, EPSILON)
-                && !point.Equals(edge.second, EPSILON)
-                && !newPoint.Equals(edge.first, EPSILON)
-                && !newPoint.Equals(edge.second, EPSILON))
+                if (!point.Equals(edge.first, EPS_WCS)
+                && !point.Equals(edge.second, EPS_WCS)
+                && !newPoint.Equals(edge.first, EPS_WCS)
+                && !newPoint.Equals(edge.second, EPS_WCS))
                 {
                     vec3 a = newPoint;
                     vec3 b = edge.first;
@@ -134,7 +122,7 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
                     bool sameExist = false;
                     for (auto iter : newlyCreatedPlanes)
                     {
-                        if (iter.Equals(createdPlane, EPSILON))
+                        if (iter.Equals(createdPlane, EPS_NORMAL))
                         {
                             sameExist = true;
                             break;
@@ -163,12 +151,12 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
                 std::pair<vec3,vec3> edge = brush->planeToEdges[indexOfPlane][e];
                 vec3 otherOfEdge = vec3();
                 bool otherOfEdgeHasValue = false;
-                if (point.Equals(edge.first, EPSILON))
+                if (point.Equals(edge.first, EPS_WCS))
                 {
                     otherOfEdge = edge.second;
                     otherOfEdgeHasValue = true;
                 }
-                else if (point.Equals(edge.second, EPSILON))
+                else if (point.Equals(edge.second, EPS_WCS))
                 {
                     otherOfEdge = edge.first;
                     otherOfEdgeHasValue = true;
@@ -199,11 +187,11 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
             bool newlyCreatedPlaneExist = false;
             for (auto iter : newlyCreatedPlanes)
             {
-                if (iter.Equals(plane, EPSILON))
+                if (iter.Equals(plane, EPS_NORMAL))
                 {
                     oldPlaneExist = true;
                 }
-                if (iter.Equals(createdPlane, EPSILON))
+                if (iter.Equals(createdPlane, EPS_NORMAL))
                 {
                     newlyCreatedPlaneExist = true;
                 }
@@ -222,7 +210,7 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
         for (int i = 0; i < brush->halfspaces.size(); ++i)
         {
             CSGPlane iter = brush->halfspaces[i];
-            if (iter.Equals(pl, EPSILON))
+            if (iter.Equals(pl, EPS_NORMAL))
             {
                 sameExist = true;
                 indexToRemoveAt = i;
@@ -238,10 +226,12 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
 
     for (auto p : newlyCreatedPlanes)
     {
+        if (p.n.Equals(vec3(0.f, 0.f, 0.f), EPS_NORMAL)) continue;
+
         bool samePlaneExists = false;
         for (auto existingP : brush->halfspaces)
         {
-            if (existingP.Equals(p, EPSILON))
+            if (existingP.Equals(p, EPS_NORMAL))
             {
                 samePlaneExists = true;
             }
@@ -275,7 +265,7 @@ void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush)
                     + pi.n.y * (pj.n.z * pk.n.x - pj.n.x * pk.n.z)
                     + pi.n.z * (pj.n.x * pk.n.y - pj.n.y * pk.n.x);
 
-                if (GM_abs(t) <= EPSILON) continue; // the planes are parallel
+                if (GM_abs(t) <= EPS_NORMAL) continue; // the planes are parallel
 
                 float vx = (pi.d * (pj.n.z * pk.n.y - pj.n.y * pk.n.z) + pj.d * (pi.n.y * pk.n.z - pi.n.z * pk.n.y) + pk.d * (pi.n.z * pj.n.y - pi.n.y * pj.n.z)) / -t;
                 float vy = (pi.d * (pj.n.x * pk.n.z - pj.n.z * pk.n.x) + pj.d * (pi.n.z * pk.n.x - pi.n.x * pk.n.z) + pk.d * (pi.n.x * pj.n.z - pi.n.z * pj.n.x)) / -t;
@@ -301,7 +291,7 @@ void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush)
                 bool flag_pointAlreadyCalculated = false;
                 for (int c = 0; c < brush->pointCloud.size(); ++c)
                 {
-                    if(brush->pointCloud[c].Equals(intersectionPoint, EPSILON))
+                    if(brush->pointCloud[c].Equals(intersectionPoint, EPS_WCS))
                     {
                         flag_pointAlreadyCalculated = true;
                         break;
@@ -344,11 +334,14 @@ void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush)
 
             std::vector<vec3> commonVertices;
 
-            for (auto vert : verticesOfPlaneI)
+            for (auto vertI : verticesOfPlaneI)
             {
-                if (std::find(verticesOfPlaneJ.begin(), verticesOfPlaneJ.end(), vert) != verticesOfPlaneJ.end())
+                for (auto vertJ : verticesOfPlaneJ)
                 {
-                    commonVertices.push_back(vert);
+                    if (vertI.Equals(vertJ, EPS_WCS))
+                    {
+                        commonVertices.push_back(vertI);
+                    }
                 }
             }
 
@@ -394,7 +387,7 @@ void UpdateBrushFacesForDrawing(CSGBrush* brush)
         for (int e = 0; e < brush->planeToEdges[i].size(); ++e)
         {
             std::pair<vec3,vec3> edge = brush->planeToEdges[i][e];
-            if (edge.first != pickedVert && edge.second != pickedVert)
+            if (!pickedVert.Equals(edge.first, EPS_WCS) && !pickedVert.Equals(edge.second, EPS_WCS))
             {
                 // to get the normal of this vertex, we need to transform from a vec3 WCS point
                 // to a vec2 UV coordinate
