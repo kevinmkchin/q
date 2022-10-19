@@ -47,8 +47,8 @@ set(SOURCE_FILES
 
 # Even tho these are added as target sources, CMake won't try to compile them if they don't have source file extension.
 set(STUFF_TO_SHOW_IN_IDE_PROJECT
-    lib
-    wd
+    #lib
+    #wd
     readme.md
 )
 

@@ -98,7 +98,7 @@ void GameRenderer::RenderGameLayer()
         for (int j = 0; j < 1; ++j)
         {
             mat4 mm = mat4();
-            mm *= TranslationMatrix(0.f, -256 * (j - 0), -256.f * (i - 0));
+            mm *= TranslationMatrix(0.f, -256.f * (j - 0), -256.f * (i - 0));
             gameSceneShader.GLBindMatrix4fv("modelMatrix", 1, mm.ptr());
             for (auto fb : Engine.editor->brush_0->facesForDrawing)
             {
