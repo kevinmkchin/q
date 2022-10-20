@@ -395,9 +395,9 @@ void UpdateBrushFacesForDrawing(CSGBrush* brush)
                 vec3 c = edge.second;
                 vec3 ba = b - a;
                 vec3 ca = c - a;
-                vec3 n = Normalize(Cross(ba, ca);
+                vec3 n = Normalize(Cross(ba, ca));
 
-                if (Dot(n), brush->halfspaces[i].n) <= 0.f) // need to ensure winding order of a b c is counter clockwise (opengl default)
+                if (Dot(n, brush->halfspaces[i].n) <= 0.f) // need to ensure winding order of a b c is counter clockwise (opengl default)
                 {
                     vec3 t = b;
                     b = c;
