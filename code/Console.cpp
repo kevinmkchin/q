@@ -31,7 +31,7 @@
 
 */
 
-INTERNAL noclip::console console_backend;
+static noclip::console console_backend;
 noclip::console& get_console()
 {
     return console_backend;
@@ -130,9 +130,9 @@ enum console_state_t
     CONSOLE_SHOWING,
     CONSOLE_SHOWN
 };
-INTERNAL GLuint console_background_vao_id = 0;
-INTERNAL GLuint console_background_vbo_id = 0;
-INTERNAL GLfloat console_background_vertex_buffer[] = {
+static GLuint console_background_vao_id = 0;
+static GLuint console_background_vbo_id = 0;
+static GLfloat console_background_vertex_buffer[] = {
     // INITIAL VALUES DON'T MATTER - OVERWRITTEN IN console_initalize 2022-03-25
     0.f,    1.f,        0.f, 0.f,
     0.f,    400.f,      0.f, 1.f,
@@ -141,45 +141,45 @@ INTERNAL GLfloat console_background_vertex_buffer[] = {
     0.f,    1.f,        0.f, 0.f,
     1280.f, 400.f,      1.f, 1.f
 };
-INTERNAL GLuint console_line_vao_id = 0;
-INTERNAL GLuint console_line_vbo_id = 0;
-INTERNAL GLfloat console_line_vertex_buffer[] = {
+static GLuint console_line_vao_id = 0;
+static GLuint console_line_vbo_id = 0;
+static GLfloat console_line_vertex_buffer[] = {
     0.f, 400.f,
     1280.f, 400.f
 };
 
-INTERNAL bool               console_b_initialized = false;
-INTERNAL console_state_t    console_state = CONSOLE_HIDDEN;
-INTERNAL float              console_y = 0.f;
+static bool               console_b_initialized = false;
+static console_state_t    console_state = CONSOLE_HIDDEN;
+static float              console_y = 0.f;
 
-INTERNAL float    CONSOLE_HEIGHT = 400.f;
-INTERNAL u8       CONSOLE_TEXT_SIZE = 18;
-INTERNAL u8       CONSOLE_TEXT_PADDING_BOTTOM = 4;
-INTERNAL u16      CONSOLE_INPUT_DRAW_X = 4;
-INTERNAL u16      CONSOLE_INPUT_DRAW_Y = (u16)(CONSOLE_HEIGHT - (float)CONSOLE_TEXT_PADDING_BOTTOM);
+static float    CONSOLE_HEIGHT = 400.f;
+static u8       CONSOLE_TEXT_SIZE = 18;
+static u8       CONSOLE_TEXT_PADDING_BOTTOM = 4;
+static u16      CONSOLE_INPUT_DRAW_X = 4;
+static u16      CONSOLE_INPUT_DRAW_Y = (u16)(CONSOLE_HEIGHT - (float)CONSOLE_TEXT_PADDING_BOTTOM);
 
 // Input character buffer
-INTERNAL char        console_input_buffer[CONSOLE_COLS_MAX];
-INTERNAL bool        console_b_input_buffer_dirty = false;
-INTERNAL u8       console_input_cursor = 0;
-INTERNAL u8       console_input_buffer_count = 0;
+static char        console_input_buffer[CONSOLE_COLS_MAX];
+static bool        console_b_input_buffer_dirty = false;
+static u8       console_input_cursor = 0;
+static u8       console_input_buffer_count = 0;
 
 // Hidden character buffer
-INTERNAL char        console_messages[CONSOLE_MAX_PRINT_MSGS] = {};
-INTERNAL u16      console_messages_read_cursor = 0;
-INTERNAL u16      console_messages_write_cursor = 0;
-INTERNAL bool        console_b_messages_dirty = false;
+static char        console_messages[CONSOLE_MAX_PRINT_MSGS] = {};
+static u16      console_messages_read_cursor = 0;
+static u16      console_messages_write_cursor = 0;
+static bool        console_b_messages_dirty = false;
 
 // Text visuals
-INTERNAL vtxt_font*     console_font_handle;
-INTERNAL Texture  console_font_atlas;
+static vtxt_font*     console_font_handle;
+static Texture  console_font_atlas;
 // Input text & Messages VAOs
-INTERNAL Mesh        console_inputtext_vao; // console_inputtext_vao gets added to console_messages_vaos if user "returns" command
-INTERNAL Mesh        console_messages_vaos[CONSOLE_ROWS_MAX] = {}; // one vao is one line
+static Mesh        console_inputtext_vao; // console_inputtext_vao gets added to console_messages_vaos if user "returns" command
+static Mesh        console_messages_vaos[CONSOLE_ROWS_MAX] = {}; // one vao is one line
 
-INTERNAL vec2 buffer_dimensions;
+static vec2 buffer_dimensions;
 
-INTERNAL BasicFrameBuffer* debugUILayerPtr = nullptr;
+static BasicFrameBuffer* debugUILayerPtr = nullptr;
 
 // TODO buffer to hold previous commands (max 20 commands)
 

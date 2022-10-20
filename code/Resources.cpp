@@ -10,24 +10,18 @@
 
 #include "FileSystem.h"
 
-INTERNAL std::unordered_map<std::string, Texture> __gpuLoadedTextures;
-INTERNAL std::unordered_map<std::string, MeshGroup> __gpuLoadedModels;
-INTERNAL std::unordered_map<std::string, vtxt_font> __vtxtLoadedFonts;
+static std::unordered_map<std::string, Texture> __gpuLoadedTextures;
+static std::unordered_map<std::string, MeshGroup> __gpuLoadedModels;
+static std::unordered_map<std::string, vtxt_font> __vtxtLoadedFonts;
 
 ResourceManager Resources;
 
 void Texture::UseTexture() const
 {
-    LOCAL_PERSIST Texture missingTexture;
-    if (missingTexture.textureId == 0)
-    {
-        TextureCreateFromFile(missingTexture, primitives_path("missing_texture.png").c_str());
-    }
-
     if (textureId == 0)
     {
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, missingTexture.textureId);
+        glBindTexture(GL_TEXTURE_2D, Resources.defaultMissingTexture.textureId);
     }
     else
     {
@@ -241,7 +235,7 @@ void MeshGroup::Render()
     }
 }
 
-INTERNAL Mesh __assimpLoadMeshHelper(aiMesh* meshNode)
+static Mesh __assimpLoadMeshHelper(aiMesh* meshNode)
 {
     const u8 vb_entries_per_vertex = 8;
     std::vector<float> vb(meshNode->mNumVertices * vb_entries_per_vertex);

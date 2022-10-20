@@ -138,7 +138,7 @@ public:
     }
 };
 
-INTERNAL vec3 GJKSupport(const Collider* colA, const Collider* colB, const vec3& direction)
+static vec3 GJKSupport(const Collider* colA, const Collider* colB, const vec3& direction)
 {
     // https://en.wikipedia.org/wiki/Support_function
     return colA->FindFurthestPoint(direction) - colB->FindFurthestPoint(-direction);
@@ -146,7 +146,7 @@ INTERNAL vec3 GJKSupport(const Collider* colA, const Collider* colB, const vec3&
 
 #define GJKSameDirection(dir, ao) (Dot(dir, ao) > 0.f)
 
-INTERNAL bool GJKLine(GJKSimplex& capture, vec3& direction)
+static bool GJKLine(GJKSimplex& capture, vec3& direction)
 {
     vec3 a = capture[0];
     vec3 b = capture[1];
@@ -171,7 +171,7 @@ INTERNAL bool GJKLine(GJKSimplex& capture, vec3& direction)
     return false;
 }
 
-INTERNAL bool GJKTriangle(GJKSimplex& capture, vec3& direction)
+static bool GJKTriangle(GJKSimplex& capture, vec3& direction)
 {
     vec3 a = capture[0];
     vec3 b = capture[1];
@@ -227,7 +227,7 @@ INTERNAL bool GJKTriangle(GJKSimplex& capture, vec3& direction)
     return false;
 }
 
-INTERNAL bool GJKTetrahedron(GJKSimplex& capture, vec3& direction)
+static bool GJKTetrahedron(GJKSimplex& capture, vec3& direction)
 {
     vec3 a = capture[0];
     vec3 b = capture[1];
@@ -268,7 +268,7 @@ INTERNAL bool GJKTetrahedron(GJKSimplex& capture, vec3& direction)
     return true;
 }
 
-INTERNAL bool GJKNextSimplex(GJKSimplex& capture, vec3& direction)
+static bool GJKNextSimplex(GJKSimplex& capture, vec3& direction)
 {
     /* We need a series of different checks for each shape of simplex
      * to see what the new simplex should be and what direction we'll
@@ -290,7 +290,7 @@ struct GJKEPACollisionInfo
     bool hasCollision = false;
 };
 
-INTERNAL std::pair<std::vector<vec4>, int> EPAGetFaceNormals(
+static std::pair<std::vector<vec4>, int> EPAGetFaceNormals(
     const std::vector<vec3>& polytope,
     const std::vector<int>& faces)
 {
@@ -327,7 +327,7 @@ INTERNAL std::pair<std::vector<vec4>, int> EPAGetFaceNormals(
     return { normals, minTriangle };
 }
 
-INTERNAL void EPAAddIfUniqueEdge(
+static void EPAAddIfUniqueEdge(
     std::vector<std::pair<int, int>>& edges,
     const std::vector<int>& faces,
     int a,
@@ -348,7 +348,7 @@ INTERNAL void EPAAddIfUniqueEdge(
 #ifndef EPA_MAX_ITERATIONS
 #define EPA_MAX_ITERATIONS 10
 #endif
-INTERNAL GJKEPACollisionInfo EPA(GJKSimplex& simplex, const Collider* colA, const Collider* colB)
+static GJKEPACollisionInfo EPA(GJKSimplex& simplex, const Collider* colA, const Collider* colB)
 {
     std::vector<vec3> polytope;
     ASSERT(simplex.size() == 4)
@@ -459,7 +459,7 @@ INTERNAL GJKEPACollisionInfo EPA(GJKSimplex& simplex, const Collider* colA, cons
     return points;
 }
 
-INTERNAL GJKEPACollisionInfo CheckSphereCollision(SphereCollider* a, SphereCollider* b)
+static GJKEPACollisionInfo CheckSphereCollision(SphereCollider* a, SphereCollider* b)
 {
     vec3 aPos = a->GetPosition();
     vec3 bPos = b->GetPosition();
@@ -476,7 +476,7 @@ INTERNAL GJKEPACollisionInfo CheckSphereCollision(SphereCollider* a, SphereColli
     }
 }
 
-INTERNAL GJKEPACollisionInfo GJK(Collider* colA, Collider* colB)
+static GJKEPACollisionInfo GJK(Collider* colA, Collider* colB)
 {
     colA->TransformCollider();
     colB->TransformCollider();
@@ -517,7 +517,7 @@ INTERNAL GJKEPACollisionInfo GJK(Collider* colA, Collider* colB)
 
 // Collision World
 
-INTERNAL void NotifyOwningObjectsAboutCollision(Collider* a, Collider* b, GJKEPACollisionInfo collisionInfo)
+static void NotifyOwningObjectsAboutCollision(Collider* a, Collider* b, GJKEPACollisionInfo collisionInfo)
 {
     CollisionEventArgs dispatchInfo;
     dispatchInfo.normal = -collisionInfo.normal;
@@ -552,7 +552,7 @@ void CheckCollisionAndNotify(Collider* colliderA, Collider* colliderB)
 //GLOBAL_VAR std::vector<Collider*> StaticColliders;
 //GLOBAL_VAR std::vector<Collider*> DynamicColliders;
 
-//INTERNAL void CollisionWorldUpdate()
+//static void CollisionWorldUpdate()
 //{
 //    for (int i = 0; i < DynamicColliders.size(); ++i)
 //    {

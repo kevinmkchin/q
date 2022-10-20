@@ -36,9 +36,6 @@ inline std::string primitives_path(const std::string& name) { return data_path()
 #define ASSERT(predicate)
 #endif
 
-#define INTERNAL static
-#define LOCAL_PERSIST static
-
 #define _RGB(r,g,b) ((float)r)/255.f, ((float)g)/255.f, ((float)b)/255.f
 
 #define ARRAY_COUNT(a) (sizeof(a) / (sizeof(a[0])))

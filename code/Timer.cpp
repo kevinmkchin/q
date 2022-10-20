@@ -17,7 +17,7 @@ Timer::Timer()
 
 float Timer::UpdateDeltaTime()
 {
-    LOCAL_PERSIST Clock::time_point timeAtLastUpdate = Clock::now();
+    static Clock::time_point timeAtLastUpdate = Clock::now();
 
     auto now = Clock::now();
     float elapsedMs = (float)(std::chrono::duration_cast<std::chrono::microseconds>(now - timeAtLastUpdate)).count() / 1000.f;

@@ -9,7 +9,7 @@
 
 
 template <class T>
-INTERNAL EntityIndex MakeSharedPtrAndPushBackToEntitiesVector(GameState* gameState)
+static EntityIndex MakeSharedPtrAndPushBackToEntitiesVector(GameState* gameState)
 {
 	std::shared_ptr<Entity> ptr = std::make_shared<T>();
 	EntityIndex id = (EntityIndex)gameState->entities.size();

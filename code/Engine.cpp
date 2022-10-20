@@ -144,6 +144,7 @@ void EngineClass::SDLProcessEvents()
             KevGui::SDLProcessEvent(&event);
         }
 
+        // Lower level engine related input
         switch (event.type) 
         {
             case SDL_KEYDOWN: {
