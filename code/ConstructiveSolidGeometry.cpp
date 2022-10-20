@@ -19,12 +19,91 @@ bool IsPointOnPlane(vec3 planeNormal, float planeDist, vec3 point)
 
 void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* brush, vec3* ye)
 {
-    /* For each existing plane, need to if vector from point to newPoint crossed that plane
-     * and if so where it intersects -> this intersect point should be newPoint */
+    // don't care about updating anything other than the array of halfspaces
+    // unless there are some quick updates we can make that will allow us to optimize moving multiple vertices at once
+    int indexOfPoint = -1;
+    for (int i = 0; i < brush->pointCloud.size(); ++i)
+    {
+        if (brush->pointCloud[i].Equals(point, EPS_WCS))
+        {
+            indexOfPoint = i;
+            break;
+        }
+    }
+    if (indexOfPoint < 0) return;
+    
+    std::vector<CSGPlane> relevantPlanes = brush->pointToPlanes[indexOfPoint];
+
+
+    /* For each existing plane or potential plane, need to if vector from point to newPoint crossed
+     * that plane and if so where it intersects -> this intersect point should be newPoint */
+
+    std::vector<vec3> neighbouringPoints; 
+
+    for (auto p : relevantPlanes)
+    {
+        int indexOfPlane = -1;
+        for (int i = 0; i < brush->halfspaces.size(); ++i)
+        {
+            CSGPlane iter = brush->halfspaces[i];
+            if (iter.Equals(p, EPS_NORMAL))
+            {
+                indexOfPlane = i;
+                break;
+            }
+        }
+        for (int e = 0; e < brush->planeToEdges[indexOfPlane].size(); ++e)
+        {
+            std::pair<vec3, vec3> edge = brush->planeToEdges[indexOfPlane][e];
+            if (point.Equals(edge.first, EPS_WCS) || point.Equals(edge.second, EPS_WCS))
+            {
+                vec3 neighbourPoint = point.Equals(edge.first, EPS_WCS) ? edge.second : edge.first;
+                bool sameExist = false;
+                for (auto iter : neighbouringPoints)
+                {
+                    if (iter.Equals(neighbourPoint, EPS_NORMAL))
+                    {
+                        sameExist = true;
+                        break;
+                    }
+                }
+                if (!sameExist)
+                {
+                    neighbouringPoints.push_back(neighbourPoint);
+                }
+            }
+        }
+    }
+
+    std::vector<CSGPlane> potentialIntersectingPlanes = brush->halfspaces;
 
     vec3 vecToNewPoint = newPoint - point;
     vec3 vecToNewPointNormalized = Normalize(vecToNewPoint);
-    for (auto p : brush->halfspaces)
+
+    /* For each neighbouring point tuple, form a plane because moving to the new point
+     * may intersect with this plane. */
+
+    for (int i = 0; i < neighbouringPoints.size() - 2; ++i)
+    {
+        for (int j = i + 1; j < neighbouringPoints.size() - 1; ++j)
+        {
+            for (int k = j + 1; k < neighbouringPoints.size(); ++k)
+            {
+                vec3 crossProduct = Normalize(Cross(neighbouringPoints[j] - neighbouringPoints[i], neighbouringPoints[k] - neighbouringPoints[i]));
+                CSGPlane intersectionCheckingPlane;
+                intersectionCheckingPlane.n = crossProduct;
+                intersectionCheckingPlane.d = Dot(neighbouringPoints[i], crossProduct);
+                if (Dot(vecToNewPointNormalized, intersectionCheckingPlane.n) < 0.f) // wrong direction as old plane
+                {
+                    intersectionCheckingPlane.n = -intersectionCheckingPlane.n;
+                    intersectionCheckingPlane.d = -intersectionCheckingPlane.d;
+                }
+                potentialIntersectingPlanes.push_back(intersectionCheckingPlane);
+            }
+        }
+    }
+
+    for (auto p : potentialIntersectingPlanes)
     {
         vec3 l0 = point;
         vec3 l = vecToNewPointNormalized;
@@ -44,21 +123,6 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
             }
         }
     }
-
-    // don't care about updating anything other than the array of halfspaces
-    // unless there are some quick updates we can make that will allow us to optimize moving multiple vertices at once
-    int indexOfPoint = -1;
-    for (int i = 0; i < brush->pointCloud.size(); ++i)
-    {
-        if (brush->pointCloud[i].Equals(point, EPS_WCS))
-        {
-            indexOfPoint = i;
-            break;
-        }
-    }
-    if (indexOfPoint < 0) return;
-    
-    std::vector<CSGPlane> relevantPlanes = brush->pointToPlanes[indexOfPoint];
 
     std::vector<CSGPlane> newlyCreatedPlanes;
  
