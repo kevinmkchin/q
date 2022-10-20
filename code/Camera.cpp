@@ -8,8 +8,8 @@
 
 void GameCamera::CameraUpdate(vec3 newPosition, float yawDelta, float pitchDelta)
 {
-    rotation.y -= yawDelta * turnSpeed;
-    rotation.z -= pitchDelta * turnSpeed;
+    rotation.y -= yawDelta;
+    rotation.z -= pitchDelta;
 
     position = newPosition;
 

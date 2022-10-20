@@ -52,7 +52,7 @@ void EditorRuntime::UpdateEditor()
     if(Input.mouseRMBPressed)
     {
         SDL_SetRelativeMouseMode(SDL_TRUE);
-        mouseLook = vec2(Input.mouseDelta.x * 1.7f, Input.mouseDelta.y * 1.7f);
+        mouseLook = vec2(Input.mouseDelta.x * 0.07f, Input.mouseDelta.y * 0.07f);
     }
     else
     {

@@ -13,7 +13,6 @@ struct GameCamera
     mat4  viewMatrix;           // Last calculated view matrix
     float nearClip = 0.1f;
     float farClip = 64000.f;
-    float turnSpeed = 0.04f;
 
     void CameraUpdate(vec3 newPosition, float yawDelta, float pitchDelta);
     void CameraCalculatePerspectiveMatrix();

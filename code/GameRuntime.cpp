@@ -186,7 +186,7 @@ void GameRuntime::Update()
 
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	std::shared_ptr<Entity> player = state.entities[state.player];
-	state.playerCamera.CameraUpdate(player->transform.position, Input.mouseDelta.x * 1.7f, Input.mouseDelta.y * 1.7f);
+	state.playerCamera.CameraUpdate(player->transform.position, Input.mouseDelta.x * 0.07f, Input.mouseDelta.y * 0.07f);
 	state.playerCamera.CameraCalculatePerspectiveMatrix();
 
 	CheckCollisionAndNotify(&col0, &col1);
