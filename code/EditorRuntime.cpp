@@ -75,7 +75,7 @@ void EditorRuntime::UpdateEditor()
     editorCamera.CameraUpdate(camPos, mouseLook.x, mouseLook.y);
     editorCamera.CameraCalculatePerspectiveMatrix();
 
-    static vec3 yolo = vec3(-100, 100, 100);
+    static vec3 yolo = vec3(-128, 128, 128);
     for (auto v : brush_0->pointCloud)
     {
         char charbuf[32];

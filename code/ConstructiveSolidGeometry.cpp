@@ -389,6 +389,8 @@ void UpdateBrushFacesForDrawing(CSGBrush* brush)
             std::pair<vec3,vec3> edge = brush->planeToEdges[i][e];
             if (!pickedVert.Equals(edge.first, EPS_WCS) && !pickedVert.Equals(edge.second, EPS_WCS))
             {
+                float uvScale = (1.f / 256.f);
+
                 // then there is a tri between pickedVert, edge.first, and edge.second
                 vec3 a = pickedVert;
                 vec3 b = edge.first;
@@ -405,32 +407,66 @@ void UpdateBrushFacesForDrawing(CSGBrush* brush)
                     n = -n;
                 }
 
-                // to get the normal of this vertex, we need to transform from a vec3 WCS point
-                // to a vec2 UV coordinate
+                float xf = GM_abs(Dot(n, vec3(1.f, 0.f, 0.f)));
+                float yf = GM_abs(Dot(n, vec3(0.f, 1.f, 0.f)));
+                float zf = GM_abs(Dot(n, vec3(0.f, 0.f, 1.f)));
 
+                float au;
+                float av;
+                float bu;
+                float bv;
+                float cu;
+                float cv;
 
-                // then add in order a b c
+                if(xf >= yf && xf >= zf)
+                {
+                    au = a.z * uvScale;
+                    av = a.y * uvScale;
+                    bu = b.z * uvScale;
+                    bv = b.y * uvScale;
+                    cu = c.z * uvScale;
+                    cv = c.y * uvScale;
+                }
+                else if(yf >= xf && yf >= zf)
+                {
+                    au = a.x * uvScale;
+                    av = a.z * uvScale;
+                    bu = b.x * uvScale;
+                    bv = b.z * uvScale;
+                    cu = c.x * uvScale;
+                    cv = c.z * uvScale;
+                }
+                else if(zf >= xf && zf >= yf)
+                {
+                    au = a.x * uvScale;
+                    av = a.y * uvScale;
+                    bu = b.x * uvScale;
+                    bv = b.y * uvScale;
+                    cu = c.x * uvScale;
+                    cv = c.y * uvScale;
+                }
+
                 vertexBuffer.push_back(a.x);
                 vertexBuffer.push_back(a.y);
                 vertexBuffer.push_back(a.z);
-                vertexBuffer.push_back(0);
-                vertexBuffer.push_back(0);
+                vertexBuffer.push_back(au);
+                vertexBuffer.push_back(av);
                 vertexBuffer.push_back(brush->halfspaces[i].n.x);
                 vertexBuffer.push_back(brush->halfspaces[i].n.y);
                 vertexBuffer.push_back(brush->halfspaces[i].n.z);
                 vertexBuffer.push_back(b.x);
                 vertexBuffer.push_back(b.y);
                 vertexBuffer.push_back(b.z);
-                vertexBuffer.push_back(0);
-                vertexBuffer.push_back(0);
+                vertexBuffer.push_back(bu);
+                vertexBuffer.push_back(bv);
                 vertexBuffer.push_back(brush->halfspaces[i].n.x);
                 vertexBuffer.push_back(brush->halfspaces[i].n.y);
                 vertexBuffer.push_back(brush->halfspaces[i].n.z);
                 vertexBuffer.push_back(c.x);
                 vertexBuffer.push_back(c.y);
                 vertexBuffer.push_back(c.z);
-                vertexBuffer.push_back(0);
-                vertexBuffer.push_back(0);
+                vertexBuffer.push_back(cu);
+                vertexBuffer.push_back(cv);
                 vertexBuffer.push_back(brush->halfspaces[i].n.x);
                 vertexBuffer.push_back(brush->halfspaces[i].n.y);
                 vertexBuffer.push_back(brush->halfspaces[i].n.z);
@@ -447,26 +483,26 @@ CSGBrush* DoSmth()
 // planes data
     CSGPlane p0;
     p0.n = Normalize(vec3(1, 0, 0));
-    p0.d = 100.f;
+    p0.d = 128.f;
     CSGPlane p1;
     p1.n = Normalize(vec3(0, 1, 0));
-    p1.d = 100.f;
+    p1.d = 128.f;
     CSGPlane p2;
     p2.n = Normalize(vec3(0, 0, 1));
-    p2.d = 100.f;
+    p2.d = 128.f;
     CSGPlane p3;
     p3.n = Normalize(vec3(-1, 0, 0));
-    p3.d = 100.f;
+    p3.d = 128.f;
     CSGPlane p4;
     p4.n = Normalize(vec3(0, -1, 0));
-    p4.d = 100.f;
+    p4.d = 128.f;
     CSGPlane p5;
     p5.n = Normalize(vec3(0, 0, -1));
-    p5.d = 100.f;
+    p5.d = 128.f;
 
     CSGPlane slice;
     slice.n = Normalize(vec3(1,1,0));
-    slice.d = 100.f;
+    slice.d = 128.f;
 
     CSGBrush* brush = new CSGBrush();
     brush->halfspaces.push_back(p0);
