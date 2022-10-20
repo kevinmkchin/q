@@ -69,7 +69,7 @@ namespace KevGui
 
     void DoText(int x, int y, int size, TextAlignment alignment, const char* textFmt, ...);
 
-    void DoTextUnformatted(const char* text, int x, int y, int size, TextAlignment alignment);
+    void DoTextUnformatted(int x, int y, int size, TextAlignment alignment, const char* text);
 
     void DoImage(UIRect rect, u32 glTextureId = 0);
 

@@ -11,8 +11,8 @@
 
 struct CSGPlane
 {
-    vec3 n; // normal of the plane
-    float d; // distance from origin
+    vec3 n = vec3(); // normal of the plane
+    float d = 0.f; // distance from origin
     
     inline bool Equals(const CSGPlane& other, float epsilon)
     {

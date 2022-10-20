@@ -72,9 +72,9 @@ namespace KevGui
 
     static Font __default_font;
 
-    static char __reservedFormattedTextMem[16384];
-    static const int __formattedTextLineSizeBytes = 128;
-    static int __reservedFormattedTextMemIndexer = 0;
+    static char __reservedTextMemory[65536];
+    static const int __reservedTextLineSizeBytes = 128;
+    static int __reservedTextMemoryIndexer = 0;
 
     static NiceArray<SDL_Keycode, 16> keyboardInputASCIIKeycodeThisFrame;
 
@@ -342,26 +342,49 @@ namespace KevGui
     void DoText(int x, int y, int size, TextAlignment alignment, const char* textFmt, ...)
     {
 #if INTERNAL_BUILD & SLOW_BUILD
-        if (__reservedFormattedTextMemIndexer >= ARRAY_COUNT(__reservedFormattedTextMem) / __formattedTextLineSizeBytes)
+        if (__reservedTextMemoryIndexer >= ARRAY_COUNT(__reservedTextMemory) / __reservedTextLineSizeBytes)
         {
-            PrintLog.WarningFmt("Attempting to format text in GUI.cpp but not enough reserved memory to store formatted text.");
+            PrintLog.WarningFmt("Attempting to draw text in GUI.cpp but not enough reserved memory to store text.");
+            return;
         }
 #endif
 
         va_list argptr;
-        char* formattedTextBuffer = __reservedFormattedTextMem + (__reservedFormattedTextMemIndexer * __formattedTextLineSizeBytes);
+        char* formattedTextBuffer = __reservedTextMemory + (__reservedTextMemoryIndexer * __reservedTextLineSizeBytes);
         va_start(argptr, textFmt);
         stbsp_vsprintf(formattedTextBuffer, textFmt, argptr);
         va_end(argptr);
-        ++__reservedFormattedTextMemIndexer;
+        ++__reservedTextMemoryIndexer;
 
-        DoTextUnformatted(formattedTextBuffer, x, y, size, alignment);
+        TextDrawRequest drawRequest;
+        drawRequest.text = formattedTextBuffer;
+        drawRequest.size = size;
+        drawRequest.x = x;
+        drawRequest.y = y;
+        drawRequest.alignment = alignment;
+        drawRequest.font = ui_ss.top().textFont;
+        drawRequest.color = ui_ss.top().textColor;
+
+        textDrawRequestsBuffer.PushBack(drawRequest);
+        drawQueue.push(&textDrawRequestsBuffer.Back());
     }
 
-    void DoTextUnformatted(const char* text, int x, int y, int size, TextAlignment alignment)
+    void DoTextUnformatted(int x, int y, int size, TextAlignment alignment, const char* text)
     {
+#if INTERNAL_BUILD & SLOW_BUILD
+        if (__reservedTextMemoryIndexer >= ARRAY_COUNT(__reservedTextMemory) / __reservedTextLineSizeBytes)
+        {
+            PrintLog.WarningFmt("Attempting to draw text in GUI.cpp but not enough reserved memory to store text.");
+            return;
+        }
+#endif
+
+        char* textBuffer = __reservedTextMemory + (__reservedTextMemoryIndexer * __reservedTextLineSizeBytes);
+        memcpy(textBuffer, text, __reservedTextLineSizeBytes);
+        ++__reservedTextMemoryIndexer;
+
         TextDrawRequest drawRequest;
-        drawRequest.text = text;
+        drawRequest.text = textBuffer;
         drawRequest.size = size;
         drawRequest.x = x;
         drawRequest.y = y;
@@ -624,7 +647,7 @@ namespace KevGui
         }
 
         bool buttonValue = DoButton(FreshID(), rect, ui_ss.top().buttonNormalColor, ui_ss.top().buttonHoveredColor, ui_ss.top().buttonActiveColor);
-        DoText(textX, rect.y + rect.h - textPadding.y, textSize, textAlignment, label);
+        DoTextUnformatted(textX, rect.y + rect.h - textPadding.y, textSize, textAlignment, label);
         return buttonValue;
     }
 
@@ -690,7 +713,7 @@ namespace KevGui
         {
             (*v) -= increment;
         }
-        DoTextUnformatted(label, x + w + 22, y + h, 20, TextAlignment::Left);
+        DoTextUnformatted(x + w + 22, y + h, 20, TextAlignment::Left, label);
 
         activeWindowGuide.yOffsetFromInitialWindow += paddingAbove + h + paddingBelow;
     }
@@ -714,7 +737,7 @@ namespace KevGui
         {
             (*v) -= increment;
         }
-        DoTextUnformatted(label, x + w + 22, y + h, 20, TextAlignment::Left);
+        DoTextUnformatted(x + w + 22, y + h, 20, TextAlignment::Left, label);
 
         activeWindowGuide.yOffsetFromInitialWindow += paddingAbove + h + paddingBelow;
     }
@@ -762,7 +785,7 @@ namespace KevGui
 
         freshIdCounter = 0;
 
-        __reservedFormattedTextMemIndexer = 0;
+        __reservedTextMemoryIndexer = 0;
     }
 
     void SDLProcessEvent(const SDL_Event* evt)

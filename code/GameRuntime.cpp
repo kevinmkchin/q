@@ -180,7 +180,7 @@ void GameRuntime::StartGame()
 
 void GameRuntime::Update()
 {
-	KevGui::DoTextUnformatted("GAME", 25, 40, 16, KevGui::TextAlignment::Left);
+	KevGui::DoTextUnformatted(25, 40, 16, KevGui::TextAlignment::Left, "GAME");
 	KevGui::DoPanel(KevGui::UIRect(22, 45, 140, 22), vec4(1.f, 0.f, 0.f, 1.f));
 	KevGui::DoText(25, 64, 16, KevGui::TextAlignment::Left, "Health: 99");
 
