@@ -397,7 +397,7 @@ void UpdateBrushFacesForDrawing(CSGBrush* brush)
                 vec3 ca = c - a;
                 vec3 n = Normalize(Cross(ba, ca);
 
-                if (Dot(), brush->halfspaces[i].n) <= 0.f) // need to ensure winding order of a b c is counter clockwise (opengl default)
+                if (Dot(n), brush->halfspaces[i].n) <= 0.f) // need to ensure winding order of a b c is counter clockwise (opengl default)
                 {
                     vec3 t = b;
                     b = c;
@@ -407,7 +407,7 @@ void UpdateBrushFacesForDrawing(CSGBrush* brush)
 
                 // to get the normal of this vertex, we need to transform from a vec3 WCS point
                 // to a vec2 UV coordinate
-                
+
 
                 // then add in order a b c
                 vertexBuffer.push_back(a.x);
