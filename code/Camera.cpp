@@ -42,3 +42,13 @@ void GameCamera::CameraCalculateViewMatrix()
 {
     viewMatrix = ViewMatrixLookAt(position, position + calculatedDirection, calculatedUp);
 }
+
+vec2 GameCamera::WorldToScreenPoint(vec3 position)
+{
+    vec4 clipspaceCoordinates = perspectiveMatrix * viewMatrix * vec4(position, 1.f);
+    float screenspaceRatioX = ((clipspaceCoordinates.x / clipspaceCoordinates.w) + 1.f) / 2.f;
+    float screenspaceRatioY = ((clipspaceCoordinates.y / clipspaceCoordinates.w) + 1.f) / 2.f;
+    float internalResolutionWidth = (float)Engine.gfx->gameLayer.width;
+    float internalResolutionHeight = (float)Engine.gfx->gameLayer.height;
+    return vec2(screenspaceRatioX * internalResolutionWidth, screenspaceRatioY * internalResolutionHeight);
+}

@@ -17,4 +17,8 @@ struct GameCamera
     void CameraUpdate(vec3 newPosition, float yawDelta, float pitchDelta);
     void CameraCalculatePerspectiveMatrix();
     void CameraCalculateViewMatrix();
+
+    // Transforms world space position into screen space position using gameLayer resolution
+    // Screenspace is defined in pixels. The bottom-left of the screen is (0,0); the right-top is (pixelWidth,pixelHeight).
+    vec2 WorldToScreenPoint(vec3 position);
 };
