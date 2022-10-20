@@ -18,10 +18,7 @@ GUI
 
 GAME & EDITOR
 - WorldLevelGeometryCollider that has all its points in WCS
-- Editor handles like scene tooling
 - Asset management? do i need to?
-- debug drawer for primitives https://github.com/kevinmkchin/XNGINE/blob/master/src/debugging/debug_drawer.h
-- need to scale mouse look with something so it's not FPS dependent
 
 */
 
@@ -141,8 +138,11 @@ void EngineClass::SDLProcessEvents()
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
-        Input.ProcessAllSDLInputEvents(event);
-        KevGui::SDLProcessEvent(&event);
+        if (console_is_hidden())
+        {
+            Input.ProcessAllSDLInputEvents(event);
+            KevGui::SDLProcessEvent(&event);
+        }
 
         switch (event.type) 
         {
