@@ -18,8 +18,8 @@ namespace Handles
     // // All handles call this with their controlID during layout, then use nearestControl to check if they got the mouseDown.
     // void AddControl(int controlId, float distance);
 
-    // // Pixel distance from mouse pointer to camera facing circle
-    // void DistanceToCircle(vec3 center, float radius);
+    // Pixel distance from mouse pointer to camera facing circle
+    float DistanceToCircle(vec3 center, float radius);
 
     // // Pixel distance from a point p in 2d to a line defined by two points a and b.
     // void DistanceToLine(vec2 p, vec2 a, vec2 b);

@@ -89,6 +89,8 @@ void EditorRuntime::UpdateEditor()
     }
     KevGui::EditorEndWindow();
 
+    PrintLog.MessageFmt("{}", Handles::DistanceToCircle(yolo, Handles::GetHandleSize(yolo, 5.f)));
+
     static std::vector<CSGPlane> previousHalfspaces;
     static vec3 prevYolo = vec3();
     if(Input.HasKeyBeenPressed(SDL_SCANCODE_I))

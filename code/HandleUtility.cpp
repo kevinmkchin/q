@@ -7,6 +7,7 @@
 #include "Shader.h"
 #include "Engine.h"
 #include "GameRenderer.h"
+#include "Input.h"
 
 namespace Handles
 {
@@ -103,6 +104,19 @@ namespace Handles
             __vb.PushBack(c.y);
             __vb.PushBack(c.z);
         }
+    }
+
+    float DistanceToCircle(vec3 center, float radius)
+    {
+        if (Engine.gfx->activeGameCamera == nullptr) return 9999.f;
+        GameCamera* camera = Engine.gfx->activeGameCamera;
+        vec3 tangent = Normalize(Cross(GM_UP_VECTOR, Normalize(camera->calculatedDirection)));
+        vec3 right = center + tangent * radius;
+        vec3 screenPos = camera->WorldToScreenPoint(center);
+        vec3 screenPos2 = camera->WorldToScreenPoint(right);
+        float pixelRadius = Magnitude(screenPos - screenPos2);
+        vec2 toMouse = screenPos - vec2((float) Input.mousePos.x, (float) Input.mousePos.y);
+        return GM_max(Magnitude(toMouse) - pixelRadius, 0.f);
     }
 
     float GetHandleSize(vec3 position, float sizeInPixels)

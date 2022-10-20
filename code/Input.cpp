@@ -198,6 +198,7 @@ void InputManager::ProcessSDLMouseButtonEvent(SDL_MouseButtonEvent mouseButtonEv
 void InputManager::ProcessSDLMouseMotionEvent(SDL_MouseMotionEvent mouseMotionEvent)
 {
     mouseDelta = vec2((float)mouseMotionEvent.xrel, (float)mouseMotionEvent.yrel);
+    mousePos = ivec2(mouseMotionEvent.x, mouseMotionEvent.y);
 }
 
 void InputManager::ProcessSDLKeyDownEvent(SDL_KeyboardEvent keyEvent) {
