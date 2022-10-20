@@ -277,10 +277,23 @@ void EngineClass::DrawProfilerGUI()
 {
     if (profilerLevel >= 1)
     {
-        KevGui::DoText(4, 14, 12, KevGui::TextAlignment::Left, "LAST FRAME TIME: %.2fms   FPS: %dhz",
-            1000.f * Time.unscaledDeltaTime, (i16)(1.f / Time.unscaledDeltaTime));
+        static char cbuf[64];
+        static float lastTime = -1.f;
+        if (Time.time - lastTime > (profilerLevel == 1 ? 1.0f : 0.0f))
+        {
+            lastTime = Time.time;
+            stbsp_sprintf(cbuf, "LAST FRAME TIME: %.2fms   FPS: %dhz", 1000.f * Time.unscaledDeltaTime, (i16)(1.f / Time.unscaledDeltaTime));
+        }
+        float cbufw;
+        float cbufh;
+        vtxt_get_text_bounding_box_info(&cbufw, &cbufh, cbuf, KevGui::GetActiveUIStyleReference().textFont.ptr, 12);
+        KevGui::DoPanel(KevGui::UIRect(0, 0, (int)cbufw + 2, 18), KevGui::GetActiveUIStyleReference().editorWindowBackgroundColor);
+        KevGui::DoTextUnformatted(4, 14, 12, KevGui::TextAlignment::Left, cbuf);
     }
-    // if (profilerLevel >= 2) ...
+    if (profilerLevel >= 2)
+    {
+
+    }
 }
 
 int main(int argc, char* argv[])
