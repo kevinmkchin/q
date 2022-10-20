@@ -45,6 +45,7 @@ GAME & EDITOR
 #include "Resources.h"
 #include "Console.h"
 #include "GUI.h"
+#include "HandleUtility.h"
 #include "EditorRuntime.h"
 
 EngineClass Engine;
@@ -194,6 +195,7 @@ int EngineClass::Run()
     
     console_initialize();
 
+    Handles::Init();
     KevGui::Init();
 
     RegisterConsoleCommandsAndVariables();

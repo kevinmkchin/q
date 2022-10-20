@@ -7,6 +7,7 @@
 #include "Engine.h"
 #include "GameRenderer.h"
 #include "GUI.h"
+#include "HandleUtility.h"
 #include "Input.h"
 #include "ConstructiveSolidGeometry.h"
 
@@ -84,6 +85,7 @@ void EditorRuntime::UpdateEditor()
         {
             yolo = v;
         }
+        Handles::DrawSolidDisc(v, -editorCamera.calculatedDirection, Handles::GetHandleSize(v, 5.f));
     }
     KevGui::EditorEndWindow();
 

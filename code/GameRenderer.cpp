@@ -12,6 +12,7 @@
 #include "GameRuntime.h"
 #include "EditorRuntime.h"
 #include "GUI.h"
+#include "HandleUtility.h"
 #include "LevelGeometry.h"
 
 static const char* __finalpass_shader_vs = 
@@ -77,7 +78,6 @@ void GameRenderer::Render()
 
 void GameRenderer::RenderGameLayer()
 {
-
     glBindFramebuffer(GL_FRAMEBUFFER, gameLayer.FBO);
     glViewport(0, 0, gameLayer.width, gameLayer.height);
     glClearColor(_RGB(46, 88, 120), 1.f);
@@ -89,10 +89,19 @@ void GameRenderer::RenderGameLayer()
 
     gameSceneShader.UseShader();
 
-    gameSceneShader.GLBindMatrix4fv("viewMatrix", 1, activeGameCamera->viewMatrix.ptr());
     gameSceneShader.GLBindMatrix4fv("projMatrix", 1, activeGameCamera->perspectiveMatrix.ptr());
+    gameSceneShader.GLBindMatrix4fv("viewMatrix", 1, activeGameCamera->viewMatrix.ptr());
 
     //GameState* gameState = &(Engine.game->state);
+    
+
+// TODO(Kevin): Draw these only when editor
+#if INTERNAL_BUILD 
+    Handles::Draw(&activeGameCamera->perspectiveMatrix, &activeGameCamera->viewMatrix);
+
+    gameSceneShader.UseShader();
+    gameSceneShader.GLBindMatrix4fv("projMatrix", 1, activeGameCamera->perspectiveMatrix.ptr());
+    gameSceneShader.GLBindMatrix4fv("viewMatrix", 1, activeGameCamera->viewMatrix.ptr());
     for (int i = 0; i < 1; ++i)
     {
         for (int j = 0; j < 1; ++j)
@@ -106,7 +115,8 @@ void GameRenderer::RenderGameLayer()
             }
         }
     }
-    
+#endif
+
     glUseProgram(0);
 }
 

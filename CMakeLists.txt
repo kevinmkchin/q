@@ -43,6 +43,8 @@ set(SOURCE_FILES
     code/LevelGeometry.cpp
     code/ConstructiveSolidGeometry.h
     code/ConstructiveSolidGeometry.cpp
+    code/HandleUtility.h
+    code/HandleUtility.cpp
 )
 
 # Even tho these are added as target sources, CMake won't try to compile them if they don't have source file extension.
