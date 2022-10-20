@@ -676,9 +676,7 @@ inline quat::quat(float W, float X, float Y, float Z)
         , x(X)
         , y(Y)
         , z(Z)
-{
-    *this = Normalize(*this);
-}
+{}
 
 inline quat::quat(float angleInRadians, vec3 axisOfRotation)
 {
@@ -1490,7 +1488,7 @@ inline quat RotationDifference(quat a, quat b)
 
 inline vec3 RotateVector(vec3 vector, quat rotation)
 {
-    quat vector_quat = {0.f, vector.x, vector.y, vector.z };
+    quat vector_quat = { 0.f, vector.x, vector.y, vector.z };
     quat rotated_vector = rotation * vector_quat * rotation.GetInverse();
     return vec3(rotated_vector.x, rotated_vector.y, rotated_vector.z);
 }
