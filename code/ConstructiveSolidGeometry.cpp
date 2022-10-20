@@ -389,71 +389,51 @@ void UpdateBrushFacesForDrawing(CSGBrush* brush)
             std::pair<vec3,vec3> edge = brush->planeToEdges[i][e];
             if (!pickedVert.Equals(edge.first, EPS_WCS) && !pickedVert.Equals(edge.second, EPS_WCS))
             {
-                // to get the normal of this vertex, we need to transform from a vec3 WCS point
-                // to a vec2 UV coordinate
-
                 // then there is a tri between pickedVert, edge.first, and edge.second
                 vec3 a = pickedVert;
                 vec3 b = edge.first;
                 vec3 c = edge.second;
                 vec3 ba = b - a;
                 vec3 ca = c - a;
-                if (Dot(Normalize(Cross(ba, ca)), brush->halfspaces[i].n) > 0.f)
+                vec3 n = Normalize(Cross(ba, ca);
+
+                if (Dot(), brush->halfspaces[i].n) <= 0.f) // need to ensure winding order of a b c is counter clockwise (opengl default)
                 {
-                    // then add in order a b c
-                    vertexBuffer.push_back(a.x);
-                    vertexBuffer.push_back(a.y);
-                    vertexBuffer.push_back(a.z);
-                    vertexBuffer.push_back(0);
-                    vertexBuffer.push_back(0);
-                    vertexBuffer.push_back(brush->halfspaces[i].n.x);
-                    vertexBuffer.push_back(brush->halfspaces[i].n.y);
-                    vertexBuffer.push_back(brush->halfspaces[i].n.z);
-                    vertexBuffer.push_back(b.x);
-                    vertexBuffer.push_back(b.y);
-                    vertexBuffer.push_back(b.z);
-                    vertexBuffer.push_back(0);
-                    vertexBuffer.push_back(0);
-                    vertexBuffer.push_back(brush->halfspaces[i].n.x);
-                    vertexBuffer.push_back(brush->halfspaces[i].n.y);
-                    vertexBuffer.push_back(brush->halfspaces[i].n.z);
-                    vertexBuffer.push_back(c.x);
-                    vertexBuffer.push_back(c.y);
-                    vertexBuffer.push_back(c.z);
-                    vertexBuffer.push_back(0);
-                    vertexBuffer.push_back(0);
-                    vertexBuffer.push_back(brush->halfspaces[i].n.x);
-                    vertexBuffer.push_back(brush->halfspaces[i].n.y);
-                    vertexBuffer.push_back(brush->halfspaces[i].n.z);
+                    vec3 t = b;
+                    b = c;
+                    c = t; 
+                    n = -n;
                 }
-                else
-                {
-                    // then add in order a c b
-                    vertexBuffer.push_back(a.x);
-                    vertexBuffer.push_back(a.y);
-                    vertexBuffer.push_back(a.z);
-                    vertexBuffer.push_back(0);
-                    vertexBuffer.push_back(0);
-                    vertexBuffer.push_back(brush->halfspaces[i].n.x);
-                    vertexBuffer.push_back(brush->halfspaces[i].n.y);
-                    vertexBuffer.push_back(brush->halfspaces[i].n.z);
-                    vertexBuffer.push_back(c.x);
-                    vertexBuffer.push_back(c.y);
-                    vertexBuffer.push_back(c.z);
-                    vertexBuffer.push_back(0);
-                    vertexBuffer.push_back(0);
-                    vertexBuffer.push_back(brush->halfspaces[i].n.x);
-                    vertexBuffer.push_back(brush->halfspaces[i].n.y);
-                    vertexBuffer.push_back(brush->halfspaces[i].n.z);
-                    vertexBuffer.push_back(b.x);
-                    vertexBuffer.push_back(b.y);
-                    vertexBuffer.push_back(b.z);
-                    vertexBuffer.push_back(0);
-                    vertexBuffer.push_back(0);
-                    vertexBuffer.push_back(brush->halfspaces[i].n.x);
-                    vertexBuffer.push_back(brush->halfspaces[i].n.y);
-                    vertexBuffer.push_back(brush->halfspaces[i].n.z);
-                }
+
+                // to get the normal of this vertex, we need to transform from a vec3 WCS point
+                // to a vec2 UV coordinate
+                
+
+                // then add in order a b c
+                vertexBuffer.push_back(a.x);
+                vertexBuffer.push_back(a.y);
+                vertexBuffer.push_back(a.z);
+                vertexBuffer.push_back(0);
+                vertexBuffer.push_back(0);
+                vertexBuffer.push_back(brush->halfspaces[i].n.x);
+                vertexBuffer.push_back(brush->halfspaces[i].n.y);
+                vertexBuffer.push_back(brush->halfspaces[i].n.z);
+                vertexBuffer.push_back(b.x);
+                vertexBuffer.push_back(b.y);
+                vertexBuffer.push_back(b.z);
+                vertexBuffer.push_back(0);
+                vertexBuffer.push_back(0);
+                vertexBuffer.push_back(brush->halfspaces[i].n.x);
+                vertexBuffer.push_back(brush->halfspaces[i].n.y);
+                vertexBuffer.push_back(brush->halfspaces[i].n.z);
+                vertexBuffer.push_back(c.x);
+                vertexBuffer.push_back(c.y);
+                vertexBuffer.push_back(c.z);
+                vertexBuffer.push_back(0);
+                vertexBuffer.push_back(0);
+                vertexBuffer.push_back(brush->halfspaces[i].n.x);
+                vertexBuffer.push_back(brush->halfspaces[i].n.y);
+                vertexBuffer.push_back(brush->halfspaces[i].n.z);
             }
         }
 
