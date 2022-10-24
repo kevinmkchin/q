@@ -34,7 +34,7 @@ bool GLHasErrors()
             break;
         }
 
-        PrintLog.ErrorFmt("OpenGL: %s", error_str);
+        PrintLog.ErrorFmt("OpenGL: {}", error_str);
         error = glGetError();
         assert(false);
     }
