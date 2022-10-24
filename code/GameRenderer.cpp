@@ -97,7 +97,9 @@ void GameRenderer::RenderGameLayer()
 
 // TODO(Kevin): Draw these only when editor
 #if INTERNAL_BUILD 
+    glDisable(GL_CULL_FACE);
     Handles::Draw(&activeGameCamera->perspectiveMatrix, &activeGameCamera->viewMatrix);
+    glEnable(GL_CULL_FACE);
 
     gameSceneShader.UseShader();
     gameSceneShader.GLBindMatrix4fv("projMatrix", 1, activeGameCamera->perspectiveMatrix.ptr());

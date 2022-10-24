@@ -10,9 +10,9 @@ namespace Handles
 
     void DrawSolidDisc(vec3 center, vec3 normal, float radius);
 
-    void DrawLine(vec3 p1, vec3 p2);
+    void DrawLine(vec3 p1, vec3 p2, vec4 color);
 
-    void DrawLine(vec3 p1, vec3 p2, float thickness);
+    void DrawLine(vec3 p1, vec3 p2, float thickness, vec4 color);
 
     // // Record a distance measurement from a handle.
     // // All handles call this with their controlID during layout, then use nearestControl to check if they got the mouseDown.

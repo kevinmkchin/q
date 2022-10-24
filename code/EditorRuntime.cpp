@@ -76,106 +76,55 @@ void EditorRuntime::UpdateEditor()
     editorCamera.CameraUpdate(camPos, mouseLook.x, mouseLook.y);
     editorCamera.CameraCalculatePerspectiveMatrix();
 
+    Handles::DrawLine(vec3(10000.f, 0.f, 0.f), vec3(-10000.f, 0.f, 0.f), vec4(_RGB(205, 56, 9), 0.8f));
+    Handles::DrawLine(vec3(0.f, 10000.f, 0.f), vec3(0.f, -10000.f, 0.f), vec4(_RGB(67, 123, 9), 0.8f));
+    Handles::DrawLine(vec3(0.f, 0.f, 10000.f), vec3(0.f, 0.f, -10000.f), vec4(_RGB(21, 129, 205), 0.8f));
 
-    int selectedPointIndex = -1;
+
+
+    vec3 selectedPoint = vec3();
     float selectedPointToCamDistance = FLT_MAX;
-    static vec3 yolo = vec3(-128, 128, 128);
     for (int i = 0; i < brush_0->pointCloud.size(); ++i)
     {
         auto v = brush_0->pointCloud[i];
         Handles::DrawSolidDisc(v, -editorCamera.calculatedDirection, Handles::GetHandleSize(v, 5.f));
-        // Find nearest control
-        float vToMouseDist = Handles::DistanceToCircle(v, Handles::GetHandleSize(v, 5.f));
-        float vToCamDist = editorCamera.WorldPointToCameraDistance(v);
-        if (vToMouseDist == 0.f && vToCamDist < selectedPointToCamDistance)
+
+        if (!handleDragActive)
         {
-            selectedPointIndex = i;
-            selectedPointToCamDistance = vToCamDist;
+            // Find nearest control
+            float vToMouseDist = Handles::DistanceToCircle(v, Handles::GetHandleSize(v, 5.f));
+            float vToCamDist = editorCamera.WorldPointToCameraDistance(v);
+            if (vToMouseDist == 0.f && vToCamDist < selectedPointToCamDistance)
+            {
+                selectedPoint = v;
+                selectedPointToCamDistance = vToCamDist;
+            }
         }
     }
 
-    if (Input.mouseLMBPressed && selectedPointIndex >= 0)
+    if (Input.mouseLMBPressed && (handleDragActive || selectedPointToCamDistance < FLT_MAX))
     {
-        auto v = brush_0->pointCloud[selectedPointIndex];
+        if (!handleDragActive)
+        {
+            selectedDragPoint = selectedPoint;
+        }
+        handleDragActive = true;
+    }
+    else
+    {
+        handleDragActive = false;
+    }
+
+    if (handleDragActive)
+    {
+        auto v = selectedDragPoint;
         char charbuf[32];
         stbsp_sprintf(charbuf, "%.1f, %.1f, %.1f", v.x, v.y, v.z);
         printf("%s\n", charbuf);
-        yolo = v;
-    }
 
-
-    static std::vector<CSGPlane> previousHalfspaces;
-    static vec3 prevYolo = vec3();
-    if(Input.HasKeyBeenPressed(SDL_SCANCODE_I))
-    {
-        previousHalfspaces = brush_0->halfspaces;
-        prevYolo = yolo;
-        vec3 newYolo = yolo + vec3(10, 0, 0);
-        MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0, &newYolo);
-        UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
-        UpdateBrushFacesForDrawing(brush_0);
-        yolo = newYolo;
-    }
-    if(Input.HasKeyBeenPressed(SDL_SCANCODE_K))
-    {
-        previousHalfspaces = brush_0->halfspaces;
-        prevYolo = yolo;
-        vec3 newYolo = yolo + vec3(-10, 0, 0);
-        MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0, &newYolo);
-        UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
-        UpdateBrushFacesForDrawing(brush_0);
-        yolo = newYolo;
-    }
-    if(Input.HasKeyBeenPressed(SDL_SCANCODE_J))
-    {
-        previousHalfspaces = brush_0->halfspaces;
-        prevYolo = yolo;
-        vec3 newYolo = yolo + vec3(0, 0, -10);
-        MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0, &newYolo);
-        UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
-        UpdateBrushFacesForDrawing(brush_0);
-        yolo = newYolo;
-    }
-    if(Input.HasKeyBeenPressed(SDL_SCANCODE_L))
-    {
-        previousHalfspaces = brush_0->halfspaces;
-        prevYolo = yolo;
-        vec3 newYolo = yolo + vec3(0, 0, 10);
-        MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0, &newYolo);
-        UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
-        UpdateBrushFacesForDrawing(brush_0);
-        yolo = newYolo;
-    }
-    if(Input.HasKeyBeenPressed(SDL_SCANCODE_U))
-    {
-        previousHalfspaces = brush_0->halfspaces;
-        prevYolo = yolo;
-        vec3 newYolo = yolo + vec3(0, 10, 0);
-        MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0, &newYolo);
-        UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
-        UpdateBrushFacesForDrawing(brush_0);
-        yolo = newYolo;
-    }
-    if(Input.HasKeyBeenPressed(SDL_SCANCODE_O))
-    {
-        previousHalfspaces = brush_0->halfspaces;
-        prevYolo = yolo;
-        vec3 newYolo = yolo + vec3(0, -10, 0);
-        MovePointOnBrushAndUpdateHalfSpaces(yolo, newYolo, brush_0, &newYolo);
-        UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
-        UpdateBrushFacesForDrawing(brush_0);
-        yolo = newYolo;
-    }
-    if (Input.HasKeyBeenPressed(SDL_SCANCODE_M))
-    {
-        brush_0->halfspaces = previousHalfspaces;
-        yolo = prevYolo;
-        brush_0->pointCloud.clear();
-        brush_0->pointToPlanes.clear();
-        brush_0->planeToVertices.clear();
-        brush_0->planeToEdges.clear();
-        UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
-        UpdateBrushFacesForDrawing(brush_0);
+        Handles::DrawLine(v + vec3(1000.f, 0.f, 0.f), v + vec3(-1000.f, 0.f, 0.f), vec4(_RGB(248, 230, 60), 0.7f));
+        Handles::DrawLine(v + vec3(0.f, 1000.f, 0.f), v + vec3(0.f, -1000.f, 0.f), vec4(_RGB(248, 230, 60), 0.7f));
+        Handles::DrawLine(v + vec3(0.f, 0.f, 1000.f), v + vec3(0.f, 0.f, -1000.f), vec4(_RGB(248, 230, 60), 0.7f));
     }
 
 }

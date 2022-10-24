@@ -1,5 +1,6 @@
 #pragma once
 
+#include <gmath.h>
 #include "Common.h"
 
 struct CSGBrush;
@@ -41,4 +42,7 @@ public:
 
 private:
     GridSizeTimes1000 activeGridSize = GridSizeTimes1000::Grid16;
+
+    bool handleDragActive = false;
+    vec3 selectedDragPoint = vec3();
 };

@@ -98,7 +98,7 @@ namespace Handles
 
     void DrawSolidDisc(vec3 center, vec3 normal, float radius)
     {
-        __colors.PushBack(vec4(1.f, 1.f, 0.f, 1.f));
+        __colors.PushBack(vec4(_RGB(248, 230, 60), 1.f));
         __drawMode.PushBack(PrimitiveDrawMode::Triangles);
         __verticesCounts.PushBack(12 * 3);
 
@@ -123,9 +123,9 @@ namespace Handles
         }
     }
 
-    void DrawLine(vec3 p1, vec3 p2)
+    void DrawLine(vec3 p1, vec3 p2, vec4 color)
     {
-        __colors.PushBack(vec4(1.f, 0.f, 0.f, 1.f));
+        __colors.PushBack(color);
         __drawMode.PushBack(PrimitiveDrawMode::Lines);
         __verticesCounts.PushBack(2);
         __vb.PushBack(p1.x);
@@ -136,12 +136,12 @@ namespace Handles
         __vb.PushBack(p2.z);
     }
 
-    void DrawLine(vec3 p1, vec3 p2, float thickness)
+    void DrawLine(vec3 p1, vec3 p2, float thickness, vec4 color)
     {
         if (Engine.gfx->activeGameCamera == nullptr) return;
         GameCamera* camera = Engine.gfx->activeGameCamera;
 
-        __colors.PushBack(vec4(1.f, 0.f, 0.f, 1.f));
+        __colors.PushBack(color);
         __drawMode.PushBack(PrimitiveDrawMode::Triangles);
         __verticesCounts.PushBack(6);
 
