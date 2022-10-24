@@ -113,7 +113,7 @@ void GameRenderer::RenderGameLayer()
             gameSceneShader.GLBindMatrix4fv("modelMatrix", 1, mm.ptr());
             for (auto fb : Engine.editor->brush_0->facesForDrawing)
             {
-                LevelGeometry::RenderFaceBatch(fb);
+                //LevelGeometry::RenderFaceBatch(fb);
             }
         }
     }

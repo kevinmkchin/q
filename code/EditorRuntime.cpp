@@ -80,6 +80,24 @@ void EditorRuntime::UpdateEditor()
     Handles::DrawLine(vec3(0.f, 10000.f, 0.f), vec3(0.f, -10000.f, 0.f), vec4(_RGB(67, 123, 9), 0.8f));
     Handles::DrawLine(vec3(0.f, 0.f, 10000.f), vec3(0.f, 0.f, -10000.f), vec4(_RGB(21, 129, 205), 0.8f));
 
+    //static std::vector<vec3> bruh;
+    //if (Input.HasKeyBeenPressed(SDL_SCANCODE_SPACE))
+    //{
+    //    bruh.push_back(editorCamera.ScreenToWorldPoint(vec3(0, 360, 512)));
+    //}
+
+    //for (auto v : bruh)
+    //{
+    //    Handles::DrawSolidDisc(v, -editorCamera.calculatedDirection, Handles::GetHandleSize(v, 6.f));
+    //}
+    
+    if (Input.mouseLMBPressed)
+    {
+        vec3 origin = vec3();
+        vec3 wp = editorCamera.ScreenToWorldPoint(vec3((float) Input.mousePos.x, (float) Input.mousePos.y, editorCamera.WorldPointToCameraDistance(origin)));
+        float projUp = Dot(wp - origin, GM_UP_VECTOR);
+        Handles::DrawLine(origin, origin + GM_UP_VECTOR * projUp, 3.f, vec4(1, 0, 0, 1));
+    }
 
 
     vec3 selectedPoint = vec3();

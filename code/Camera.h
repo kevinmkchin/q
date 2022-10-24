@@ -12,7 +12,7 @@ struct GameCamera
     mat4  perspectiveMatrix;    // Perspective projection matrix
     mat4  viewMatrix;           // Last calculated view matrix
     float nearClip = 0.1f;
-    float farClip = 64000.f;
+    float farClip = 10000.f;
 
     void CameraUpdate(vec3 newPosition, float yawDelta, float pitchDelta);
     void CameraCalculatePerspectiveMatrix();
@@ -22,6 +22,9 @@ struct GameCamera
     // Screenspace is defined in pixels. The top-left of the screen is (0,0); the bottom-right is (pixelWidth,pixelHeight). 
     // The returned z position is in world units from the camera.
     vec3 WorldToScreenPoint(vec3 worldPosition);
+
+    // Get the worldspace point created by converting the screen space point at the provided distance z from the camera plane.
+    vec3 ScreenToWorldPoint(vec3 screenPosition);
 
     float WorldPointToCameraDistance(vec3 worldPosition);
 };

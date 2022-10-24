@@ -59,6 +59,25 @@ vec3 GameCamera::WorldToScreenPoint(vec3 worldPosition)
         distanceFromCameraWCS);
 }
 
+vec3 GameCamera::ScreenToWorldPoint(vec3 screenPosition)
+{
+    float irw = (float)Engine.gfx->gameLayer.width;
+    float irh = (float)Engine.gfx->gameLayer.height;
+    mat4 inverseProjViewMat = (perspectiveMatrix * viewMatrix).GetInverse();
+    vec4 in = vec4();
+    in.x = (screenPosition.x / irw) * 2.f - 1.f;
+    in.y = 1.f - ((screenPosition.y / irh) * 2.f);
+    in.z = 0.95f;
+    in.w = 1.f;
+    vec4 pointOnCameraPlane = inverseProjViewMat * in;
+    pointOnCameraPlane.xyz *= 1.f / pointOnCameraPlane.w;
+
+    vec3 dir = pointOnCameraPlane.xyz - position;
+    float projOfVectorToPointUntoCameraDirection = Dot(dir, calculatedDirection);
+    float ratioOfDesiredDistanceToActual = screenPosition.z / projOfVectorToPointUntoCameraDirection;
+    return position + dir * ratioOfDesiredDistanceToActual;
+}
+
 float GameCamera::WorldPointToCameraDistance(vec3 worldPosition)
 {
     return Dot(worldPosition - position, calculatedDirection);
