@@ -10,35 +10,35 @@ InputManager Input;
 
 bool InputManager::GameUpHasBeenPressed()
 {
-    return InputManager::HasKeyBeenPressed(SDL_SCANCODE_UP)
+    return InputManager::KeyHasBeenPressed(SDL_SCANCODE_UP)
         || InputManager::GetGamepad(0).HasBeenPressed(GAMEPAD_DPAD_UP)
         || InputManager::GetGamepad(0).leftThumbStickDelta.y > 0.5f;
 }
 
 bool InputManager::GameDownHasBeenPressed()
 {
-    return InputManager::HasKeyBeenPressed(SDL_SCANCODE_DOWN)
+    return InputManager::KeyHasBeenPressed(SDL_SCANCODE_DOWN)
         || InputManager::GetGamepad(0).HasBeenPressed(GAMEPAD_DPAD_DOWN)
         || InputManager::GetGamepad(0).leftThumbStickDelta.y < -0.5f;
 }
 
 bool InputManager::GameLeftHasBeenPressed()
 {
-    return InputManager::HasKeyBeenPressed(SDL_SCANCODE_LEFT)
+    return InputManager::KeyHasBeenPressed(SDL_SCANCODE_LEFT)
         || InputManager::GetGamepad(0).HasBeenPressed(GAMEPAD_DPAD_LEFT)
         || InputManager::GetGamepad(0).leftThumbStickDelta.x > 0.5f;
 }
 
 bool InputManager::GameRightHasBeenPressed()
 {
-    return InputManager::HasKeyBeenPressed(SDL_SCANCODE_RIGHT)
+    return InputManager::KeyHasBeenPressed(SDL_SCANCODE_RIGHT)
         || InputManager::GetGamepad(0).HasBeenPressed(GAMEPAD_DPAD_RIGHT)
         || InputManager::GetGamepad(0).leftThumbStickDelta.y < -0.5f;
 }
 
 bool InputManager::GameUpIsPressed()
 {
-    return InputManager::IsKeyPressed(SDL_SCANCODE_UP)
+    return InputManager::KeyPressed(SDL_SCANCODE_UP)
         || InputManager::GetGamepad(0).IsPressed(GAMEPAD_DPAD_UP)
         || InputManager::GetGamepad(0).leftThumbStickDir.y < -0.5f;
     // || dot(Input::GetGamepad(0).leftThumbStickDir, {0.f, 1.f}) < QUARTER_PI;
@@ -46,7 +46,7 @@ bool InputManager::GameUpIsPressed()
 
 bool InputManager::GameDownIsPressed()
 {
-    return InputManager::IsKeyPressed(SDL_SCANCODE_DOWN)
+    return InputManager::KeyPressed(SDL_SCANCODE_DOWN)
         || InputManager::GetGamepad(0).IsPressed(GAMEPAD_DPAD_DOWN)
         || InputManager::GetGamepad(0).leftThumbStickDir.y > 0.5f;
     // || dot(Input::GetGamepad(0).leftThumbStickDir, {0.f, -1.f}) < QUARTER_PI;
@@ -54,7 +54,7 @@ bool InputManager::GameDownIsPressed()
 
 bool InputManager::GameLeftIsPressed()
 {
-    return InputManager::IsKeyPressed(SDL_SCANCODE_LEFT)
+    return InputManager::KeyPressed(SDL_SCANCODE_LEFT)
         || InputManager::GetGamepad(0).IsPressed(GAMEPAD_DPAD_LEFT)
         || InputManager::GetGamepad(0).leftThumbStickDir.x < -0.5f;
     // || dot(Input::GetGamepad(0).leftThumbStickDir, {1.f, 0.f}) < QUARTER_PI;
@@ -62,7 +62,7 @@ bool InputManager::GameLeftIsPressed()
 
 bool InputManager::GameRightIsPressed()
 {
-    return InputManager::IsKeyPressed(SDL_SCANCODE_RIGHT)
+    return InputManager::KeyPressed(SDL_SCANCODE_RIGHT)
         || InputManager::GetGamepad(0).IsPressed(GAMEPAD_DPAD_RIGHT)
         || InputManager::GetGamepad(0).leftThumbStickDir.x > 0.5f;
     // || dot(Input::GetGamepad(0).leftThumbStickDir, {-1.f, 0.f}) < QUARTER_PI;
@@ -70,32 +70,32 @@ bool InputManager::GameRightIsPressed()
 
 bool InputManager::GameJumpHasBeenPressed()
 {
-    return InputManager::HasKeyBeenPressed(SDL_SCANCODE_SPACE) || InputManager::GetGamepad(0).HasBeenPressed(GAMEPAD_A);
+    return InputManager::KeyHasBeenPressed(SDL_SCANCODE_SPACE) || InputManager::GetGamepad(0).HasBeenPressed(GAMEPAD_A);
 }
 
 bool InputManager::GameJumpHasBeenReleased()
 {
-    return InputManager::HasKeyBeenReleased(SDL_SCANCODE_SPACE) || InputManager::GetGamepad(0).HasBeenReleased(GAMEPAD_A);
+    return InputManager::KeyHasBeenReleased(SDL_SCANCODE_SPACE) || InputManager::GetGamepad(0).HasBeenReleased(GAMEPAD_A);
 }
 
 bool InputManager::GameJumpIsPressed()
 {
-    return InputManager::IsKeyPressed(SDL_SCANCODE_SPACE) || InputManager::GetGamepad(0).IsPressed(GAMEPAD_A);
+    return InputManager::KeyPressed(SDL_SCANCODE_SPACE) || InputManager::GetGamepad(0).IsPressed(GAMEPAD_A);
 }
 
 bool InputManager::GameAttackHasBeenPressed()
 {
-    return InputManager::HasKeyBeenPressed(SDL_SCANCODE_Z) || InputManager::GetGamepad(0).HasBeenPressed(GAMEPAD_X);
+    return InputManager::KeyHasBeenPressed(SDL_SCANCODE_Z) || InputManager::GetGamepad(0).HasBeenPressed(GAMEPAD_X);
 }
 
 bool InputManager::GamePickUpHasBeenPressed()
 {
-    return InputManager::HasKeyBeenPressed(SDL_SCANCODE_C) || InputManager::GetGamepad(0).HasBeenPressed(GAMEPAD_B);
+    return InputManager::KeyHasBeenPressed(SDL_SCANCODE_C) || InputManager::GetGamepad(0).HasBeenPressed(GAMEPAD_B);
 }
 
 bool InputManager::GamePauseHasBeenPressed()
 {
-    return InputManager::HasKeyBeenPressed(SDL_SCANCODE_ESCAPE) || InputManager::GetGamepad(0).HasBeenPressed(GAMEPAD_START);
+    return InputManager::KeyHasBeenPressed(SDL_SCANCODE_ESCAPE) || InputManager::GetGamepad(0).HasBeenPressed(GAMEPAD_START);
 }
 
 bool InputManager::GameCycleItemLeftBeenPressed()
@@ -105,7 +105,7 @@ bool InputManager::GameCycleItemLeftBeenPressed()
 
 bool InputManager::GameCycleItemRightBeenPressed()
 {
-    return InputManager::HasKeyBeenPressed(SDL_SCANCODE_X) || InputManager::GetGamepad(0).HasBeenPressed(GAMEPAD_RB);
+    return InputManager::KeyHasBeenPressed(SDL_SCANCODE_X) || InputManager::GetGamepad(0).HasBeenPressed(GAMEPAD_RB);
 }
 
 bool InputManager::GameInteractButtonHasBeenPressed()
@@ -159,6 +159,10 @@ void InputManager::ResetInputStatesAtEndOfFrame()
 {
     mouseDelta = vec2(0.f, 0.f);
 
+    mouseLeftHasBeenPressed = false;
+    mouseRightHasBeenPressed = false;
+    mouseMiddleHasBeenPressed = false;
+
     memset(justPressedKeyState, 0, 256);
     memset(justReleasedKeyState, 0, 256);
 
@@ -168,31 +172,49 @@ void InputManager::ResetInputStatesAtEndOfFrame()
     }
 }
 
-bool InputManager::IsKeyPressed(SDL_Scancode scancode)
+bool InputManager::KeyPressed(SDL_Scancode scancode)
 {
     return currentKeyState[scancode];
 }
 
-bool InputManager::IsKeyReleased(SDL_Scancode scancode)
+bool InputManager::KeyReleased(SDL_Scancode scancode)
 {
-    return !IsKeyPressed(scancode);
+    return !KeyPressed(scancode);
 }
 
-bool InputManager::HasKeyBeenPressed(SDL_Scancode scancode)
+bool InputManager::KeyHasBeenPressed(SDL_Scancode scancode)
 {
     return justPressedKeyState[scancode];
 }
 
-bool InputManager::HasKeyBeenReleased(SDL_Scancode scancode)
+bool InputManager::KeyHasBeenReleased(SDL_Scancode scancode)
 {
     return justReleasedKeyState[scancode];
 }
 
 void InputManager::ProcessSDLMouseButtonEvent(SDL_MouseButtonEvent mouseButtonEvent)
 {
-    if (mouseButtonEvent.button == SDL_BUTTON_LEFT) mouseLMBPressed = mouseButtonEvent.type == SDL_MOUSEBUTTONDOWN;
-    if (mouseButtonEvent.button == SDL_BUTTON_RIGHT) mouseRMBPressed = mouseButtonEvent.type == SDL_MOUSEBUTTONDOWN;
-    if (mouseButtonEvent.button == SDL_BUTTON_MIDDLE) mouseMMBPressed = mouseButtonEvent.type == SDL_MOUSEBUTTONDOWN;
+    if (mouseButtonEvent.button == SDL_BUTTON_LEFT)
+    {
+        static bool lmbLastFrameDown = false;
+        mouseLeftPressed = mouseButtonEvent.type == SDL_MOUSEBUTTONDOWN;
+        if (!lmbLastFrameDown && mouseLeftPressed) mouseLeftHasBeenPressed = true;
+        lmbLastFrameDown = mouseLeftPressed;
+    }
+    if (mouseButtonEvent.button == SDL_BUTTON_RIGHT)
+    {
+        static bool rmbLastFrameDown = false;
+        mouseRightPressed = mouseButtonEvent.type == SDL_MOUSEBUTTONDOWN;
+        if (!rmbLastFrameDown && mouseRightPressed) mouseRightHasBeenPressed = true;
+        rmbLastFrameDown = mouseRightPressed;
+    }
+    if (mouseButtonEvent.button == SDL_BUTTON_MIDDLE)
+    {
+        static bool mmbLastFrameDown = false;
+        mouseMiddlePressed = mouseButtonEvent.type == SDL_MOUSEBUTTONDOWN;
+        if (!mmbLastFrameDown && mouseMiddlePressed) mouseMiddleHasBeenPressed = true;
+        mmbLastFrameDown = mouseMiddlePressed;
+    }
 }
 
 void InputManager::ProcessSDLMouseMotionEvent(SDL_MouseMotionEvent mouseMotionEvent)

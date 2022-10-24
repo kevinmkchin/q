@@ -118,19 +118,22 @@ public:
     void ProcessAllSDLInputEvents(const SDL_Event event);
     void ResetInputStatesAtEndOfFrame();
 
-    bool IsKeyPressed(SDL_Scancode scancode);
-    bool IsKeyReleased(SDL_Scancode scancode);
-    bool HasKeyBeenPressed(SDL_Scancode scancode);
-    bool HasKeyBeenReleased(SDL_Scancode scancode);
+    bool KeyPressed(SDL_Scancode scancode);
+    bool KeyReleased(SDL_Scancode scancode);
+    bool KeyHasBeenPressed(SDL_Scancode scancode);
+    bool KeyHasBeenReleased(SDL_Scancode scancode);
 
     GamepadState& GetGamepad(i32 playerNumber);
 
 public:
     vec2 mouseDelta; // relative to window
     ivec2 mousePos; // relative to window
-    bool mouseLMBPressed;
-    bool mouseRMBPressed;
-    bool mouseMMBPressed;
+    bool mouseLeftPressed = false;
+    bool mouseRightPressed = false;
+    bool mouseMiddlePressed = false;
+    bool mouseLeftHasBeenPressed = false;
+    bool mouseRightHasBeenPressed = false;
+    bool mouseMiddleHasBeenPressed = false;
 
     u8 currentKeyState[256];
     u8 justPressedKeyState[256];

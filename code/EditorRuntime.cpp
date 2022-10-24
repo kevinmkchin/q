@@ -50,7 +50,7 @@ void EditorRuntime::UpdateEditor()
     KevGui::EditorEndWindow();
 
     vec2 mouseLook = vec2();
-    if(Input.mouseRMBPressed)
+    if(Input.mouseRightPressed)
     {
         SDL_SetRelativeMouseMode(SDL_TRUE);
         mouseLook = vec2(Input.mouseDelta.x * 0.07f, Input.mouseDelta.y * 0.07f);
@@ -61,17 +61,17 @@ void EditorRuntime::UpdateEditor()
     }
     vec3 camPos = editorCamera.position;
     float moveSpeed = 512.f;
-    if (Input.IsKeyPressed(SDL_SCANCODE_W))
+    if (Input.KeyPressed(SDL_SCANCODE_W))
         camPos += Engine.gfx->activeGameCamera->calculatedDirection * moveSpeed * Time.deltaTime;
-    if (Input.IsKeyPressed(SDL_SCANCODE_A))
+    if (Input.KeyPressed(SDL_SCANCODE_A))
         camPos += -Engine.gfx->activeGameCamera->calculatedRight * moveSpeed * Time.deltaTime;
-    if (Input.IsKeyPressed(SDL_SCANCODE_S))
+    if (Input.KeyPressed(SDL_SCANCODE_S))
         camPos += -Engine.gfx->activeGameCamera->calculatedDirection * moveSpeed * Time.deltaTime;
-    if (Input.IsKeyPressed(SDL_SCANCODE_D))
+    if (Input.KeyPressed(SDL_SCANCODE_D))
         camPos += Engine.gfx->activeGameCamera->calculatedRight * moveSpeed * Time.deltaTime;
-    if (Input.IsKeyPressed(SDL_SCANCODE_Q))
+    if (Input.KeyPressed(SDL_SCANCODE_Q))
         camPos.y += -moveSpeed * Time.deltaTime;
-    if (Input.IsKeyPressed(SDL_SCANCODE_E))
+    if (Input.KeyPressed(SDL_SCANCODE_E))
         camPos.y += moveSpeed * Time.deltaTime;
     editorCamera.CameraUpdate(camPos, mouseLook.x, mouseLook.y);
     editorCamera.CameraCalculatePerspectiveMatrix();
@@ -80,8 +80,7 @@ void EditorRuntime::UpdateEditor()
     Handles::DrawLine(vec3(0.f, 10000.f, 0.f), vec3(0.f, -10000.f, 0.f), vec4(_RGB(67, 123, 9), 0.8f));
     Handles::DrawLine(vec3(0.f, 0.f, 10000.f), vec3(0.f, 0.f, -10000.f), vec4(_RGB(21, 129, 205), 0.8f));
 
-    
-    if (Input.mouseLMBPressed)
+    if (Input.mouseLeftPressed)
     {
         vec3 origin = vec3();
         vec3 wp = editorCamera.ScreenToWorldPoint(vec3((float) Input.mousePos.x, (float) Input.mousePos.y, editorCamera.WorldPointToCameraDistance(origin)));
@@ -132,7 +131,7 @@ void EditorRuntime::UpdateEditor()
         }
     }
 
-    if (Input.mouseLMBPressed && (handleDragActive || selectedPointToCamDistance < FLT_MAX))
+    if (Input.mouseLeftPressed && (handleDragActive || selectedPointToCamDistance < FLT_MAX))
     {
         if (!handleDragActive)
         {

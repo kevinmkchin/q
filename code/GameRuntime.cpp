@@ -47,17 +47,17 @@ private:
 		//transform.position.y += yVel * Time.deltaTime;
 
 		float moveSpeed = 100.f;
-		if (Input.IsKeyPressed(SDL_SCANCODE_W))
+		if (Input.KeyPressed(SDL_SCANCODE_W))
 			transform.position += Engine.gfx->activeGameCamera->calculatedDirection * moveSpeed * Time.deltaTime;
-		if (Input.IsKeyPressed(SDL_SCANCODE_A))
+		if (Input.KeyPressed(SDL_SCANCODE_A))
 			transform.position += -Engine.gfx->activeGameCamera->calculatedRight * moveSpeed * Time.deltaTime;
-		if (Input.IsKeyPressed(SDL_SCANCODE_S))
+		if (Input.KeyPressed(SDL_SCANCODE_S))
 			transform.position += -Engine.gfx->activeGameCamera->calculatedDirection * moveSpeed * Time.deltaTime;
-		if (Input.IsKeyPressed(SDL_SCANCODE_D))
+		if (Input.KeyPressed(SDL_SCANCODE_D))
 			transform.position += Engine.gfx->activeGameCamera->calculatedRight * moveSpeed * Time.deltaTime;
-		if (Input.IsKeyPressed(SDL_SCANCODE_Q))
+		if (Input.KeyPressed(SDL_SCANCODE_Q))
 			transform.position.y += -moveSpeed * Time.deltaTime;
-		if (Input.IsKeyPressed(SDL_SCANCODE_E))
+		if (Input.KeyPressed(SDL_SCANCODE_E))
 			transform.position.y += moveSpeed * Time.deltaTime;
 
 	}
