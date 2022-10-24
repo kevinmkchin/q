@@ -52,9 +52,14 @@ vec3 GameCamera::WorldToScreenPoint(vec3 worldPosition)
     float internalResolutionWidth = (float)Engine.gfx->gameLayer.width;
     float internalResolutionHeight = (float)Engine.gfx->gameLayer.height;
 
-    float distanceFromCameraWCS = Dot(worldPosition - position, calculatedDirection);
+    float distanceFromCameraWCS = WorldPointToCameraDistance(worldPosition);
 
     return vec3(screenspaceRatioX * internalResolutionWidth, 
         screenspaceRatioY * internalResolutionHeight,
         distanceFromCameraWCS);
+}
+
+float GameCamera::WorldPointToCameraDistance(vec3 worldPosition)
+{
+    return Dot(worldPosition - position, calculatedDirection);
 }

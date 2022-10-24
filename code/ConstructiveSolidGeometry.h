@@ -51,6 +51,8 @@ struct CSGBrush
     /// -face tool and edge tool is just vertex tool w diff num of vertices selected
     ///
     /// -the things that move show up in yellow, so vertices if vertex mode, edges if edge mode, faces if face mode
+    /// 
+    /// Do something about vertex coordinates becoming hella imprecise
     
     // place points and extrude tool: extrude in direction of normal (cross product) thus extrude only available when placed points are 2D. 
     //                                if points are in a 3D cloud, then do a bunch of cross products to get a bunch of planes, clean up unused or duplicate planes,

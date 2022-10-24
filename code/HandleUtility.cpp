@@ -125,7 +125,7 @@ namespace Handles
 
         GameCamera* camera = Engine.gfx->activeGameCamera;
         vec3 camPos = camera->position;
-        float distanceFromCamera = Dot(position - camPos, camera->calculatedDirection);
+        float distanceFromCamera = camera->WorldPointToCameraDistance(position);
         quat camOrientation = EulerToQuat(camera->rotation * GM_DEG2RAD);
         vec3 screenPos = camera->WorldToScreenPoint(camPos + RotateVector(vec3(distanceFromCamera, 0, 0), camOrientation));
         vec3 screenPos2 = camera->WorldToScreenPoint(camPos + RotateVector(vec3(distanceFromCamera, 0, 1), camOrientation));

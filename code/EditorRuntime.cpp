@@ -47,7 +47,7 @@ void EditorRuntime::UpdateEditor()
     }
     KevGui::EditorIncrementableIntegerField("Integer", &num);
     KevGui::EditorIncrementableFloatField("Float", &numf);
-
+    KevGui::EditorEndWindow();
 
     vec2 mouseLook = vec2();
     if(Input.mouseRMBPressed)
@@ -76,20 +76,33 @@ void EditorRuntime::UpdateEditor()
     editorCamera.CameraUpdate(camPos, mouseLook.x, mouseLook.y);
     editorCamera.CameraCalculatePerspectiveMatrix();
 
+
+    int selectedPointIndex = -1;
+    float selectedPointToCamDistance = FLT_MAX;
     static vec3 yolo = vec3(-128, 128, 128);
-    for (auto v : brush_0->pointCloud)
+    for (int i = 0; i < brush_0->pointCloud.size(); ++i)
     {
+        auto v = brush_0->pointCloud[i];
+        Handles::DrawSolidDisc(v, -editorCamera.calculatedDirection, Handles::GetHandleSize(v, 5.f));
+        // Find nearest control
+        float vToMouseDist = Handles::DistanceToCircle(v, Handles::GetHandleSize(v, 5.f));
+        float vToCamDist = editorCamera.WorldPointToCameraDistance(v);
+        if (vToMouseDist == 0.f && vToCamDist < selectedPointToCamDistance)
+        {
+            selectedPointIndex = i;
+            selectedPointToCamDistance = vToCamDist;
+        }
+    }
+
+    if (Input.mouseLMBPressed && selectedPointIndex >= 0)
+    {
+        auto v = brush_0->pointCloud[selectedPointIndex];
         char charbuf[32];
         stbsp_sprintf(charbuf, "%.1f, %.1f, %.1f", v.x, v.y, v.z);
-        if(KevGui::EditorLabelledButton(charbuf))
-        {
-            yolo = v;
-        }
-        Handles::DrawSolidDisc(v, -editorCamera.calculatedDirection, Handles::GetHandleSize(v, 5.f));
+        printf("%s\n", charbuf);
+        yolo = v;
     }
-    KevGui::EditorEndWindow();
 
-    PrintLog.MessageFmt("{}", Handles::DistanceToCircle(yolo, Handles::GetHandleSize(yolo, 5.f)));
 
     static std::vector<CSGPlane> previousHalfspaces;
     static vec3 prevYolo = vec3();

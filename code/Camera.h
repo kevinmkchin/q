@@ -22,4 +22,6 @@ struct GameCamera
     // Screenspace is defined in pixels. The top-left of the screen is (0,0); the bottom-right is (pixelWidth,pixelHeight). 
     // The returned z position is in world units from the camera.
     vec3 WorldToScreenPoint(vec3 worldPosition);
+
+    float WorldPointToCameraDistance(vec3 worldPosition);
 };
