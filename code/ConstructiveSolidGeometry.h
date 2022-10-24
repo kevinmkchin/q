@@ -24,6 +24,8 @@ bool IsPointContainedInHalfSpace(vec3 planeNormal, float planeDist, vec3 point);
 
 bool IsPointOnPlane(vec3 planeNormal, float planeDist, vec3 point);
 
+bool FindIntersectionBetweenPlaneAndVector(vec3 planeNormal, float planeDist, vec3 directionVector, vec3 pointOnVector, vec3* out_intersectionPoint);
+
 struct CSGBrush
 {
     std::vector<CSGPlane> halfspaces; // one face per plane

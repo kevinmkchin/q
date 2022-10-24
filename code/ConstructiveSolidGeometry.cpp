@@ -17,6 +17,25 @@ bool IsPointOnPlane(vec3 planeNormal, float planeDist, vec3 point)
     return planeDist - EPS_WCS < magnitudeOfPointProjectionToNormal && magnitudeOfPointProjectionToNormal < planeDist + EPS_WCS;
 }
 
+bool FindIntersectionBetweenPlaneAndVector(vec3 planeNormal, float planeDist, vec3 directionVector, vec3 pointOnVector, vec3* out_intersectionPoint)
+{
+    vec3 l0 = pointOnVector;
+    vec3 l = directionVector;
+    float ldotn = Dot(l, planeNormal);
+    if (ldotn != 0.f) 
+    {
+        vec3 p0 = planeNormal * planeDist;
+        float dScalar = Dot((p0 - l0), planeNormal) / ldotn;
+        vec3 pointOfIntersection = l0 + l * dScalar;
+        *out_intersectionPoint = pointOfIntersection;
+        return true;
+    }
+    else // parallel
+    {
+        return false;
+    }
+}
+
 void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* brush, vec3* ye)
 {
     // don't care about updating anything other than the array of halfspaces
@@ -108,12 +127,10 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
         vec3 l0 = point;
         vec3 l = vecToNewPointNormalized;
         float ldotn = Dot(l, p.n);
-        if (ldotn > EPS_NORMAL) // only if same direction as plane normal? AND not zero
+        vec3 pointOfIntersection;
+        if (ldotn > EPS_NORMAL // only if same direction as plane normal? AND not zero
+            && FindIntersectionBetweenPlaneAndVector(p.n, p.d, l, l0, &pointOfIntersection))
         {
-            vec3 p0 = p.n * p.d;
-            float dScalar = Dot((p0 - l0), p.n) / ldotn;
-            vec3 pointOfIntersection = l0 + l * dScalar;
-
             if (!pointOfIntersection.Equals(point, EPS_WCS)
                 && Magnitude(pointOfIntersection - point) < Magnitude(vecToNewPoint))
             {
