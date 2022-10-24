@@ -90,7 +90,13 @@ void EditorRuntime::UpdateEditor()
         {
             //float projUp = Dot(wp - origin, GM_UP_VECTOR);
             //Handles::DrawLine(origin, origin + GM_UP_VECTOR * projUp, 3.f, vec4(1, 0, 0, 1));
-            Handles::DrawLine(origin, intersection, 3.f, vec4(1, 0, 0, 1));
+
+            float projX = Dot(intersection, GM_FORWARD_VECTOR);
+            Handles::DrawLine(origin, GM_FORWARD_VECTOR * projX, 3.f, vec4(1, 0, 1, 1));
+            float projZ = Dot(intersection, GM_RIGHT_VECTOR);
+            Handles::DrawLine(origin, GM_RIGHT_VECTOR * projZ, 3.f, vec4(1, 0, 1, 1));
+
+
         }
     }
 
