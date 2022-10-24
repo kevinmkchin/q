@@ -131,15 +131,13 @@ void EditorRuntime::UpdateEditor()
         }
     }
 
-    if (Input.mouseLeftPressed && (handleDragActive || selectedPointToCamDistance < FLT_MAX))
+    if (Input.mouseLeftHasBeenPressed && selectedPointToCamDistance < FLT_MAX)
     {
-        if (!handleDragActive)
-        {
-            selectedDragPoint = selectedPoint;
-        }
         handleDragActive = true;
+        selectedDragPoint = selectedPoint;
     }
-    else
+
+    if (handleDragActive && Input.mouseLeftHasBeenReleased)
     {
         handleDragActive = false;
     }

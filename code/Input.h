@@ -134,6 +134,9 @@ public:
     bool mouseLeftHasBeenPressed = false;
     bool mouseRightHasBeenPressed = false;
     bool mouseMiddleHasBeenPressed = false;
+    bool mouseLeftHasBeenReleased = false;
+    bool mouseRightHasBeenReleased = false;
+    bool mouseMiddleHasBeenReleased = false;
 
     u8 currentKeyState[256];
     u8 justPressedKeyState[256];

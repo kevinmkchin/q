@@ -162,6 +162,9 @@ void InputManager::ResetInputStatesAtEndOfFrame()
     mouseLeftHasBeenPressed = false;
     mouseRightHasBeenPressed = false;
     mouseMiddleHasBeenPressed = false;
+    mouseLeftHasBeenReleased = false;
+    mouseRightHasBeenReleased = false;
+    mouseMiddleHasBeenReleased = false;
 
     memset(justPressedKeyState, 0, 256);
     memset(justReleasedKeyState, 0, 256);
@@ -199,6 +202,7 @@ void InputManager::ProcessSDLMouseButtonEvent(SDL_MouseButtonEvent mouseButtonEv
         static bool lmbLastFrameDown = false;
         mouseLeftPressed = mouseButtonEvent.type == SDL_MOUSEBUTTONDOWN;
         if (!lmbLastFrameDown && mouseLeftPressed) mouseLeftHasBeenPressed = true;
+        if (lmbLastFrameDown && !mouseLeftPressed) mouseLeftHasBeenReleased = true;
         lmbLastFrameDown = mouseLeftPressed;
     }
     if (mouseButtonEvent.button == SDL_BUTTON_RIGHT)
@@ -206,6 +210,7 @@ void InputManager::ProcessSDLMouseButtonEvent(SDL_MouseButtonEvent mouseButtonEv
         static bool rmbLastFrameDown = false;
         mouseRightPressed = mouseButtonEvent.type == SDL_MOUSEBUTTONDOWN;
         if (!rmbLastFrameDown && mouseRightPressed) mouseRightHasBeenPressed = true;
+        if (rmbLastFrameDown && !mouseRightPressed) mouseRightHasBeenReleased = true;
         rmbLastFrameDown = mouseRightPressed;
     }
     if (mouseButtonEvent.button == SDL_BUTTON_MIDDLE)
@@ -213,6 +218,7 @@ void InputManager::ProcessSDLMouseButtonEvent(SDL_MouseButtonEvent mouseButtonEv
         static bool mmbLastFrameDown = false;
         mouseMiddlePressed = mouseButtonEvent.type == SDL_MOUSEBUTTONDOWN;
         if (!mmbLastFrameDown && mouseMiddlePressed) mouseMiddleHasBeenPressed = true;
+        if (mmbLastFrameDown && !mouseMiddlePressed) mouseMiddleHasBeenReleased = true;
         mmbLastFrameDown = mouseMiddlePressed;
     }
 }
