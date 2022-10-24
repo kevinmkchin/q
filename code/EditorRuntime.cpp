@@ -88,15 +88,26 @@ void EditorRuntime::UpdateEditor()
         vec3 intersection;
         if (FindIntersectionBetweenPlaneAndVector(GM_UP_VECTOR, 0.f, Normalize(wp - editorCamera.position), editorCamera.position, &intersection))
         {
-            //float projUp = Dot(wp - origin, GM_UP_VECTOR);
-            //Handles::DrawLine(origin, origin + GM_UP_VECTOR * projUp, 3.f, vec4(1, 0, 0, 1));
-
             float projX = Dot(intersection, GM_FORWARD_VECTOR);
-            Handles::DrawLine(origin, GM_FORWARD_VECTOR * projX, 3.f, vec4(1, 0, 1, 1));
+            Handles::DrawLine(origin, origin + GM_FORWARD_VECTOR * projX, 3.f, vec4(1, 0, 1, 1));
             float projZ = Dot(intersection, GM_RIGHT_VECTOR);
-            Handles::DrawLine(origin, GM_RIGHT_VECTOR * projZ, 3.f, vec4(1, 0, 1, 1));
-
-
+            Handles::DrawLine(origin, origin + GM_RIGHT_VECTOR * projZ, 3.f, vec4(1, 0, 1, 1));
+        }
+        if (GM_abs(Dot(editorCamera.calculatedDirection, GM_FORWARD_VECTOR)) > 0.707)
+        {
+            if (FindIntersectionBetweenPlaneAndVector(GM_FORWARD_VECTOR, 0.f, Normalize(wp - editorCamera.position), editorCamera.position, &intersection))
+            {
+                float projY = Dot(intersection, GM_UP_VECTOR);
+                Handles::DrawLine(origin, origin + GM_UP_VECTOR * projY, 3.f, vec4(1, 0, 1, 1));
+            }
+        }
+        else
+        {
+            if (FindIntersectionBetweenPlaneAndVector(GM_RIGHT_VECTOR, 0.f, Normalize(wp - editorCamera.position), editorCamera.position, &intersection))
+            {
+                float projY = Dot(intersection, GM_UP_VECTOR);
+                Handles::DrawLine(origin, origin + GM_UP_VECTOR * projY, 3.f, vec4(1, 0, 1, 1));
+            }
         }
     }
 
