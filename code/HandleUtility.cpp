@@ -31,9 +31,17 @@ namespace Handles
         "    colour = handleColour;\n"
         "}\n";
 
+    enum class PrimitiveDrawMode
+    {
+        Triangles,
+        Lines
+    };
+
     static NiceArray<vec4, 128> __colors;
+    static NiceArray<PrimitiveDrawMode, 128> __drawMode;
     static NiceArray<u16, 128> __verticesCounts; // vertex buffer sizes in number of floats
     static NiceArray<float, 256 * 128> __vb;
+
 
     void Init()
     {
@@ -70,12 +78,20 @@ namespace Handles
             glBindVertexArray(__handleVisualVaoId);
             glBindBuffer(GL_ARRAY_BUFFER, __handleVisualVboId);
             glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)4 * vertexCount * 3, vb, GL_DYNAMIC_DRAW);
-            glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+            if (__drawMode.At(i) == PrimitiveDrawMode::Triangles)
+            {
+                glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+            }
+            else if (__drawMode.At(i) == PrimitiveDrawMode::Lines)
+            {
+                glDrawArrays(GL_LINES, 0, vertexCount);
+            }
             glBindBuffer(GL_ARRAY_BUFFER, 0);
             glBindVertexArray(0);
         }
 
         __colors.ResetCount();
+        __drawMode.ResetCount();
         __verticesCounts.ResetCount();
         __vb.ResetCount();
     }
@@ -83,6 +99,7 @@ namespace Handles
     void DrawSolidDisc(vec3 center, vec3 normal, float radius)
     {
         __colors.PushBack(vec4(1.f, 1.f, 0.f, 1.f));
+        __drawMode.PushBack(PrimitiveDrawMode::Triangles);
         __verticesCounts.PushBack(12 * 3);
 
         vec3 tangent = Normalize(Cross(GM_UP_VECTOR, normal));
@@ -106,11 +123,60 @@ namespace Handles
         }
     }
 
+    void DrawLine(vec3 p1, vec3 p2)
+    {
+        __colors.PushBack(vec4(1.f, 0.f, 0.f, 1.f));
+        __drawMode.PushBack(PrimitiveDrawMode::Lines);
+        __verticesCounts.PushBack(2);
+        __vb.PushBack(p1.x);
+        __vb.PushBack(p1.y);
+        __vb.PushBack(p1.z);
+        __vb.PushBack(p2.x);
+        __vb.PushBack(p2.y);
+        __vb.PushBack(p2.z);
+    }
+
+    void DrawLine(vec3 p1, vec3 p2, float thickness)
+    {
+        if (Engine.gfx->activeGameCamera == nullptr) return;
+        GameCamera* camera = Engine.gfx->activeGameCamera;
+
+        __colors.PushBack(vec4(1.f, 0.f, 0.f, 1.f));
+        __drawMode.PushBack(PrimitiveDrawMode::Triangles);
+        __verticesCounts.PushBack(6);
+
+        vec3 mid = (p2 - p1) * 0.5f + p1;
+        vec3 toCam = Normalize(camera->position - mid);
+        vec3 lineTangent = Normalize(Cross(p2 - p1, toCam));
+        vec3 pa = p1 + lineTangent * thickness * -0.5f;
+        vec3 pb = p1 + lineTangent * thickness * 0.5f;
+        vec3 pc = p2 + lineTangent * thickness * -0.5f;
+        vec3 pd = p2 + lineTangent * thickness * 0.5f;
+        __vb.PushBack(pa.x);
+        __vb.PushBack(pa.y);
+        __vb.PushBack(pa.z);
+        __vb.PushBack(pb.x);
+        __vb.PushBack(pb.y);
+        __vb.PushBack(pb.z);
+        __vb.PushBack(pc.x);
+        __vb.PushBack(pc.y);
+        __vb.PushBack(pc.z);
+        __vb.PushBack(pd.x);
+        __vb.PushBack(pd.y);
+        __vb.PushBack(pd.z);
+        __vb.PushBack(pc.x);
+        __vb.PushBack(pc.y);
+        __vb.PushBack(pc.z);
+        __vb.PushBack(pb.x);
+        __vb.PushBack(pb.y);
+        __vb.PushBack(pb.z);
+    }
+
     float DistanceToCircle(vec3 center, float radius)
     {
         if (Engine.gfx->activeGameCamera == nullptr) return 9999.f;
         GameCamera* camera = Engine.gfx->activeGameCamera;
-        vec3 tangent = Normalize(Cross(GM_UP_VECTOR, Normalize(camera->calculatedDirection)));
+        vec3 tangent = Normalize(Cross(GM_UP_VECTOR, camera->calculatedDirection));
         vec3 right = center + tangent * radius;
         vec3 screenPos = camera->WorldToScreenPoint(center);
         vec3 screenPos2 = camera->WorldToScreenPoint(right);
