@@ -80,38 +80,8 @@ void EditorRuntime::UpdateEditor()
     Handles::DrawLine(vec3(0.f, 10000.f, 0.f), vec3(0.f, -10000.f, 0.f), vec4(_RGB(67, 123, 9), 0.8f));
     Handles::DrawLine(vec3(0.f, 0.f, 10000.f), vec3(0.f, 0.f, -10000.f), vec4(_RGB(21, 129, 205), 0.8f));
 
-    if (Input.mouseLeftPressed)
-    {
-        vec3 origin = vec3();
-        vec3 wp = editorCamera.ScreenToWorldPoint(vec3((float) Input.mousePos.x, (float) Input.mousePos.y, editorCamera.WorldPointToCameraDistance(origin)));
-        vec3 intersection;
-        if (FindIntersectionBetweenPlaneAndVector(GM_UP_VECTOR, 0.f, Normalize(wp - editorCamera.position), editorCamera.position, &intersection))
-        {
-            float projX = Dot(intersection, GM_FORWARD_VECTOR);
-            Handles::DrawLine(origin, origin + GM_FORWARD_VECTOR * projX, 3.f, vec4(1, 0, 1, 1));
-            float projZ = Dot(intersection, GM_RIGHT_VECTOR);
-            Handles::DrawLine(origin, origin + GM_RIGHT_VECTOR * projZ, 3.f, vec4(1, 0, 1, 1));
-        }
-        if (GM_abs(Dot(editorCamera.calculatedDirection, GM_FORWARD_VECTOR)) > 0.707)
-        {
-            if (FindIntersectionBetweenPlaneAndVector(GM_FORWARD_VECTOR, 0.f, Normalize(wp - editorCamera.position), editorCamera.position, &intersection))
-            {
-                float projY = Dot(intersection, GM_UP_VECTOR);
-                Handles::DrawLine(origin, origin + GM_UP_VECTOR * projY, 3.f, vec4(1, 0, 1, 1));
-            }
-        }
-        else
-        {
-            if (FindIntersectionBetweenPlaneAndVector(GM_RIGHT_VECTOR, 0.f, Normalize(wp - editorCamera.position), editorCamera.position, &intersection))
-            {
-                float projY = Dot(intersection, GM_UP_VECTOR);
-                Handles::DrawLine(origin, origin + GM_UP_VECTOR * projY, 3.f, vec4(1, 0, 1, 1));
-            }
-        }
-    }
 
-
-    vec3 selectedPoint = vec3();
+    vec3 pointSelectedThisFrame = vec3();
     float selectedPointToCamDistance = FLT_MAX;
     for (int i = 0; i < brush_0->pointCloud.size(); ++i)
     {
@@ -125,7 +95,7 @@ void EditorRuntime::UpdateEditor()
             float vToCamDist = editorCamera.WorldPointToCameraDistance(v);
             if (vToMouseDist == 0.f && vToCamDist < selectedPointToCamDistance)
             {
-                selectedPoint = v;
+                pointSelectedThisFrame = v;
                 selectedPointToCamDistance = vToCamDist;
             }
         }
@@ -134,7 +104,7 @@ void EditorRuntime::UpdateEditor()
     if (Input.mouseLeftHasBeenPressed && selectedPointToCamDistance < FLT_MAX)
     {
         handleDragActive = true;
-        selectedDragPoint = selectedPoint;
+        selectedDragPoint = pointSelectedThisFrame;
     }
 
     if (handleDragActive && Input.mouseLeftHasBeenReleased)
@@ -152,6 +122,74 @@ void EditorRuntime::UpdateEditor()
         Handles::DrawLine(v + vec3(1000.f, 0.f, 0.f), v + vec3(-1000.f, 0.f, 0.f), vec4(_RGB(248, 230, 60), 0.7f));
         Handles::DrawLine(v + vec3(0.f, 1000.f, 0.f), v + vec3(0.f, -1000.f, 0.f), vec4(_RGB(248, 230, 60), 0.7f));
         Handles::DrawLine(v + vec3(0.f, 0.f, 1000.f), v + vec3(0.f, 0.f, -1000.f), vec4(_RGB(248, 230, 60), 0.7f));
-    }
 
+        if (Input.mouseLeftPressed)
+        {
+            vec3 dragOrigin = selectedDragPoint;
+            vec3 wp = editorCamera.ScreenToWorldPoint(vec3((float)Input.mousePos.x, (float)Input.mousePos.y, editorCamera.WorldPointToCameraDistance(dragOrigin)));
+            vec3 intersection;
+
+            if (Input.KeyPressed(SDL_SCANCODE_LALT))
+            {
+                float projY = 0.f;
+                if (GM_abs(Dot(editorCamera.calculatedDirection, GM_FORWARD_VECTOR)) > 0.707)
+                {
+                    if (FindIntersectionBetweenPlaneAndVector(GM_FORWARD_VECTOR, dragOrigin.x, Normalize(wp - editorCamera.position), editorCamera.position, &intersection))
+                    {
+                        projY = Dot(intersection - dragOrigin, GM_UP_VECTOR);
+                    }
+                }
+                else
+                {
+                    if (FindIntersectionBetweenPlaneAndVector(GM_RIGHT_VECTOR, dragOrigin.z, Normalize(wp - editorCamera.position), editorCamera.position, &intersection))
+                    {
+                        projY = Dot(intersection - dragOrigin, GM_UP_VECTOR);
+                    }
+                }
+                Handles::DrawLine(dragOrigin, dragOrigin + GM_UP_VECTOR * projY, 3.f, vec4(1, 0, 1, 1));
+
+                if (GM_abs(projY) > (float)activeGridSize * 0.001f * 0.5f)
+                {
+                    vec3 movedPoint = selectedDragPoint + vec3(0.f, GM_sgn(projY) * (float)activeGridSize * 0.001f, 0.f);
+                    MovePointOnBrushAndUpdateHalfSpaces(selectedDragPoint, movedPoint, brush_0, &movedPoint);
+                    UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
+                    UpdateBrushFacesForDrawing(brush_0);
+                    selectedDragPoint = movedPoint;
+                    if (!BrushContainsPoint(brush_0, selectedDragPoint))
+                    {
+                        handleDragActive = false;
+                    }
+                }
+            }
+            else
+            {
+                if (FindIntersectionBetweenPlaneAndVector(GM_UP_VECTOR, dragOrigin.y, Normalize(wp - editorCamera.position), editorCamera.position, &intersection))
+                {
+                    float projX = Dot(intersection - dragOrigin, GM_FORWARD_VECTOR);
+                    Handles::DrawLine(dragOrigin, dragOrigin + GM_FORWARD_VECTOR * projX, 3.f, vec4(1, 0, 1, 1));
+                    float projZ = Dot(intersection - dragOrigin, GM_RIGHT_VECTOR);
+                    Handles::DrawLine(dragOrigin, dragOrigin + GM_RIGHT_VECTOR * projZ, 3.f, vec4(1, 0, 1, 1));
+
+                    bool moveX = GM_abs(projX) > (float)activeGridSize * 0.001f * 0.5f;
+                    bool moveZ = GM_abs(projZ) > (float)activeGridSize * 0.001f * 0.5f;
+
+                    if (moveX || moveZ)
+                    {
+                        vec3 movedPoint = selectedDragPoint + vec3(
+                            moveX ? GM_sgn(projX) * (float)activeGridSize * 0.001f : 0.f,
+                            0.f,
+                            moveZ ? GM_sgn(projZ) * (float)activeGridSize * 0.001f : 0.f);
+                        MovePointOnBrushAndUpdateHalfSpaces(selectedDragPoint, movedPoint, brush_0, &movedPoint);
+                        UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
+                        UpdateBrushFacesForDrawing(brush_0);
+                        selectedDragPoint = movedPoint;
+                        if (!BrushContainsPoint(brush_0, selectedDragPoint))
+                        {
+                            handleDragActive = false;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

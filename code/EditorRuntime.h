@@ -41,7 +41,7 @@ public:
     EditorToolMode activeToolMode = EditorToolMode::None;
 
 private:
-    GridSizeTimes1000 activeGridSize = GridSizeTimes1000::Grid16;
+    GridSizeTimes1000 activeGridSize = GridSizeTimes1000::Grid32;
 
     bool handleDragActive = false;
     vec3 selectedDragPoint = vec3();

@@ -369,16 +369,7 @@ void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush)
                 /* Because we are checking intersection between 3 planes, if a point is formed from
                    intersection of 4+ planes, then the point will be calculated multiple times. Thus,
                    don't add an intersection point if it was already calculated before and added. */
-                bool flag_pointAlreadyCalculated = false;
-                for (int c = 0; c < brush->pointCloud.size(); ++c)
-                {
-                    if(brush->pointCloud[c].Equals(intersectionPoint, EPS_WCS))
-                    {
-                        flag_pointAlreadyCalculated = true;
-                        break;
-                    }
-                }
-                if (flag_pointAlreadyCalculated) continue;
+                if (BrushContainsPoint(brush, intersectionPoint)) continue;
 
                 if (containedWithinEveryHalfspace)
                 {
@@ -557,6 +548,18 @@ void UpdateBrushFacesForDrawing(CSGBrush* brush)
         LevelGeometry::RebindFaceBatchBufferObject(&face, (u32) vertexBuffer.size() * sizeof(float), vertexBuffer.data());
         brush->facesForDrawing.push_back(face);
     }
+}
+
+bool BrushContainsPoint(CSGBrush* brush, vec3 point)
+{
+    for (int c = 0; c < brush->pointCloud.size(); ++c)
+    {
+        if (brush->pointCloud[c].Equals(point, EPS_WCS))
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 CSGBrush* DoSmth()

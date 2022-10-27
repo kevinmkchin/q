@@ -72,4 +72,6 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
 void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush);
 void UpdateBrushFacesForDrawing(CSGBrush* brush);
 
+bool BrushContainsPoint(CSGBrush* brush, vec3 point);
+
 CSGBrush* DoSmth();

@@ -80,7 +80,7 @@ void GameRenderer::RenderGameLayer()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, gameLayer.FBO);
     glViewport(0, 0, gameLayer.width, gameLayer.height);
-    glClearColor(_RGB(46, 88, 120), 1.f);
+    glClearColor(_RGB(38, 38, 38), 1.f); //_RGB(46, 88, 120)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -113,7 +113,7 @@ void GameRenderer::RenderGameLayer()
             gameSceneShader.GLBindMatrix4fv("modelMatrix", 1, mm.ptr());
             for (auto fb : Engine.editor->brush_0->facesForDrawing)
             {
-                //LevelGeometry::RenderFaceBatch(fb);
+                LevelGeometry::RenderFaceBatch(fb);
             }
         }
     }

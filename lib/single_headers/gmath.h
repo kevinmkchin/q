@@ -50,7 +50,7 @@ STANDARDS:
 #define GM_max(a, b) ((a) > (b) ? (a) : (b))
 #define GM_abs(a) ((a) < 0.f ? (-(a)) : (a))
 #define GM_clamp(x, lower, upper) GM_max((lower), GM_min((upper), (x)))
-
+#define GM_sgn(x) ((0 < x) - (x < 0))
 
 struct vec4;
 union vec3;
