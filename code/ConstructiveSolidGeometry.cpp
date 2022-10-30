@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <algorithm>
 
+#include "Utils.h"
 
 static bool AddUniqueValidHalfspaceToBrush(std::vector<CSGPlane>* hsptr, CSGPlane p, float eps)
 {
@@ -67,13 +68,13 @@ static void BrushPlane_FindCommonVertices(CSGBrush* brush,
 
 bool IsPointContainedInHalfSpace(vec3 planeNormal, float planeDist, vec3 point, float eps)
 {
-	return Dot(point, planeNormal) <= planeDist + eps;
+	return Dot(point, planeNormal) <= planeDist + GM_sgn(planeDist) * eps;
 }
 
 bool IsPointOnPlane(vec3 planeNormal, float planeDist, vec3 point, float eps)
 {
-    float magnitudeOfPointProjectionToNormal = Dot(point, planeNormal);
-    return planeDist - eps <= magnitudeOfPointProjectionToNormal && magnitudeOfPointProjectionToNormal <= planeDist + eps;
+    float pointProjectionToNormal = Dot(point, planeNormal);
+    return planeDist - eps <= pointProjectionToNormal && pointProjectionToNormal <= planeDist + GM_sgn(planeDist) * eps;
 }
 
 bool FindIntersectionBetweenPlaneAndVector(vec3 planeNormal, float planeDist, vec3 directionVector, vec3 pointOnVector, vec3* out_intersectionPoint)
@@ -173,7 +174,7 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
                         intersectionCheckingPlane.n = -intersectionCheckingPlane.n;
                         intersectionCheckingPlane.d = -intersectionCheckingPlane.d;
                     }
-                    imaginaryPlanes.push_back(intersectionCheckingPlane);
+                    AddUniqueValidHalfspaceToBrush(&imaginaryPlanes, intersectionCheckingPlane, 0.001f);// shouldn't add two same ones?
                 }
             }
         }
@@ -187,65 +188,150 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
     // OR if more than 3 points, then remove if fold out movement ??
     // if fold in movement then 
 
-    //for (auto imaginaryPlane : imaginaryPlanes)
-    //{
-    //    vec3 l0 = point;
-    //    vec3 l = vecToNewPointNormalized;
-    //    float ldotn = Dot(l, imaginaryPlane.n);
-    //    vec3 pointOfIntersection;
-    //    if (ldotn > EPS_NORMAL && FindIntersectionBetweenPlaneAndVector(imaginaryPlane.n, imaginaryPlane.d, l, l0, &pointOfIntersection))
-    //    {
-    //        if (!pointOfIntersection.Equals(point, EPS_WCS) && Magnitude(pointOfIntersection - point) < Magnitude(vecToNewPoint))
-    //        {
-    //            newPoint = pointOfIntersection;
-    //            *ye = pointOfIntersection;
-    //            break;
-    //        }
-    //    }
-    //}
-
-    for (auto existingPlane : existingPlanes)
+    NiceArray<CSGPlane, 6> _intersectedImaginaryPlanes;
+    NiceArray<vec3, 6> _potentialPointsOfIntersection;
+    NiceArray<float, 6> _intersectionPointDistanceToOriginalPoint;
+    for (auto imaginaryPlane : imaginaryPlanes)
     {
+        if (!IsPointContainedInHalfSpace(imaginaryPlane.n, imaginaryPlane.d, point, 0.f)) continue;
         vec3 l0 = point;
         vec3 l = vecToNewPointNormalized;
-        float ldotn = Dot(l, existingPlane.n);
+        float ldotn = Dot(l, imaginaryPlane.n);
         vec3 pointOfIntersection;
-        if (ldotn > 0.001f && FindIntersectionBetweenPlaneAndVector(existingPlane.n, existingPlane.d, l, l0, &pointOfIntersection))
+        if (ldotn > 0.001f && FindIntersectionBetweenPlaneAndVector(imaginaryPlane.n, imaginaryPlane.d, l, l0, &pointOfIntersection))
         {
-            if (!pointOfIntersection.Equals(point, EPS_WCS) && Magnitude(pointOfIntersection - point) <= Magnitude(vecToNewPoint) + 0.01f)
+            float distanceToPointOfIntersection = Magnitude(pointOfIntersection - point);
+            if (!pointOfIntersection.Equals(point, EPS_WCS) && distanceToPointOfIntersection <= Magnitude(vecToNewPoint) + 0.01f)
             {
-                newPoint = pointOfIntersection;
-                *ye = pointOfIntersection;
+                _intersectedImaginaryPlanes.PushBack(imaginaryPlane);
+                _potentialPointsOfIntersection.PushBack(pointOfIntersection);
+                _intersectionPointDistanceToOriginalPoint.PushBack(distanceToPointOfIntersection);
+            }
+        }
+    }
+    // When intersect w multiple imaginary planes (given that the intersecting point 
+    // is closer than the point we want to move to), and the distance to more than one 
+    // imaginary plane are the same (e.g. if two intersecting imaginary planes are the 
+    // same distance away from the original point), then add multiple imaginary planes 
+    // as real planes.
+    NiceArray<CSGPlane, 6> closestImaginaryPlanes;
+    float _shortestDistanceAwaySoFar = FLT_MAX;
+    for (int i = 0; i < _intersectedImaginaryPlanes.count; ++i)
+    {
+        float iterDist = _intersectionPointDistanceToOriginalPoint.At(i);
+        if (iterDist - 0.01f <= _shortestDistanceAwaySoFar)
+        {
+            if (iterDist + 0.01f < _shortestDistanceAwaySoFar)
+            {
+                closestImaginaryPlanes.ResetCount();
+                _shortestDistanceAwaySoFar = iterDist;
 
-                // for all relevant planes, if it has exactly 3 points then remove that plane from halfspaces and remove from relevant planes
-                std::vector<CSGPlane> toRemove;
-                for (auto afp : affectedFacePlanes)
+                newPoint = _potentialPointsOfIntersection.At(i);
+                *ye = newPoint;
+            }
+            closestImaginaryPlanes.PushBack(_intersectedImaginaryPlanes.At(i));
+        }
+    }
+    if (closestImaginaryPlanes.count > 0)
+    {
+        std::vector<CSGPlane> toRemove;
+        for (auto afp : affectedFacePlanes)
+        {
+            int indexOfAffectedPlane = -1;
+            BrushPlane_FindIndexInBrush(&existingPlanes, afp, &indexOfAffectedPlane, 0.001f);
+            ASSERT(indexOfAffectedPlane >= 0);
+            auto faceVertices = brush->planeToVertices[indexOfAffectedPlane];
+            if (faceVertices.size() == 3)
+            {
+                // check if this triangle shares two points (other than the moved point)
+                // with this intersected imaginary plane
+                // perform this check by checking IsPointOnPlane with imaginary plane and the points of
+                // the triangles we want to remove -> if at least 2 points of a triangle are on this imaginary plane
+                // then that triangle can fuck off
+                for (int i = 0; i < closestImaginaryPlanes.count; ++i)
                 {
-                    int indexOfAffectedPlane = -1;
-                    BrushPlane_FindIndexInBrush(&existingPlanes, afp, &indexOfAffectedPlane, 0.001f);
-                    ASSERT(indexOfAffectedPlane >= 0);
-                    auto faceVertices = brush->planeToVertices[indexOfAffectedPlane];
-                    if (faceVertices.size() == 3)
+                    CSGPlane imaginaryPlane = closestImaginaryPlanes.At(i);
+                    int numTriangleVerticesOnImaginaryPlane = 0;
+                    for (auto v : faceVertices)
                     {
-                        // then check if this triangle shares two points (other than the moved point)
-                        // with this intersected plane
-                        int indexOfIntersectedPlane = -1;
-                        BrushPlane_FindIndexInBrush(&existingPlanes, existingPlane, &indexOfIntersectedPlane, 0.001f);
-                        std::vector<vec3> commonVertices;
-                        BrushPlane_FindCommonVertices(brush, indexOfIntersectedPlane, indexOfAffectedPlane, &commonVertices);
-                        if (commonVertices.size() >= 2)
+                        if (IsPointOnPlane(imaginaryPlane.n, imaginaryPlane.d, v, 0.001f))
                         {
-                            toRemove.push_back(afp);
+                            if (++numTriangleVerticesOnImaginaryPlane == 2) break;
                         }
                     }
+                    if (numTriangleVerticesOnImaginaryPlane >= 2)
+                    {
+                        toRemove.push_back(afp);
+                        break;
+                    }
                 }
-                for (auto ri : toRemove)
+            }
+        }
+        printf("added %d planes\n", closestImaginaryPlanes.count);
+        printf("removed %zd planes\n", toRemove.size());
+        for (auto ri : toRemove)
+        {
+            RemoveHalfspaceFromBrush(&brush->halfspaces, ri, 0.f);
+            RemoveHalfspaceFromBrush(&affectedFacePlanes, ri, 0.f);
+        }
+        for (int i = 0; i < closestImaginaryPlanes.count; ++i)
+        {
+            CSGPlane halfspaceFormedFromMerge;
+            int isImaginaryPlaneARealExistingPlane = -1;
+            BrushPlane_FindIndexInBrush(&existingPlanes, closestImaginaryPlanes.At(i), &isImaginaryPlaneARealExistingPlane, 0.001f);
+            if (isImaginaryPlaneARealExistingPlane < 0)
+            {
+                halfspaceFormedFromMerge.n = -closestImaginaryPlanes.At(i).n;
+                halfspaceFormedFromMerge.d = -closestImaginaryPlanes.At(i).d;
+            }
+            AddUniqueValidHalfspaceToBrush(&brush->halfspaces, halfspaceFormedFromMerge, 0.00005f); // add the imaginary planes
+        }
+    }
+    else // then check for intersection against existing real planes
+    {
+        for (auto existingPlane : existingPlanes)
+        {
+            vec3 l0 = point;
+            vec3 l = vecToNewPointNormalized;
+            float ldotn = Dot(l, existingPlane.n);
+            vec3 pointOfIntersection;
+            if (ldotn > 0.001f && FindIntersectionBetweenPlaneAndVector(existingPlane.n, existingPlane.d, l, l0, &pointOfIntersection))
+            {
+                if (!pointOfIntersection.Equals(point, EPS_WCS) && Magnitude(pointOfIntersection - point) <= Magnitude(vecToNewPoint) + 0.01f)
                 {
-                    RemoveHalfspaceFromBrush(&brush->halfspaces, ri, 0.f);
-                    RemoveHalfspaceFromBrush(&affectedFacePlanes, ri, 0.f);
-                }
+                    newPoint = pointOfIntersection;
+                    *ye = pointOfIntersection;
 
-                break;
+                    // for all relevant planes, if it has exactly 3 points then remove that plane from halfspaces and remove from relevant planes
+                    std::vector<CSGPlane> toRemove;
+                    for (auto afp : affectedFacePlanes)
+                    {
+                        int indexOfAffectedPlane = -1;
+                        BrushPlane_FindIndexInBrush(&existingPlanes, afp, &indexOfAffectedPlane, 0.001f);
+                        ASSERT(indexOfAffectedPlane >= 0);
+                        auto faceVertices = brush->planeToVertices[indexOfAffectedPlane];
+                        if (faceVertices.size() == 3)
+                        {
+                            // then check if this triangle shares two points (other than the moved point)
+                            // with this intersected plane
+                            int indexOfIntersectedPlane = -1;
+                            BrushPlane_FindIndexInBrush(&existingPlanes, existingPlane, &indexOfIntersectedPlane, 0.001f);
+                            std::vector<vec3> commonVertices;
+                            BrushPlane_FindCommonVertices(brush, indexOfIntersectedPlane, indexOfAffectedPlane, &commonVertices);
+                            if (commonVertices.size() >= 2)
+                            {
+                                toRemove.push_back(afp);
+                            }
+                        }
+                    }
+                    for (auto ri : toRemove)
+                    {
+                        RemoveHalfspaceFromBrush(&brush->halfspaces, ri, 0.f);
+                        RemoveHalfspaceFromBrush(&affectedFacePlanes, ri, 0.f);
+                    }
+
+                    break;
+                }
             }
         }
     }
@@ -400,14 +486,15 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
     }
 
     // we know that, as long as brush->halfspaces is correct, all subsequent vectors and calculations will be correct
-    brush->pointCloud.clear();
-    brush->pointToPlanes.clear();
-    brush->planeToVertices.clear();
-    brush->planeToEdges.clear();
 }
 
 void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush)
 {
+    brush->pointCloud.clear();
+    brush->pointToPlanes.clear();
+    brush->planeToVertices.clear();
+    brush->planeToEdges.clear();
+
     int halfspacesN = (int)brush->halfspaces.size();
     for (int i = 0; i < halfspacesN - 2; ++i)
     {
@@ -429,8 +516,6 @@ void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush)
                 float vy = (pi.d * (pj.n.x * pk.n.z - pj.n.z * pk.n.x) + pj.d * (pi.n.z * pk.n.x - pi.n.x * pk.n.z) + pk.d * (pi.n.x * pj.n.z - pi.n.z * pj.n.x)) / -t;
                 float vz = (pi.d * (pj.n.y * pk.n.x - pj.n.x * pk.n.y) + pj.d * (pi.n.x * pk.n.y - pi.n.y * pk.n.x) + pk.d * (pi.n.y * pj.n.x - pi.n.x * pj.n.y)) / -t;
 
-                // 8 points, and all should be within every halfspace
-
                 vec3 intersectionPoint = vec3(vx, vy, vz);
                 bool containedWithinEveryHalfspace = true;
                 for (int m = 0; m < halfspacesN; ++m)
@@ -438,7 +523,7 @@ void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush)
                     CSGPlane pm = brush->halfspaces[m];
                     if (m != i && m != j && m != k && !IsPointContainedInHalfSpace(pm.n, pm.d, intersectionPoint, 0.01f))
                     {
-                        containedWithinEveryHalfspace = false;
+                        containedWithinEveryHalfspace = false; // intersectionPoint.x * pm.n.x + intersectionPoint.y * pm.n.y + intersectionPoint.z * pm.n.z
                         break;
                     }
                 }
@@ -458,9 +543,10 @@ void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush)
                         CSGPlane pl = brush->halfspaces[p];
                         if(IsPointOnPlane(pl.n, pl.d, intersectionPoint, 0.01f))
                         {
-                            // NOTE(Kevin): When faces disappear, it's likely because the number of points in
-                            // pointCloud is correct but there are two similar planes or smth and so planeToVertices
-                            // gets fucked up
+                            // NOTE(Kevin): When faces disappear, it's likely because either there is a 
+                            // incorrect halfspace that makes containedWithinEveryHalfspace = false for most
+                            // should-be-valid points, or the number of points in pointCloud is correct but 
+                            // there are two similar planes or smth and so planeToVertices gets fucked up
                             brush->pointToPlanes[brush->pointCloud.size() - 1].push_back(pl);
                             brush->planeToVertices[p].push_back(intersectionPoint);
                         }

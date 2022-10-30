@@ -20,7 +20,14 @@ struct CSGPlane
     
     inline bool Equals(const CSGPlane& other, float epsilon)
     {
-        return n.Equals(other.n, epsilon) && d - (d * 0.000078f) <= other.d && other.d <= d + (d * 0.000078f);
+        if (GM_abs(d) < 0.01f && GM_abs(other.d) < 0.01f)
+        {
+            return n.Equals(other.n, epsilon);
+        }
+        else
+        {
+            return n.Equals(other.n, epsilon) && d - 0.01f <= other.d && other.d <= d + 0.01f;
+        }
     }
 };
 
