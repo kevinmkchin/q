@@ -117,7 +117,7 @@ void EditorRuntime::UpdateEditor()
         auto v = selectedDragPoint;
         char charbuf[32];
         stbsp_sprintf(charbuf, "%.1f, %.1f, %.1f", v.x, v.y, v.z);
-        printf("%s\n", charbuf);
+        //printf("%s\n", charbuf);
 
         Handles::DrawLine(v + vec3(1000.f, 0.f, 0.f), v + vec3(-1000.f, 0.f, 0.f), vec4(_RGB(248, 230, 60), 0.7f));
         Handles::DrawLine(v + vec3(0.f, 1000.f, 0.f), v + vec3(0.f, -1000.f, 0.f), vec4(_RGB(248, 230, 60), 0.7f));
@@ -155,7 +155,7 @@ void EditorRuntime::UpdateEditor()
                     UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
                     UpdateBrushFacesForDrawing(brush_0);
                     selectedDragPoint = movedPoint;
-                    if (!BrushContainsPoint(brush_0, selectedDragPoint))
+                    if (!BrushContainsPoint(brush_0, selectedDragPoint, EPS_POINTINPOINTCLOUD))
                     {
                         handleDragActive = false;
                     }
@@ -173,17 +173,26 @@ void EditorRuntime::UpdateEditor()
                     bool moveX = GM_abs(projX) > (float)activeGridSize * 0.001f * 0.5f;
                     bool moveZ = GM_abs(projZ) > (float)activeGridSize * 0.001f * 0.5f;
 
-                    if (moveX || moveZ)
+                    if (moveX)
                     {
-                        vec3 movedPoint = selectedDragPoint + vec3(
-                            moveX ? GM_sgn(projX) * (float)activeGridSize * 0.001f : 0.f,
-                            0.f,
-                            moveZ ? GM_sgn(projZ) * (float)activeGridSize * 0.001f : 0.f);
+                        vec3 movedPoint = selectedDragPoint + vec3(GM_sgn(projX) * (float)activeGridSize * 0.001f, 0.f, 0.f);
                         MovePointOnBrushAndUpdateHalfSpaces(selectedDragPoint, movedPoint, brush_0, &movedPoint);
                         UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
                         UpdateBrushFacesForDrawing(brush_0);
                         selectedDragPoint = movedPoint;
-                        if (!BrushContainsPoint(brush_0, selectedDragPoint))
+                        if (!BrushContainsPoint(brush_0, selectedDragPoint, EPS_POINTINPOINTCLOUD))
+                        {
+                            handleDragActive = false;
+                        }
+                    }
+                    if (moveZ)
+                    {
+                        vec3 movedPoint = selectedDragPoint + vec3(0.f, 0.f, GM_sgn(projZ) * (float)activeGridSize * 0.001f);
+                        MovePointOnBrushAndUpdateHalfSpaces(selectedDragPoint, movedPoint, brush_0, &movedPoint);
+                        UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0);
+                        UpdateBrushFacesForDrawing(brush_0);
+                        selectedDragPoint = movedPoint;
+                        if (!BrushContainsPoint(brush_0, selectedDragPoint, EPS_POINTINPOINTCLOUD))
                         {
                             handleDragActive = false;
                         }
