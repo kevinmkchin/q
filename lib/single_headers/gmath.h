@@ -97,9 +97,9 @@ union vec3
     
     inline bool Equals(const vec3& other, float epsilon)
     {
-        return x - epsilon < other.x && other.x < x + epsilon
-            && y - epsilon < other.y && other.y < y + epsilon
-            && z - epsilon < other.z && other.z < z + epsilon;
+        return x - epsilon <= other.x && other.x <= x + epsilon
+            && y - epsilon <= other.y && other.y <= y + epsilon
+            && z - epsilon <= other.z && other.z <= z + epsilon;
     }
 };
 
