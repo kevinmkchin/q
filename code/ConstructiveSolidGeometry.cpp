@@ -68,13 +68,13 @@ static void BrushPlane_FindCommonVertices(CSGBrush* brush,
 
 bool IsPointContainedInHalfSpace(vec3 planeNormal, float planeDist, vec3 point, float eps)
 {
-	return Dot(point, planeNormal) <= planeDist + GM_sgn(planeDist) * eps;
+	return Dot(point, planeNormal) <= planeDist + eps;
 }
 
 bool IsPointOnPlane(vec3 planeNormal, float planeDist, vec3 point, float eps)
 {
     float pointProjectionToNormal = Dot(point, planeNormal);
-    return planeDist - eps <= pointProjectionToNormal && pointProjectionToNormal <= planeDist + GM_sgn(planeDist) * eps;
+    return planeDist - eps <= pointProjectionToNormal && pointProjectionToNormal <= planeDist + eps;
 }
 
 bool FindIntersectionBetweenPlaneAndVector(vec3 planeNormal, float planeDist, vec3 directionVector, vec3 pointOnVector, vec3* out_intersectionPoint)
