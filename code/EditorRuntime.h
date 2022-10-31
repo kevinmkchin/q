@@ -18,7 +18,7 @@ enum class GridSizeTimes1000 : u32
     //Grid0125 = 125,
     //Grid025 = 250,
     //Grid05 = 500,
-    //Grid1 = 1000,
+    Grid1 = 1000,
     Grid2 = 2000,
     Grid4 = 4000,
     Grid8 = 8000,
@@ -41,7 +41,7 @@ public:
     EditorToolMode activeToolMode = EditorToolMode::None;
 
 private:
-    GridSizeTimes1000 activeGridSize = GridSizeTimes1000::Grid2;
+    GridSizeTimes1000 activeGridSize = GridSizeTimes1000::Grid1;
 
     bool handleDragActive = false;
     vec3 selectedDragPoint = vec3();

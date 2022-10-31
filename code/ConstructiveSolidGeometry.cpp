@@ -358,7 +358,7 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
     // at this point, we want to make sure EVERY plane we try to add to the brush doesn't already exist...
     for (auto plane : affectedFacePlanes)
     {
-        if (IsPointOnPlane(plane.n, plane.d, newPoint, 0.01f)) continue; // no change
+        if (IsPointOnPlane(plane.n, plane.d, newPoint, 0.000001f)) continue; // no change
 
         int indexOfPlane = -1;
         BrushPlane_FindIndexInBrush(&existingPlanes, plane, &indexOfPlane, 0.001f);
