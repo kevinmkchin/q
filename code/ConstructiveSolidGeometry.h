@@ -41,7 +41,7 @@ struct CSGBrush
 {
     std::vector<CSGPlane> halfspaces; // one face per plane
     std::vector<vec3> pointCloud;
-    std::vector<std::vector<CSGPlane>> pointToPlanes; // when we move vertices, this is going to be used to find which planes we need to modify
+    std::vector<std::vector<int>> pointToPlanes; // when we move vertices, this is going to be used to find which planes we need to modify
     std::unordered_map<int, std::vector<vec3>> planeToVertices;
     std::unordered_map<int, std::vector<std::pair<vec3, vec3>>> planeToEdges;
 

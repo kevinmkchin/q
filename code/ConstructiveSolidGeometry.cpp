@@ -68,7 +68,7 @@ static void BrushPlane_FindCommonVertices(CSGBrush* brush,
 
 bool IsPointContainedInHalfSpace(vec3 planeNormal, float planeDist, vec3 point, float eps)
 {
-	return (Dot(point, planeNormal) <= planeDist) || IsPointOnPlane(planeNormal, planeDist, point, eps);
+    return Dot(point, planeNormal) <= planeDist + eps;
 }
 
 bool IsPointOnPlane(vec3 planeNormal, float planeDist, vec3 point, float eps)
@@ -112,8 +112,11 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
     if (indexOfPoint < 0) return;
     
     point = brush->pointCloud[indexOfPoint];
-    std::vector<CSGPlane> affectedFacePlanes = brush->pointToPlanes[indexOfPoint];
-
+    std::vector<CSGPlane> affectedFacePlanes;
+    for (int index : brush->pointToPlanes[indexOfPoint])
+    {
+        affectedFacePlanes.push_back(brush->halfspaces[index]);
+    }
 
     /* For each existing plane or potential plane, need to if vector from point to newPoint crossed
      * that plane and if so where it intersects -> this intersect point should be newPoint */
@@ -537,7 +540,7 @@ void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush)
                 if (containedWithinEveryHalfspace)
                 {
                     brush->pointCloud.push_back(intersectionPoint); // intersectionPoint is a vertex
-                    brush->pointToPlanes.push_back(std::vector<CSGPlane>());
+                    brush->pointToPlanes.push_back(std::vector<int>());
 
                     for(int p = 0; p < halfspacesN; ++p)
                     {
@@ -548,7 +551,7 @@ void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush)
                             // incorrect halfspace that makes containedWithinEveryHalfspace = false for most
                             // should-be-valid points, or the number of points in pointCloud is correct but 
                             // there are two similar planes or smth and so planeToVertices gets fucked up
-                            brush->pointToPlanes[brush->pointCloud.size() - 1].push_back(pl);
+                            brush->pointToPlanes[brush->pointCloud.size() - 1].push_back(p);
                             brush->planeToVertices[p].push_back(intersectionPoint);
                         }
                     }
