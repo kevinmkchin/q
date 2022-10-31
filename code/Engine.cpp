@@ -1,5 +1,14 @@
 /**  TODO
 
+- change brush->pointToPlanes from std::vector<CSGPlane> to std::vector<int> where int is plane index in brush->halfspaces
+- WHEN we are done calculating the pointClouds and info like which planes have which points, then we can 
+  snap all the points to multiple of grid size, and make sure to update the points in the other infos,
+  then update the halfspace values too which we can calculate since we know which points are on which plane
+  and these points will be rounded to multiple of grid size
+- this way, we can probably remove a lot of reliance on big epsilon values
+- also make sure to update the way we calculate movedPoint and selectedPoint in EditorRuntime correspondingly
+
+
 - Change it so that even if selected point is not aligned to grid, the next desired move point MUST BE aligned to grid
     just snap the values of next desired move point to be aligned to grid.
 
