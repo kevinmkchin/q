@@ -806,26 +806,26 @@ CSGBrush* DoSmth()
 // planes data
     CSGPlane p0;
     p0.n = Normalize(vec3(1, 0, 0));
-    p0.d = 128.f;
+    p0.d = 64.f;
     CSGPlane p1;
     p1.n = Normalize(vec3(0, 1, 0));
-    p1.d = 128.f;
+    p1.d = 64.f;
     CSGPlane p2;
     p2.n = Normalize(vec3(0, 0, 1));
-    p2.d = 128.f;
+    p2.d = 64.f;
     CSGPlane p3;
     p3.n = Normalize(vec3(-1, 0, 0));
-    p3.d = 128.f;
+    p3.d = 64.f;
     CSGPlane p4;
     p4.n = Normalize(vec3(0, -1, 0));
-    p4.d = 128.f;
+    p4.d = 64.f;
     CSGPlane p5;
     p5.n = Normalize(vec3(0, 0, -1));
-    p5.d = 128.f;
+    p5.d = 64.f;
 
     CSGPlane slice;
     slice.n = Normalize(vec3(1,1,0));
-    slice.d = 128.f;
+    slice.d = 64.f;
 
     CSGBrush* brush = new CSGBrush();
     brush->halfspaces.push_back(p0);
