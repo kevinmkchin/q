@@ -30,6 +30,19 @@ static bool RemoveHalfspaceFromBrush(std::vector<CSGPlane>* hsptr, CSGPlane p, f
     return false;
 }
 
+static void BrushPoint_FindIndexInBrush(std::vector<vec3>* pointCloud, vec3 vToFind, int* out_index, float eps = EPS_POINTINPOINTCLOUD)
+{
+    int indexOfPoint = -1;
+    for (int i = 0; i < pointCloud->size(); ++i)
+    {
+        if (pointCloud->at(i).Equals(vToFind, eps))
+        {
+            *out_index = i;
+            return;
+        }
+    }
+}
+
 static void BrushPlane_FindIndexInBrush(std::vector<CSGPlane>* brushPlanes, 
                                         CSGPlane vToFind,
                                         int* out_index,
@@ -51,16 +64,18 @@ static void BrushPlane_FindCommonVertices(CSGBrush* brush,
                                           int secondPlaneIndex, 
                                           std::vector<vec3>* out_commonVertices)
 {
-    std::vector<vec3> verticesOfPlaneI = brush->planeToVertices[firstPlaneIndex];
-    std::vector<vec3> verticesOfPlaneJ = brush->planeToVertices[secondPlaneIndex];
+    std::vector<int> verticesOfPlaneI = brush->planeToVertices[firstPlaneIndex];
+    std::vector<int> verticesOfPlaneJ = brush->planeToVertices[secondPlaneIndex];
 
     for (auto vertI : verticesOfPlaneI)
     {
         for (auto vertJ : verticesOfPlaneJ)
         {
-            if (vertI.Equals(vertJ, EPS_WCS))
+            vec3 vi = brush->pointCloud[vertI];
+            vec3 vj = brush->pointCloud[vertJ];
+            if (vi.Equals(vj, EPS_WCS))
             {
-                out_commonVertices->push_back(vertI);
+                out_commonVertices->push_back(vi);
             }
         }
     }
@@ -101,17 +116,13 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
     // don't care about updating anything other than the array of halfspaces
     // unless there are some quick updates we can make that will allow us to optimize moving multiple vertices at once
     int indexOfPoint = -1;
-    for (int i = 0; i < brush->pointCloud.size(); ++i)
-    {
-        if (brush->pointCloud[i].Equals(point, EPS_POINTINPOINTCLOUD))
-        {
-            indexOfPoint = i;
-            break;
-        }
-    }
+    BrushPoint_FindIndexInBrush(&brush->pointCloud, point, &indexOfPoint, EPS_POINTINPOINTCLOUD);
     if (indexOfPoint < 0) return;
     
     point = brush->pointCloud[indexOfPoint];
+
+    if (Magnitude(newPoint - point) < 0.98f) return;
+
     std::vector<CSGPlane> affectedFacePlanes;
     for (int index : brush->pointToPlanes[indexOfPoint])
     {
@@ -129,7 +140,8 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
         BrushPlane_FindIndexInBrush(&brush->halfspaces, p, &indexOfPlane, EPS_NORMAL);
         for (int e = 0; e < brush->planeToEdges[indexOfPlane].size(); ++e)
         {
-            std::pair<vec3, vec3> edge = brush->planeToEdges[indexOfPlane][e];
+            std::pair<int, int> edgeVertexIndices = brush->planeToEdges[indexOfPlane][e];
+            std::pair<vec3, vec3> edge = std::make_pair(brush->pointCloud[edgeVertexIndices.first], brush->pointCloud[edgeVertexIndices.second]);
             if (point.Equals(edge.first, EPS_WCS) || point.Equals(edge.second, EPS_WCS))
             {
                 vec3 neighbourPoint = point.Equals(edge.first, EPS_WCS) ? edge.second : edge.first;
@@ -256,8 +268,9 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
                 {
                     CSGPlane imaginaryPlane = closestImaginaryPlanes.At(i);
                     int numTriangleVerticesOnImaginaryPlane = 0;
-                    for (auto v : faceVertices)
+                    for (auto vi : faceVertices)
                     {
+                        vec3 v = brush->pointCloud[vi];
                         if (IsPointOnPlane(imaginaryPlane.n, imaginaryPlane.d, v, 0.001f))
                         {
                             if (++numTriangleVerticesOnImaginaryPlane == 2) break;
@@ -363,7 +376,8 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
                 bool cHasValue = false;
                 for (int e = 0; e < brush->planeToEdges[indexOfPlane].size(); ++e)
                 {
-                    std::pair<vec3, vec3> edge = brush->planeToEdges[indexOfPlane][e];
+                    std::pair<int, int> edgeVertexIndices = brush->planeToEdges[indexOfPlane][e];
+                    std::pair<vec3, vec3> edge = std::make_pair(brush->pointCloud[edgeVertexIndices.first], brush->pointCloud[edgeVertexIndices.second]);
                     vec3 otherOfEdge = vec3();
                     bool otherOfEdgeHasValue = false;
                     if (point.Equals(edge.first, EPS_WCS))
@@ -409,7 +423,8 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
 
                 for (int e = 0; e < brush->planeToEdges[indexOfPlane].size(); ++e)
                 {
-                    std::pair<vec3, vec3> edge = brush->planeToEdges[indexOfPlane][e];
+                    std::pair<int, int> edgeVertexIndices = brush->planeToEdges[indexOfPlane][e];
+                    std::pair<vec3, vec3> edge = std::make_pair(brush->pointCloud[edgeVertexIndices.first], brush->pointCloud[edgeVertexIndices.second]);
                     if (!point.Equals(edge.first, EPS_WCS)
                         && !point.Equals(edge.second, EPS_WCS)
                         && !newPoint.Equals(edge.first, EPS_WCS)
@@ -448,7 +463,8 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
             bool cHasValue = false;
             for (int e = 0; e < brush->planeToEdges[indexOfPlane].size(); ++e)
             {
-                std::pair<vec3, vec3> edge = brush->planeToEdges[indexOfPlane][e];
+                std::pair<int, int> edgeVertexIndices = brush->planeToEdges[indexOfPlane][e];
+                std::pair<vec3, vec3> edge = std::make_pair(brush->pointCloud[edgeVertexIndices.first], brush->pointCloud[edgeVertexIndices.second]);
                 vec3 otherOfEdge = vec3();
                 bool otherOfEdgeHasValue = false;
                 if (point.Equals(edge.first, EPS_WCS))
@@ -551,8 +567,9 @@ void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush)
                             // incorrect halfspace that makes containedWithinEveryHalfspace = false for most
                             // should-be-valid points, or the number of points in pointCloud is correct but 
                             // there are two similar planes or smth and so planeToVertices gets fucked up
-                            brush->pointToPlanes[brush->pointCloud.size() - 1].push_back(p);
-                            brush->planeToVertices[p].push_back(intersectionPoint);
+                            int indexOfPointInCloud = brush->pointCloud.size() - 1;
+                            brush->pointToPlanes[indexOfPointInCloud].push_back(p);
+                            brush->planeToVertices[p].push_back(indexOfPointInCloud);
                         }
                     }
                 }
@@ -580,9 +597,12 @@ void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush)
                 {
                     for (int commonJ = commonI + 1; commonJ < commonVertices.size(); ++commonJ)
                     {
-                        std::pair<vec3, vec3> commonEdge = std::make_pair(commonVertices[commonI], commonVertices[commonJ]);
-                        brush->planeToEdges[i].push_back(commonEdge);
-                        brush->planeToEdges[j].push_back(commonEdge);
+                        int cei = -1;
+                        int cej = -1;
+                        BrushPoint_FindIndexInBrush(&brush->pointCloud, commonVertices[commonI], &cei, 0.f);
+                        BrushPoint_FindIndexInBrush(&brush->pointCloud, commonVertices[commonJ], &cej, 0.f);
+                        brush->planeToEdges[i].push_back(std::make_pair(cei, cej));
+                        brush->planeToEdges[j].push_back(std::make_pair(cei, cej));
                     }
                 }
             }
@@ -605,8 +625,8 @@ void UpdateBrushFacesForDrawing(CSGBrush* brush)
     for (int i = 0; i < brush->halfspaces.size(); ++i)
     {
         if (brush->planeToEdges[i].size() < 3) continue;
-        std::vector<vec3> verts = brush->planeToVertices[i];
-        vec3 pickedVert = verts[0];
+        std::vector<int> vertsIndices = brush->planeToVertices[i];
+        vec3 pickedVert = brush->pointCloud[vertsIndices[0]];
 
         LevelGeometry::FaceBatch face;
         LevelGeometry::CreateFaceBatchMeshOnGPU(&face.idVAO, &face.idVBO);
@@ -615,7 +635,8 @@ void UpdateBrushFacesForDrawing(CSGBrush* brush)
 
         for (int e = 0; e < brush->planeToEdges[i].size(); ++e)
         {
-            std::pair<vec3,vec3> edge = brush->planeToEdges[i][e];
+            std::pair<int, int> edgeVertexIndices = brush->planeToEdges[i][e];
+            std::pair<vec3, vec3> edge = std::make_pair(brush->pointCloud[edgeVertexIndices.first], brush->pointCloud[edgeVertexIndices.second]);
             if (!pickedVert.Equals(edge.first, EPS_WCS) && !pickedVert.Equals(edge.second, EPS_WCS))
             {
                 float uvScale = (1.f / 256.f);
