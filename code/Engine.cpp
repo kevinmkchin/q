@@ -1,5 +1,8 @@
 /**  TODO
 
+- Change it so that even if selected point is not aligned to grid, the next desired move point MUST BE aligned to grid
+    just snap the values of next desired move point to be aligned to grid.
+
     /// TODO(Kevin)
     ///
     /// -selected brush shows up as translucent (only translucent to show its own edges, not brushes behind it)
