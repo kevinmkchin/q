@@ -219,6 +219,28 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
             float distanceToPointOfIntersection = Magnitude(pointOfIntersection - point);
             if (!pointOfIntersection.Equals(point, EPS_WCS) && distanceToPointOfIntersection <= Magnitude(vecToNewPoint) + 0.01f)
             {
+                // check if imaginary plane has every brush point in its halfspace except for original point
+                bool badImaginaryPlane = false;
+                for (int i = 0; i < brush->pointCloud.size(); ++i)
+                {
+                    CSGPlane planeHalfspace = imaginaryPlane;
+                    int isImaginaryPlaneARealExistingPlane = -1;
+                    BrushPlane_FindIndexInBrush(&existingPlanes, planeHalfspace, &isImaginaryPlaneARealExistingPlane, 0.001f);
+                    if (isImaginaryPlaneARealExistingPlane < 0)
+                    {
+                        planeHalfspace.n = -planeHalfspace.n;
+                        planeHalfspace.d = -planeHalfspace.d;
+                    }
+
+                    vec3 check = brush->pointCloud[i];
+                    if (!check.Equals(point, 0.0001f) && !IsPointContainedInHalfSpace(planeHalfspace.n, planeHalfspace.d, check, 0.0001f))
+                    {
+                        badImaginaryPlane = true;
+                        break;
+                    }
+                }
+                if (badImaginaryPlane) continue;
+
                 _intersectedImaginaryPlanes.PushBack(imaginaryPlane);
                 _potentialPointsOfIntersection.PushBack(pointOfIntersection);
                 _intersectionPointDistanceToOriginalPoint.PushBack(distanceToPointOfIntersection);
