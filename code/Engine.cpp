@@ -1,15 +1,11 @@
 /**  TODO
 
-- WHEN we are done calculating the pointClouds and info like which planes have which points, then we can 
-  snap all the points to multiple of grid size, and make sure to update the points in the other infos,
-  then update the halfspace values too which we can calculate since we know which points are on which plane
-  and these points will be rounded to multiple of grid size
-- this way, we can probably remove a lot of reliance on big epsilon values
-- also make sure to update the way we calculate movedPoint and selectedPoint in EditorRuntime correspondingly
+
+- When projX Y Z are large, move large distance at once instead of repeating moves in small increments
+- Are epsilon values too big rn??
 
 
-- Change it so that even if selected point is not aligned to grid, the next desired move point MUST BE aligned to grid
-    just snap the values of next desired move point to be aligned to grid.
+
 
     /// TODO(Kevin)
     ///
@@ -22,12 +18,10 @@
     /// -upon click, user can drag mouse to move circle/vertex
     /// -with vertex tool, clicking and holding down left click on circle shows translucent yellow lines along the axes
     ///
-    /// -update intersections function
     /// -face tool and edge tool is just vertex tool w diff num of vertices selected
     ///
     /// -the things that move show up in yellow, so vertices if vertex mode, edges if edge mode, faces if face mode
-    ///
-    /// Do something about vertex coordinates becoming hella imprecise
+
 
     // place points and extrude tool: extrude in direction of normal (cross product) thus extrude only available when placed points are 2D.
     //                                if points are in a 3D cloud, then do a bunch of cross products to get a bunch of planes, clean up unused or duplicate planes,
