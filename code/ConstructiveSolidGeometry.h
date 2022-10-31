@@ -49,7 +49,7 @@ struct CSGBrush
 };
 
 void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* brush, vec3* ye);
-void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush);
+void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush, vec3* ye);
 void UpdateBrushFacesForDrawing(CSGBrush* brush);
 
 bool BrushContainsPoint(CSGBrush* brush, vec3 point, float eps);

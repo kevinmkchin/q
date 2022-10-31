@@ -508,7 +508,7 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
     // we know that, as long as brush->halfspaces is correct, all subsequent vectors and calculations will be correct
 }
 
-void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush)
+void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush, vec3* ye)
 {
     brush->pointCloud.clear();
     brush->pointToPlanes.clear();
@@ -567,7 +567,7 @@ void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush)
                             // incorrect halfspace that makes containedWithinEveryHalfspace = false for most
                             // should-be-valid points, or the number of points in pointCloud is correct but 
                             // there are two similar planes or smth and so planeToVertices gets fucked up
-                            int indexOfPointInCloud = brush->pointCloud.size() - 1;
+                            int indexOfPointInCloud = int(brush->pointCloud.size() - 1);
                             brush->pointToPlanes[indexOfPointInCloud].push_back(p);
                             brush->planeToVertices[p].push_back(indexOfPointInCloud);
                         }
@@ -576,6 +576,67 @@ void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush)
             }
         }
     }
+
+    //u32 _gridSize = 4000;
+    // sanitize
+    float _gridSize = 1.f;
+    float _modulusMult = 100000.f;
+    float _inverseModulusMult = 1.f / _modulusMult;
+    std::vector<vec3> snappedPointCloud;
+    snappedPointCloud.reserve(brush->pointCloud.size());
+    for (int i = 0; i < brush->pointCloud.size(); ++i)
+    {
+        vec3 realPoint = brush->pointCloud[i];
+        vec3 snappedPoint;
+        float realx = float((int)(realPoint.x * 10000.f + .5f)) * 0.0001f;
+        realx = (realx + GM_sgn(realx) * _gridSize * 0.5f);
+        snappedPoint.x = realx - _inverseModulusMult * (int(realx * _modulusMult) % int(_gridSize * _modulusMult));
+        float realy = float((int)(realPoint.y * 10000.f + .5f)) * 0.0001f;
+        realy = (realy + GM_sgn(realy) * _gridSize * 0.5f);
+        snappedPoint.y = realy - _inverseModulusMult * (int(realy * _modulusMult) % int(_gridSize * _modulusMult));
+        float realz = float((int)(realPoint.z * 10000.f + .5f)) * 0.0001f;
+        realz = (realz + GM_sgn(realz) * _gridSize * 0.5f);
+        snappedPoint.z = realz - _inverseModulusMult * (int(realz * _modulusMult) % int(_gridSize * _modulusMult));
+
+        //temp
+        snappedPoint.x = float(int(snappedPoint.x + 0.5f - (snappedPoint.x < 0.f)));
+        snappedPoint.y = float(int(snappedPoint.y + 0.5f - (snappedPoint.y < 0.f)));
+        snappedPoint.z = float(int(snappedPoint.z + 0.5f - (snappedPoint.z < 0.f)));
+
+        snappedPointCloud.push_back(snappedPoint);
+
+        if (realPoint.Equals(*ye, 0.f))
+        {
+            *ye = snappedPoint;
+        }
+    }
+
+    for (int hn = 0; hn < brush->halfspaces.size(); ++hn)
+    {
+        std::vector<int> hsVertexIndices = brush->planeToVertices[hn];
+        if (hsVertexIndices.size() < 3)
+        {
+            PrintLog.Error("there are less than 3 vertices on some plane...");
+            continue;
+        }
+        vec3 a = snappedPointCloud[hsVertexIndices[0]];
+        vec3 b = snappedPointCloud[hsVertexIndices[1]];
+        vec3 c = snappedPointCloud[hsVertexIndices[2]];
+        vec3 ba = b - a;
+        vec3 ca = c - a;
+        vec3 crossProduct = Normalize(Cross(ba, ca));
+        CSGPlane snappedHalfspacePlane;
+        snappedHalfspacePlane.n = crossProduct;
+        snappedHalfspacePlane.d = Dot(a, crossProduct);
+        if (Dot(brush->halfspaces[hn].n, snappedHalfspacePlane.n) < 0.f) // wrong direction as old plane
+        {
+            snappedHalfspacePlane.n = -snappedHalfspacePlane.n;
+            snappedHalfspacePlane.d = -snappedHalfspacePlane.d;
+        }
+        brush->halfspaces[hn] = snappedHalfspacePlane;
+    }
+    brush->pointCloud = snappedPointCloud;
+
 
     // at this point, 
     //      brush->pointCloud
@@ -775,7 +836,8 @@ CSGBrush* DoSmth()
     brush->halfspaces.push_back(p5);
     //brush->halfspaces.push_back(slice);
 
-    UpdateBrushVerticesEdgesDataFromHalfSpaces(brush);
+    vec3 temp = vec3();
+    UpdateBrushVerticesEdgesDataFromHalfSpaces(brush, &temp);
     UpdateBrushFacesForDrawing(brush);
 
     return brush;
