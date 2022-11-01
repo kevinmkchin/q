@@ -46,6 +46,8 @@ struct CSGBrush
     std::unordered_map<int, std::vector<std::pair<int, int>>> planeToEdges;
 
     std::vector<LevelGeometry::FaceBatch> facesForDrawing;
+
+    std::vector<std::pair<int, int>> edgesSet;
 };
 
 void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* brush, vec3* ye);

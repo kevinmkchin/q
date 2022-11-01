@@ -570,6 +570,7 @@ void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush, vec3* ye)
     brush->pointToPlanes.clear();
     brush->planeToVertices.clear();
     brush->planeToEdges.clear();
+    brush->edgesSet.clear();
 
     int halfspacesN = (int)brush->halfspaces.size();
     for (int i = 0; i < halfspacesN - 2; ++i)

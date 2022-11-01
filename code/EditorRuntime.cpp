@@ -100,6 +100,13 @@ void EditorRuntime::UpdateEditor()
             }
         }
     }
+    for (int i = 0; i < brush_0->edgesSet.size(); ++i)
+    {
+        auto edge = brush_0->edgesSet[i];
+        vec3 p1 = brush_0->pointCloud[edge.first];
+        vec3 p2 = brush_0->pointCloud[edge.second];
+        Handles::DrawLine(p1, p2, vec4(1.f, 0.f, 0.f, 1.f));
+    }
 
     if (Input.mouseLeftHasBeenPressed && selectedPointToCamDistance < FLT_MAX)
     {
