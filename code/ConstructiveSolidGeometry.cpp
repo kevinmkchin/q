@@ -599,31 +599,24 @@ void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush, vec3* ye)
         }
     }
 
-    //u32 _gridSize = 4000;
-    // sanitize
-    float _gridSize = 1.f;
-    float _modulusMult = 100000.f;
-    float _inverseModulusMult = 1.f / _modulusMult;
+    
+    // SANITIZE
+
     std::vector<vec3> snappedPointCloud;
     snappedPointCloud.reserve(brush->pointCloud.size());
     for (int i = 0; i < brush->pointCloud.size(); ++i)
     {
-        vec3 realPoint = brush->pointCloud[i];
         vec3 snappedPoint;
-        float realx = float((int)(realPoint.x * 10000.f + .5f)) * 0.0001f;
-        realx = (realx + GM_sgn(realx) * _gridSize * 0.5f);
-        snappedPoint.x = realx - _inverseModulusMult * (int(realx * _modulusMult) % int(_gridSize * _modulusMult));
-        float realy = float((int)(realPoint.y * 10000.f + .5f)) * 0.0001f;
-        realy = (realy + GM_sgn(realy) * _gridSize * 0.5f);
-        snappedPoint.y = realy - _inverseModulusMult * (int(realy * _modulusMult) % int(_gridSize * _modulusMult));
-        float realz = float((int)(realPoint.z * 10000.f + .5f)) * 0.0001f;
-        realz = (realz + GM_sgn(realz) * _gridSize * 0.5f);
-        snappedPoint.z = realz - _inverseModulusMult * (int(realz * _modulusMult) % int(_gridSize * _modulusMult));
+        vec3 realPoint = brush->pointCloud[i];
 
-        //temp
-        snappedPoint.x = float(int(snappedPoint.x + 0.5f - (snappedPoint.x < 0.f)));
-        snappedPoint.y = float(int(snappedPoint.y + 0.5f - (snappedPoint.y < 0.f)));
-        snappedPoint.z = float(int(snappedPoint.z + 0.5f - (snappedPoint.z < 0.f)));
+        // 2022-11-01 Kevin - Initially I wanted to snap points to the grid but I see now that
+        // just rounding them to the nearest integer is enough to eliminate floating point imprecision
+        // issues.
+
+        // Round to nearest integer
+        snappedPoint.x = float(int(realPoint.x + 0.5f - (realPoint.x < 0.f)));
+        snappedPoint.y = float(int(realPoint.y + 0.5f - (realPoint.y < 0.f)));
+        snappedPoint.z = float(int(realPoint.z + 0.5f - (realPoint.z < 0.f)));
 
         snappedPointCloud.push_back(snappedPoint);
 
@@ -632,7 +625,6 @@ void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush, vec3* ye)
             *ye = snappedPoint;
         }
     }
-
     for (int hn = 0; hn < brush->halfspaces.size(); ++hn)
     {
         std::vector<int> hsVertexIndices = brush->planeToVertices[hn];

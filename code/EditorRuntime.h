@@ -15,9 +15,6 @@ enum class EditorToolMode
 
 enum class GridSizeTimes1000 : u32
 {
-    //Grid0125 = 125,
-    //Grid025 = 250,
-    //Grid05 = 500,
     Grid1 = 1000,
     Grid2 = 2000,
     Grid4 = 4000,
