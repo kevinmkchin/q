@@ -13,16 +13,16 @@ enum class EditorToolMode
     EditFace
 };
 
-enum class GridSizeTimes1000 : u32
+enum class EditorGridSize : u32
 {
-    Grid1 = 1000,
-    Grid2 = 2000,
-    Grid4 = 4000,
-    Grid8 = 8000,
-    Grid16 = 16000,
-    Grid32 = 32000,
-    Grid64 = 64000,
-    Grid128 = 128000
+    Grid1 = 1,
+    Grid2 = 2,
+    Grid4 = 4,
+    Grid8 = 8,
+    Grid16 = 16,
+    Grid32 = 32,
+    Grid64 = 64,
+    Grid128 = 128
 };
 
 class EditorRuntime
@@ -38,7 +38,7 @@ public:
     EditorToolMode activeToolMode = EditorToolMode::None;
 
 private:
-    GridSizeTimes1000 activeGridSize = GridSizeTimes1000::Grid1;
+    EditorGridSize activeGridSize = EditorGridSize::Grid1;
 
     bool handleDragActive = false;
     vec3 selectedDragPoint = vec3();
