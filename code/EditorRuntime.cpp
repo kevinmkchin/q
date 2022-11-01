@@ -117,7 +117,7 @@ void EditorRuntime::UpdateEditor()
         auto v = selectedDragPoint;
         char charbuf[32];
         stbsp_sprintf(charbuf, "%.1f, %.1f, %.1f", v.x, v.y, v.z);
-        printf("%s\n", charbuf);
+        //printf("%s\n", charbuf);
 
         Handles::DrawLine(v + vec3(1000.f, 0.f, 0.f), v + vec3(-1000.f, 0.f, 0.f), vec4(_RGB(248, 230, 60), 0.7f));
         Handles::DrawLine(v + vec3(0.f, 1000.f, 0.f), v + vec3(0.f, -1000.f, 0.f), vec4(_RGB(248, 230, 60), 0.7f));
