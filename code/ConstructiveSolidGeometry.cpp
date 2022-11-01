@@ -293,7 +293,6 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
                     for (auto vi : faceVertices)
                     {
                         vec3 v = brush->pointCloud[vi];
-                        // TODO(Kevin): maybe skip if v is the original point? 
                         if (IsPointOnPlane(imaginaryPlane.n, imaginaryPlane.d, v, 0.001f))
                         {
                             if (++numTriangleVerticesOnImaginaryPlane == 2) break;
