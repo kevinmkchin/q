@@ -587,7 +587,7 @@ void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush, vec3* ye)
                     + pi.n.y * (pj.n.z * pk.n.x - pj.n.x * pk.n.z)
                     + pi.n.z * (pj.n.x * pk.n.y - pj.n.y * pk.n.x);
 
-                if (GM_abs(t) <= 0.0001f) continue; // the planes are parallel
+                if (GM_abs(t) <= 0.000001f) continue; // the planes are parallel
 
                 float vx = (pi.d * (pj.n.z * pk.n.y - pj.n.y * pk.n.z) + pj.d * (pi.n.y * pk.n.z - pi.n.z * pk.n.y) + pk.d * (pi.n.z * pj.n.y - pi.n.y * pj.n.z)) / -t;
                 float vy = (pi.d * (pj.n.x * pk.n.z - pj.n.z * pk.n.x) + pj.d * (pi.n.z * pk.n.x - pi.n.x * pk.n.z) + pk.d * (pi.n.x * pj.n.z - pi.n.z * pj.n.x)) / -t;
@@ -885,7 +885,7 @@ CSGBrush* DoSmth()
     brush->halfspaces.push_back(p3);
     brush->halfspaces.push_back(p4);
     brush->halfspaces.push_back(p5);
-    //brush->halfspaces.push_back(slice);
+    brush->halfspaces.push_back(slice);
 
     vec3 temp = vec3();
     UpdateBrushVerticesEdgesDataFromHalfSpaces(brush, &temp);
