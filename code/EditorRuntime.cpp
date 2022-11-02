@@ -14,8 +14,6 @@
 int num = 10;
 float numf = 6.4f;
 
-// brush visual data is bound to gpu on creation -> take vao vbo id
-// vao vbo is updated when brush is modified
 
 // TODO(Kevin): probably need optimization like face batching or smth eventually
 
@@ -25,7 +23,7 @@ static GameCamera editorCamera;
 void EditorRuntime::StartEditor()
 {
     Engine.gfx->activeGameCamera = &editorCamera;
-    editorCamera.position.x = -512.f;
+    editorCamera.position.x = -128.f;
     
     brush_0 = DoSmth();
 }
@@ -60,7 +58,7 @@ void EditorRuntime::UpdateEditor()
         SDL_SetRelativeMouseMode(SDL_FALSE);
     }
     vec3 camPos = editorCamera.position;
-    float moveSpeed = 512.f;
+    float moveSpeed = 128.f;
     if (Input.KeyPressed(SDL_SCANCODE_W))
         camPos += Engine.gfx->activeGameCamera->calculatedDirection * moveSpeed * Time.deltaTime;
     if (Input.KeyPressed(SDL_SCANCODE_A))
@@ -153,7 +151,6 @@ void EditorRuntime::UpdateEditor()
                         projY = Dot(intersection - dragOrigin, GM_UP_VECTOR);
                     }
                 }
-                Handles::DrawLine(dragOrigin, dragOrigin + GM_UP_VECTOR * projY, 3.f, vec4(1, 0, 1, 1));
 
                 if (GM_abs(projY) > (float)activeGridSize * 0.5f)
                 {
@@ -175,9 +172,7 @@ void EditorRuntime::UpdateEditor()
                 if (FindIntersectionBetweenPlaneAndVector(GM_UP_VECTOR, dragOrigin.y, Normalize(wp - editorCamera.position), editorCamera.position, &intersection))
                 {
                     float projX = Dot(intersection - dragOrigin, GM_FORWARD_VECTOR);
-                    Handles::DrawLine(dragOrigin, dragOrigin + GM_FORWARD_VECTOR * projX, 3.f, vec4(1, 0, 1, 1));
                     float projZ = Dot(intersection - dragOrigin, GM_RIGHT_VECTOR);
-                    Handles::DrawLine(dragOrigin, dragOrigin + GM_RIGHT_VECTOR * projZ, 3.f, vec4(1, 0, 1, 1));
 
                     bool moveX = GM_abs(projX) > (float)activeGridSize * 0.5f;
                     bool moveZ = GM_abs(projZ) > (float)activeGridSize * 0.5f;

@@ -751,7 +751,7 @@ void UpdateBrushFacesForDrawing(CSGBrush* brush)
             std::pair<vec3, vec3> edge = std::make_pair(brush->pointCloud[edgeVertexIndices.first], brush->pointCloud[edgeVertexIndices.second]);
             if (!pickedVert.Equals(edge.first, EPS_WCS) && !pickedVert.Equals(edge.second, EPS_WCS))
             {
-                float uvScale = (1.f / 256.f);
+                float uvScale = (1.f / 32.f);
 
                 // then there is a tri between pickedVert, edge.first, and edge.second
                 vec3 a = pickedVert;
@@ -857,26 +857,26 @@ CSGBrush* DoSmth()
 // planes data
     CSGPlane p0;
     p0.n = Normalize(vec3(1, 0, 0));
-    p0.d = 64.f;
+    p0.d = 16.f;
     CSGPlane p1;
     p1.n = Normalize(vec3(0, 1, 0));
-    p1.d = 64.f;
+    p1.d = 16.f;
     CSGPlane p2;
     p2.n = Normalize(vec3(0, 0, 1));
-    p2.d = 64.f;
+    p2.d = 16.f;
     CSGPlane p3;
     p3.n = Normalize(vec3(-1, 0, 0));
-    p3.d = 64.f;
+    p3.d = 16.f;
     CSGPlane p4;
     p4.n = Normalize(vec3(0, -1, 0));
-    p4.d = 64.f;
+    p4.d = 16.f;
     CSGPlane p5;
     p5.n = Normalize(vec3(0, 0, -1));
-    p5.d = 64.f;
+    p5.d = 16.f;
 
     CSGPlane slice;
     slice.n = Normalize(vec3(1,1,0));
-    slice.d = 64.f;
+    slice.d = 16.f;
 
     CSGBrush* brush = new CSGBrush();
     brush->halfspaces.push_back(p0);
