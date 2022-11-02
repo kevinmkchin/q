@@ -711,8 +711,10 @@ void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush, vec3* ye)
                         int cej = -1;
                         BrushPoint_FindIndexInBrush(&brush->pointCloud, commonVertices[commonI], &cei, 0.f);
                         BrushPoint_FindIndexInBrush(&brush->pointCloud, commonVertices[commonJ], &cej, 0.f);
-                        brush->planeToEdges[i].push_back(std::make_pair(cei, cej));
-                        brush->planeToEdges[j].push_back(std::make_pair(cei, cej));
+                        std::pair<int, int> edge = std::make_pair(cei, cej);
+                        brush->planeToEdges[i].push_back(edge);
+                        brush->planeToEdges[j].push_back(edge);
+                        brush->edgesSet.push_back(edge);
                     }
                 }
             }

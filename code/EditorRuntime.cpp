@@ -157,7 +157,9 @@ void EditorRuntime::UpdateEditor()
 
                 if (GM_abs(projY) > (float)activeGridSize * 0.5f)
                 {
-                    vec3 movedPoint = selectedDragPoint + vec3(0.f, GM_sgn(projY) * (float)activeGridSize, 0.f);
+                    int projReadyToSnap = int(projY + GM_sgn(projY) * (float)activeGridSize * 0.5f);
+                    float moveDelta = float(projReadyToSnap - (projReadyToSnap % (int)activeGridSize));
+                    vec3 movedPoint = selectedDragPoint + vec3(0.f, moveDelta, 0.f);
                     MovePointOnBrushAndUpdateHalfSpaces(selectedDragPoint, movedPoint, brush_0, &movedPoint);
                     UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0, &movedPoint);
                     UpdateBrushFacesForDrawing(brush_0);
@@ -182,7 +184,9 @@ void EditorRuntime::UpdateEditor()
 
                     if (moveX)
                     {
-                        vec3 movedPoint = selectedDragPoint + vec3(GM_sgn(projX) * (float)activeGridSize, 0.f, 0.f);
+                        int projReadyToSnap = int(projX + GM_sgn(projX) * (float)activeGridSize * 0.5f);
+                        float moveDelta = float(projReadyToSnap - (projReadyToSnap % (int)activeGridSize));
+                        vec3 movedPoint = selectedDragPoint + vec3(moveDelta, 0.f, 0.f);
                         MovePointOnBrushAndUpdateHalfSpaces(selectedDragPoint, movedPoint, brush_0, &movedPoint);
                         UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0, &movedPoint);
                         UpdateBrushFacesForDrawing(brush_0);
@@ -194,7 +198,9 @@ void EditorRuntime::UpdateEditor()
                     }
                     if (moveZ)
                     {
-                        vec3 movedPoint = selectedDragPoint + vec3(0.f, 0.f, GM_sgn(projZ) * (float)activeGridSize);
+                        int projReadyToSnap = int(projZ + GM_sgn(projZ) * (float)activeGridSize * 0.5f);
+                        float moveDelta = float(projReadyToSnap - (projReadyToSnap % (int)activeGridSize));
+                        vec3 movedPoint = selectedDragPoint + vec3(0.f, 0.f, moveDelta);
                         MovePointOnBrushAndUpdateHalfSpaces(selectedDragPoint, movedPoint, brush_0, &movedPoint);
                         UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0, &movedPoint);
                         UpdateBrushFacesForDrawing(brush_0);

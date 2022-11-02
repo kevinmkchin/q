@@ -1,7 +1,5 @@
 /**  TODO
 
-
-- When projX Y Z are large, move large distance at once instead of repeating moves in small increments
 - Are epsilon values too big rn??
 
 
