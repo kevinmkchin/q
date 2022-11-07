@@ -5,7 +5,7 @@
 
 #include "Utils.h"
 
-static bool AddUniqueValidHalfspaceToBrush(std::vector<CSGPlane>* hsptr, CSGPlane p, float eps)
+static bool AddPlaneToUniqueSetOfPlanes(std::vector<CSGPlane>* hsptr, CSGPlane p, float eps)
 {
     if (p.n.Equals(vec3(0.f, 0.f, 0.f), 0.f)) return false;
     bool alreadyExist = false;
@@ -16,7 +16,7 @@ static bool AddUniqueValidHalfspaceToBrush(std::vector<CSGPlane>* hsptr, CSGPlan
     return !alreadyExist;
 }
 
-static bool RemoveHalfspaceFromBrush(std::vector<CSGPlane>* hsptr, CSGPlane p, float eps)
+static bool RemovePlaneFromUniqueSetOfPlanes(std::vector<CSGPlane>* hsptr, CSGPlane p, float eps)
 {
     for (int i = 0; i < hsptr->size(); ++i)
     {
@@ -203,7 +203,7 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
                         intersectionCheckingPlane.n = -intersectionCheckingPlane.n;
                         intersectionCheckingPlane.d = -intersectionCheckingPlane.d;
                     }
-                    AddUniqueValidHalfspaceToBrush(&potentialIntersectingPlanes, intersectionCheckingPlane, 0.001f);// shouldn't add two same ones?
+                    AddPlaneToUniqueSetOfPlanes(&potentialIntersectingPlanes, intersectionCheckingPlane, 0.001f);// shouldn't add two same ones?
                 }
             }
         }
@@ -285,7 +285,7 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
                         createdPlane.n = -createdPlane.n;
                         createdPlane.d = -createdPlane.d;
                     }
-                    AddUniqueValidHalfspaceToBrush(&newlyCreatedPlanes, createdPlane, 0.00005f);
+                    AddPlaneToUniqueSetOfPlanes(&newlyCreatedPlanes, createdPlane, 0.00005f);
                 }
             }
         }
@@ -335,8 +335,8 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
                 createdPlane.n = -createdPlane.n;
                 createdPlane.d = -createdPlane.d;
             }
-            AddUniqueValidHalfspaceToBrush(&newlyCreatedPlanes, plane, 0.00005f);
-            AddUniqueValidHalfspaceToBrush(&newlyCreatedPlanes, createdPlane, 0.00005f);
+            AddPlaneToUniqueSetOfPlanes(&newlyCreatedPlanes, plane, 0.00005f);
+            AddPlaneToUniqueSetOfPlanes(&newlyCreatedPlanes, createdPlane, 0.00005f);
         }
     }
 
@@ -344,7 +344,7 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
     // add unique set of new planes to brush->halfspaces
     for(auto pl : affectedFacePlanes)
     {
-        RemoveHalfspaceFromBrush(&brush->halfspaces, pl, 0.f);
+        RemovePlaneFromUniqueSetOfPlanes(&brush->halfspaces, pl, 0.f);
     }
 
     for (auto p : newlyCreatedPlanes)
@@ -354,7 +354,7 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
             printf("breh 000\n");
             continue;
         }
-        AddUniqueValidHalfspaceToBrush(&brush->halfspaces, p, 0.00005f);
+        AddPlaneToUniqueSetOfPlanes(&brush->halfspaces, p, 0.00005f);
     }
 
     // we know that, as long as brush->halfspaces is correct, all subsequent vectors and calculations will be correct
@@ -681,7 +681,7 @@ CSGBrush* DoSmth()
     brush->halfspaces.push_back(p3);
     brush->halfspaces.push_back(p4);
     brush->halfspaces.push_back(p5);
-    brush->halfspaces.push_back(slice);
+    //brush->halfspaces.push_back(slice);
 
     vec3 temp = vec3();
     UpdateBrushVerticesEdgesDataFromHalfSpaces(brush, &temp);
