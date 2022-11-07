@@ -43,7 +43,7 @@ static void BrushPoint_FindIndexInBrush(std::vector<vec3>* pointCloud, vec3 vToF
     }
 }
 
-static void BrushPlane_FindIndexInBrush(std::vector<CSGPlane>* brushPlanes, 
+static void BrushPlane_FindIndexInBrush(const std::vector<CSGPlane>* brushPlanes,
                                         CSGPlane vToFind,
                                         int* out_index,
                                         float eps = 0.001f)
@@ -166,8 +166,17 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
         }
     }
 
-    std::vector<CSGPlane> existingPlanes = brush->halfspaces;
-    std::vector<CSGPlane> imaginaryPlanes;
+    const std::vector<CSGPlane> existingPlanes = brush->halfspaces;
+    std::vector<CSGPlane> potentialIntersectingPlanes;
+    for(const CSGPlane p : existingPlanes)
+    {
+        int check = -1;
+        BrushPlane_FindIndexInBrush(&affectedFacePlanes, p, &check);
+        if(check < 0)
+        {
+            potentialIntersectingPlanes.push_back(p);
+        }
+    }
 
     vec3 vecToNewPoint = newPoint - point;
     vec3 vecToNewPointNormalized = Normalize(vecToNewPoint);
@@ -189,126 +198,37 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
                     CSGPlane intersectionCheckingPlane;
                     intersectionCheckingPlane.n = crossProduct;
                     intersectionCheckingPlane.d = Dot(neighbouringPoints[i], crossProduct);
-                    if (Dot(vecToNewPointNormalized, intersectionCheckingPlane.n) < 0.f) // wrong direction as old plane
+                    if (Dot(vecToNewPointNormalized, intersectionCheckingPlane.n) < 0.f)
                     {
                         intersectionCheckingPlane.n = -intersectionCheckingPlane.n;
                         intersectionCheckingPlane.d = -intersectionCheckingPlane.d;
                     }
-                    AddUniqueValidHalfspaceToBrush(&imaginaryPlanes, intersectionCheckingPlane, 0.001f);// shouldn't add two same ones?
+                    AddUniqueValidHalfspaceToBrush(&potentialIntersectingPlanes, intersectionCheckingPlane, 0.001f);// shouldn't add two same ones?
                 }
             }
         }
     }
 
-
-    // CHECK for planes of intersection?
-    // what if theres more than one plane of intersection?
-
-    // if intersect w imaginary plane, remove all neighbour planes if num points on plane is 3
-    // OR if more than 3 points, then remove if fold out movement ??
-    // if fold in movement then 
-
-    NiceArray<CSGPlane, 6> _intersectedImaginaryPlanes;
-    NiceArray<vec3, 6> _potentialPointsOfIntersection;
-    NiceArray<float, 6> _intersectionPointDistanceToOriginalPoint;
-    for (auto imaginaryPlane : imaginaryPlanes)
+    float _shortestDistanceAwaySoFar = FLT_MAX;
+    for (auto p : potentialIntersectingPlanes)
     {
-        if (!IsPointContainedInHalfSpace(imaginaryPlane.n, imaginaryPlane.d, point, 0.f)) continue;
         vec3 l0 = point;
         vec3 l = vecToNewPointNormalized;
-        float ldotn = Dot(l, imaginaryPlane.n);
+        float ldotn = Dot(l, p.n);
         vec3 pointOfIntersection;
-        if (ldotn > 0.001f && FindIntersectionBetweenPlaneAndVector(imaginaryPlane.n, imaginaryPlane.d, l, l0, &pointOfIntersection))
+        if (ldotn > EPS_NORMAL // only if same direction as plane normal? AND not zero
+            && FindIntersectionBetweenPlaneAndVector(p.n, p.d, l, l0, &pointOfIntersection))
         {
-            float distanceToPointOfIntersection = Magnitude(pointOfIntersection - point);
-            if (!pointOfIntersection.Equals(point, EPS_WCS) && distanceToPointOfIntersection <= Magnitude(vecToNewPoint) + 0.01f)
+            float iterDist = Magnitude(pointOfIntersection - point);
+            if (!pointOfIntersection.Equals(point, EPS_WCS)
+                && iterDist < Magnitude(vecToNewPoint))
             {
-                // check if imaginary plane has every brush point in its halfspace except for original point
-                bool badImaginaryPlane = false;
-                for (int i = 0; i < brush->pointCloud.size(); ++i)
+                if (iterDist - 0.01f <= _shortestDistanceAwaySoFar)
                 {
-                    CSGPlane planeHalfspace = imaginaryPlane;
-                    int isImaginaryPlaneARealExistingPlane = -1;
-                    BrushPlane_FindIndexInBrush(&existingPlanes, planeHalfspace, &isImaginaryPlaneARealExistingPlane, 0.001f);
-                    if (isImaginaryPlaneARealExistingPlane < 0)
+                    if (iterDist + 0.01f < _shortestDistanceAwaySoFar)
                     {
-                        planeHalfspace.n = -planeHalfspace.n;
-                        planeHalfspace.d = -planeHalfspace.d;
-                    }
-
-                    vec3 check = brush->pointCloud[i];
-                    if (!check.Equals(point, 0.0001f) && !IsPointContainedInHalfSpace(planeHalfspace.n, planeHalfspace.d, check, 0.0001f))
-                    {
-                        badImaginaryPlane = true;
-                        break;
-                    }
-                }
-                if (badImaginaryPlane) continue;
-
-                _intersectedImaginaryPlanes.PushBack(imaginaryPlane);
-                _potentialPointsOfIntersection.PushBack(pointOfIntersection);
-                _intersectionPointDistanceToOriginalPoint.PushBack(distanceToPointOfIntersection);
-            }
-        }
-    }
-    // When intersect w multiple imaginary planes (given that the intersecting point 
-    // is closer than the point we want to move to), and the distance to more than one 
-    // imaginary plane are the same (e.g. if two intersecting imaginary planes are the 
-    // same distance away from the original point), then add multiple imaginary planes 
-    // as real planes.
-    NiceArray<CSGPlane, 6> closestImaginaryPlanes;
-    float _shortestDistanceAwaySoFar = FLT_MAX;
-    for (int i = 0; i < _intersectedImaginaryPlanes.count; ++i)
-    {
-        float iterDist = _intersectionPointDistanceToOriginalPoint.At(i);
-        if (iterDist - 0.01f <= _shortestDistanceAwaySoFar)
-        {
-            if (iterDist + 0.01f < _shortestDistanceAwaySoFar)
-            {
-                closestImaginaryPlanes.ResetCount();
-                _shortestDistanceAwaySoFar = iterDist;
-
-                newPoint = _potentialPointsOfIntersection.At(i);
-                *ye = newPoint;
-            }
-            closestImaginaryPlanes.PushBack(_intersectedImaginaryPlanes.At(i));
-        }
-    }
-
-    if(closestImaginaryPlanes.count == 0) // then check for intersection against existing real planes
-    {
-        NiceArray<CSGPlane, 6> closestExistingPlanes;
-        NiceArray<vec3, 6> _pointsOfIntersectionWithExistingPlanes;
-        float closestDistanceSoFar = FLT_MAX;
-        std::vector<CSGPlane> filteredExistingPlanes = existingPlanes;
-        for (int i = 0; i < affectedFacePlanes.size(); ++i)
-        {
-            RemoveHalfspaceFromBrush(&filteredExistingPlanes, affectedFacePlanes[i], 0.0000001f);
-        }
-        for (auto existingPlane : filteredExistingPlanes)
-        {
-            vec3 l0 = point;
-            vec3 l = vecToNewPointNormalized;
-            float ldotn = Dot(l, existingPlane.n);
-            vec3 pointOfIntersection;
-            if (ldotn > 0.001f && FindIntersectionBetweenPlaneAndVector(existingPlane.n, existingPlane.d, l, l0, &pointOfIntersection))
-            {
-                float distanceToPointOfIntersection = Magnitude(pointOfIntersection - point);
-                if (!pointOfIntersection.Equals(point, EPS_WCS) && distanceToPointOfIntersection <= Magnitude(vecToNewPoint) + 0.01f)
-                {
-                    if (distanceToPointOfIntersection - 0.01f <= closestDistanceSoFar)
-                    {
-                        if (distanceToPointOfIntersection + 0.01f < closestDistanceSoFar)
-                        {
-                            closestExistingPlanes.ResetCount();
-                            _pointsOfIntersectionWithExistingPlanes.ResetCount();
-                            closestDistanceSoFar = distanceToPointOfIntersection;
-
-                            newPoint = pointOfIntersection;
-                            *ye = pointOfIntersection;
-                        }
-                        closestExistingPlanes.PushBack(existingPlane);
-                        _pointsOfIntersectionWithExistingPlanes.PushBack(pointOfIntersection);
+                        newPoint = pointOfIntersection;
+                        *ye = pointOfIntersection;
                     }
                 }
             }
@@ -334,8 +254,8 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
         bool planeCreatedForEveryNonNeighbourEdge = true;
         if (brush->planeToVertices[indexOfPlane].size() > 3)
         {
-            bool onPlane = IsPointOnPlane(plane.n, plane.d, newPoint, 0.01f);
-            bool contained = IsPointContainedInHalfSpace(plane.n, plane.d, newPoint, 0.01f);
+            bool onPlane = IsPointOnPlane(plane.n, plane.d, newPoint, 0.000001f);
+            bool contained = IsPointContainedInHalfSpace(plane.n, plane.d, newPoint, 0.000001f);
             planeCreatedForEveryNonNeighbourEdge = onPlane || !contained;
         }
 
@@ -375,6 +295,7 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
             vec3 b = vec3();
             vec3 c = vec3();
             bool bHasValue = false;
+            bool cHasValue = false;
             for (int e = 0; e < brush->planeToEdges[indexOfPlane].size(); ++e)
             {
                 std::pair<int, int> edgeVertexIndices = brush->planeToEdges[indexOfPlane][e];
@@ -399,8 +320,10 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
                 else if (otherOfEdgeHasValue && bHasValue)
                 {
                     c = otherOfEdge;
+                    cHasValue = true;
                 }
             }
+            if (!bHasValue || !cHasValue) continue;
             vec3 ba = b - a;
             vec3 ca = c - a;
             vec3 crossProduct = Normalize(Cross(ba, ca));
@@ -433,157 +356,6 @@ void MovePointOnBrushAndUpdateHalfSpaces(vec3 point, vec3 newPoint, CSGBrush* br
         }
         AddUniqueValidHalfspaceToBrush(&brush->halfspaces, p, 0.00005f);
     }
-
-
-//    // at this point, we want to make sure EVERY plane we try to add to the brush doesn't already exist...
-//    for (auto plane : affectedFacePlanes)
-//    {
-//        if (IsPointOnPlane(plane.n, plane.d, newPoint, 0.000001f)) continue; // no change
-//
-//        int indexOfPlane = -1;
-//        BrushPlane_FindIndexInBrush(&existingPlanes, plane, &indexOfPlane, 0.001f);
-//
-//        if (brush->planeToVertices[indexOfPlane].size() > 3) // face has more than 3 points
-//        {
-//            if (IsPointContainedInHalfSpace(plane.n, plane.d, newPoint, 0.01f))
-//            {
-//                // fold in
-//                // simply add new plane formed from newPoint and the immediate neighbours of old point
-//                vec3 a = newPoint;
-//                vec3 b = vec3();
-//                vec3 c = vec3();
-//                bool bHasValue = false;
-//                bool cHasValue = false;
-//                for (int e = 0; e < brush->planeToEdges[indexOfPlane].size(); ++e)
-//                {
-//                    std::pair<int, int> edgeVertexIndices = brush->planeToEdges[indexOfPlane][e];
-//                    std::pair<vec3, vec3> edge = std::make_pair(brush->pointCloud[edgeVertexIndices.first], brush->pointCloud[edgeVertexIndices.second]);
-//                    vec3 otherOfEdge = vec3();
-//                    bool otherOfEdgeHasValue = false;
-//                    if (point.Equals(edge.first, EPS_WCS))
-//                    {
-//                        otherOfEdge = edge.second;
-//                        otherOfEdgeHasValue = true;
-//                    }
-//                    else if (point.Equals(edge.second, EPS_WCS))
-//                    {
-//                        otherOfEdge = edge.first;
-//                        otherOfEdgeHasValue = true;
-//                    }
-//                    if (otherOfEdgeHasValue && !bHasValue)
-//                    {
-//                        b = otherOfEdge;
-//                        bHasValue = true;
-//                    }
-//                    else if (otherOfEdgeHasValue && bHasValue)
-//                    {
-//                        c = otherOfEdge;
-//                        cHasValue = true;
-//                    }
-//                }
-//                if (!bHasValue || !cHasValue) continue;
-//                vec3 ba = b - a;
-//                vec3 ca = c - a;
-//                vec3 crossProduct = Normalize(Cross(ba, ca));
-//                CSGPlane createdPlane;
-//                createdPlane.n = crossProduct;
-//                createdPlane.d = Dot(newPoint, crossProduct);
-//                if (Dot(crossProduct, plane.n) < 0.f) // wrong direction as old plane
-//                {
-//                    createdPlane.n = -createdPlane.n;
-//                    createdPlane.d = -createdPlane.d;
-//                }
-//                AddUniqueValidHalfspaceToBrush(&brush->halfspaces, createdPlane, 0.00005f); // TODO(Kevin): revisit epsilon
-//            }
-//            else
-//            {
-//                // fold out
-//                // remove og plane from halfspaces, then add plane formed from new point and every non neighbour edge of old point
-//                RemoveHalfspaceFromBrush(&brush->halfspaces, plane, 0.f);
-//
-//                for (int e = 0; e < brush->planeToEdges[indexOfPlane].size(); ++e)
-//                {
-//                    std::pair<int, int> edgeVertexIndices = brush->planeToEdges[indexOfPlane][e];
-//                    std::pair<vec3, vec3> edge = std::make_pair(brush->pointCloud[edgeVertexIndices.first], brush->pointCloud[edgeVertexIndices.second]);
-//                    if (!point.Equals(edge.first, EPS_WCS)
-//                        && !point.Equals(edge.second, EPS_WCS)
-//                        && !newPoint.Equals(edge.first, EPS_WCS)
-//                        && !newPoint.Equals(edge.second, EPS_WCS))
-//                    {
-//                        vec3 a = newPoint;
-//                        vec3 b = edge.first;
-//                        vec3 c = edge.second;
-//                        vec3 ba = b - a;
-//                        vec3 ca = c - a;
-//                        vec3 crossProduct = Normalize(Cross(ba, ca));
-//                        CSGPlane createdPlane;
-//                        createdPlane.n = crossProduct;
-//                        createdPlane.d = Dot(newPoint, crossProduct);
-//                        if (Dot(crossProduct, plane.n) < 0.f) // wrong direction as old plane
-//                        {
-//                            createdPlane.n = -createdPlane.n;
-//                            createdPlane.d = -createdPlane.d;
-//                        }
-//                        AddUniqueValidHalfspaceToBrush(&brush->halfspaces, createdPlane, 0.00005f);
-//                    }
-//                }
-//            }
-//        }
-//        else if (brush->planeToVertices[indexOfPlane].size() == 3)
-//        {
-//            // when planeToVertices and subsequently planeToEdges gets fucked up
-//            // then we can't find a value for b or c for some planes and we get fucked
-//
-//            // remove og plane, then add plane formed from newPoint and the immediate neighbours of old point
-//            RemoveHalfspaceFromBrush(&brush->halfspaces, plane, 0.f);
-//            vec3 a = newPoint;
-//            vec3 b = vec3();
-//            vec3 c = vec3();
-//            bool bHasValue = false;
-//            bool cHasValue = false;
-//            for (int e = 0; e < brush->planeToEdges[indexOfPlane].size(); ++e)
-//            {
-//                std::pair<int, int> edgeVertexIndices = brush->planeToEdges[indexOfPlane][e];
-//                std::pair<vec3, vec3> edge = std::make_pair(brush->pointCloud[edgeVertexIndices.first], brush->pointCloud[edgeVertexIndices.second]);
-//                vec3 otherOfEdge = vec3();
-//                bool otherOfEdgeHasValue = false;
-//                if (point.Equals(edge.first, EPS_WCS))
-//                {
-//                    otherOfEdge = edge.second;
-//                    otherOfEdgeHasValue = true;
-//                }
-//                else if (point.Equals(edge.second, EPS_WCS))
-//                {
-//                    otherOfEdge = edge.first;
-//                    otherOfEdgeHasValue = true;
-//                }
-//                if (otherOfEdgeHasValue && !bHasValue)
-//                {
-//                    b = otherOfEdge;
-//                    bHasValue = true;
-//                }
-//                else if (otherOfEdgeHasValue && bHasValue)
-//                {
-//                    c = otherOfEdge;
-//                    cHasValue = true;
-//                }
-//            }
-//            if (!bHasValue || !cHasValue) continue;
-//            vec3 ba = b - a;
-//            vec3 ca = c - a;
-//            vec3 crossProduct = Normalize(Cross(ba, ca));
-//            CSGPlane createdPlane;
-//            createdPlane.n = crossProduct;
-//            createdPlane.d = Dot(newPoint, crossProduct);
-//            if (Dot(crossProduct, plane.n) < 0.f) // wrong direction as old plane
-//            {
-//                createdPlane.n = -createdPlane.n;
-//                createdPlane.d = -createdPlane.d;
-//            }
-//            AddUniqueValidHalfspaceToBrush(&brush->halfspaces, createdPlane, 0.00005f); // TODO(Kevin): revisit epsilon
-//        }
-//
-//    }
 
     // we know that, as long as brush->halfspaces is correct, all subsequent vectors and calculations will be correct
 }
@@ -679,7 +451,7 @@ void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush, vec3* ye)
 
         snappedPointCloud.push_back(snappedPoint);
 
-        if (realPoint.Equals(*ye, 0.f))
+        if (realPoint.Equals(*ye, 0.000005f))
         {
             *ye = snappedPoint;
         }

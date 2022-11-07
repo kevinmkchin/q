@@ -84,12 +84,12 @@ void EditorRuntime::UpdateEditor()
     for (int i = 0; i < brush_0->pointCloud.size(); ++i)
     {
         auto v = brush_0->pointCloud[i];
-        Handles::DrawSolidDisc(v, -editorCamera.calculatedDirection, Handles::GetHandleSize(v, 5.f));
+        Handles::DrawSolidDisc(v, -editorCamera.calculatedDirection, Handles::GetHandleSize(v, 10.f));
 
         if (!handleDragActive)
         {
             // Find nearest control
-            float vToMouseDist = Handles::DistanceToCircle(v, Handles::GetHandleSize(v, 5.f));
+            float vToMouseDist = Handles::DistanceToCircle(v, Handles::GetHandleSize(v, 10.f));
             float vToCamDist = editorCamera.WorldPointToCameraDistance(v);
             if (vToMouseDist == 0.f && vToCamDist < selectedPointToCamDistance)
             {
