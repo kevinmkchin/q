@@ -430,6 +430,74 @@ void UpdateBrushVerticesEdgesDataFromHalfSpaces(CSGBrush* brush, vec3* ye)
         }
     }
 
+
+    /* For all points, there is a set of immediate neighbouring points. For the set of planes formable by each unique
+     * tuple of these neighbouring points, that original point must be outside or on the surface of each of these planes.
+     * Otherwise, there is concavity. For those planes for which this criteria is not met are valid to be added as new
+     * correct face planes, and the existing planes that contain this bad point must be removed (might need to check
+     * if plane only has 3 points). */
+
+//    for (int pointIndex = 0; pointIndex < brush->pointCloud.size(); ++pointIndex)
+//    {
+//        auto point = brush->pointCloud[pointIndex];
+//        std::vector<CSGPlane> relevantPlanes;
+//        for (int planeIndex : brush->pointToPlanes[pointIndex])
+//        {
+//            relevantPlanes.push_back(brush->halfspaces[planeIndex]);
+//        }
+//        std::vector<vec3> neighbouringPoints;
+//        for (auto p : relevantPlanes)
+//        {
+//            int indexOfPlane = -1;
+//            BrushPlane_FindIndexInBrush(&brush->halfspaces, p, &indexOfPlane, EPS_NORMAL);
+//            for (int e = 0; e < brush->planeToEdges[indexOfPlane].size(); ++e)
+//            {
+//                std::pair<int, int> edgeVertexIndices = brush->planeToEdges[indexOfPlane][e];
+//                std::pair<vec3, vec3> edge = std::make_pair(brush->pointCloud[edgeVertexIndices.first], brush->pointCloud[edgeVertexIndices.second]);
+//                if (point.Equals(edge.first, EPS_WCS) || point.Equals(edge.second, EPS_WCS))
+//                {
+//                    vec3 neighbourPoint = point.Equals(edge.first, EPS_WCS) ? edge.second : edge.first;
+//                    bool sameExist = false;
+//                    for (auto iter : neighbouringPoints)
+//                    {
+//                        if (iter.Equals(neighbourPoint, EPS_NORMAL))
+//                        {
+//                            sameExist = true;
+//                            break;
+//                        }
+//                    }
+//                    if (!sameExist)
+//                    {
+//                        neighbouringPoints.push_back(neighbourPoint);
+//                    }
+//                }
+//            }
+//        }
+//        std::vector<CSGPlane> concavityCheckPlanes;
+//        if (neighbouringPoints.size() >= 3)
+//        {
+//            for (int i = 0; i < neighbouringPoints.size() - 2; ++i)
+//            {
+//                for (int j = i + 1; j < neighbouringPoints.size() - 1; ++j)
+//                {
+//                    for (int k = j + 1; k < neighbouringPoints.size(); ++k)
+//                    {
+//                        vec3 crossProduct = Normalize(Cross(neighbouringPoints[j] - neighbouringPoints[i], neighbouringPoints[k] - neighbouringPoints[i]));
+//                        CSGPlane intersectionCheckingPlane;
+//                        intersectionCheckingPlane.n = crossProduct;
+//                        intersectionCheckingPlane.d = Dot(neighbouringPoints[i], crossProduct);
+//                        if (Dot(vecToNewPointNormalized, intersectionCheckingPlane.n) < 0.f)
+//                        {
+//                            intersectionCheckingPlane.n = -intersectionCheckingPlane.n;
+//                            intersectionCheckingPlane.d = -intersectionCheckingPlane.d;
+//                        }
+//                        AddPlaneToUniqueSetOfPlanes(&potentialIntersectingPlanes, intersectionCheckingPlane, 0.001f);// shouldn't add two same ones?
+//                    }
+//                }
+//            }
+//        }
+//    }
+
     
     // SANITIZE
 
