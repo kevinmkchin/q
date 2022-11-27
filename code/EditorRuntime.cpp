@@ -17,8 +17,91 @@ float numf = 6.4f;
 
 // TODO(Kevin): probably need optimization like face batching or smth eventually
 
-
 static GameCamera editorCamera;
+
+static std::vector<CSGBrush*> s_selectedBrushes;
+static std::vector<vec3> s_movingPointsOfBrush;
+
+// list of vec3 -> average vec3
+static vec3 AverageVector(const std::vector<vec3>* vec3s)
+{
+    vec3 sum = vec3();
+    for (vec3 v : *vec3s)
+    {
+        sum += v;
+    }
+    sum /= float(vec3s->size());
+    return sum;
+}
+
+// -> null
+static void MovePoint(CSGBrush* selectedBrush, vec3* movingPoint, vec3 dragOrigin, EditorGridSize gridSize, bool yAxisActive)
+{
+    vec3 wp = editorCamera.ScreenToWorldPoint(vec3((float)Input.mousePos.x, (float)Input.mousePos.y, editorCamera.WorldPointToCameraDistance(dragOrigin)));
+    vec3 intersection;
+
+    if (yAxisActive)
+    {
+        float projY = 0.f;
+        if (GM_abs(Dot(editorCamera.calculatedDirection, GM_FORWARD_VECTOR)) > 0.707)
+        {
+            if (FindIntersectionBetweenPlaneAndVector(GM_FORWARD_VECTOR, dragOrigin.x, Normalize(wp - editorCamera.position), editorCamera.position, &intersection))
+            {
+                projY = Dot(intersection - dragOrigin, GM_UP_VECTOR);
+            }
+        }
+        else
+        {
+            if (FindIntersectionBetweenPlaneAndVector(GM_RIGHT_VECTOR, dragOrigin.z, Normalize(wp - editorCamera.position), editorCamera.position, &intersection))
+            {
+                projY = Dot(intersection - dragOrigin, GM_UP_VECTOR);
+            }
+        }
+
+        if (GM_abs(projY) > (float)gridSize * 0.5f)
+        {
+            int projReadyToSnap = int(projY + GM_sgn(projY) * (float)gridSize * 0.5f);
+            float moveDelta = float(projReadyToSnap - (projReadyToSnap % (int)gridSize));
+            vec3 movedPoint = *movingPoint + vec3(0.f, moveDelta, 0.f);
+            MovePointOnBrushAndUpdateHalfSpaces(*movingPoint, movedPoint, selectedBrush, &movedPoint);
+            UpdateBrushVerticesEdgesDataFromHalfSpaces(selectedBrush, &movedPoint);
+            UpdateBrushFacesForDrawing(selectedBrush);
+            *movingPoint = movedPoint;
+        }
+    }
+    else
+    {
+        if (FindIntersectionBetweenPlaneAndVector(GM_UP_VECTOR, dragOrigin.y, Normalize(wp - editorCamera.position), editorCamera.position, &intersection))
+        {
+            float projX = Dot(intersection - dragOrigin, GM_FORWARD_VECTOR);
+            float projZ = Dot(intersection - dragOrigin, GM_RIGHT_VECTOR);
+
+            bool moveX = GM_abs(projX) > (float)gridSize * 0.5f;
+            bool moveZ = GM_abs(projZ) > (float)gridSize * 0.5f;
+
+            if (moveX)
+            {
+                int projReadyToSnap = int(projX + GM_sgn(projX) * (float)gridSize * 0.5f);
+                float moveDelta = float(projReadyToSnap - (projReadyToSnap % (int)gridSize));
+                vec3 movedPoint = *movingPoint + vec3(moveDelta, 0.f, 0.f);
+                MovePointOnBrushAndUpdateHalfSpaces(*movingPoint, movedPoint, selectedBrush, &movedPoint);
+                UpdateBrushVerticesEdgesDataFromHalfSpaces(selectedBrush, &movedPoint);
+                UpdateBrushFacesForDrawing(selectedBrush);
+                *movingPoint = movedPoint;
+            }
+            if (moveZ)
+            {
+                int projReadyToSnap = int(projZ + GM_sgn(projZ) * (float)gridSize * 0.5f);
+                float moveDelta = float(projReadyToSnap - (projReadyToSnap % (int)gridSize));
+                vec3 movedPoint = *movingPoint + vec3(0.f, 0.f, moveDelta);
+                MovePointOnBrushAndUpdateHalfSpaces(*movingPoint, movedPoint, selectedBrush, &movedPoint);
+                UpdateBrushVerticesEdgesDataFromHalfSpaces(selectedBrush, &movedPoint);
+                UpdateBrushFacesForDrawing(selectedBrush);
+                *movingPoint = movedPoint;
+            }
+        }
+    }
+}
 
 void EditorRuntime::StartEditor()
 {
@@ -26,6 +109,8 @@ void EditorRuntime::StartEditor()
     editorCamera.position.x = -128.f;
     
     brush_0 = DoSmth();
+
+    s_selectedBrushes.push_back(brush_0);
 }
 
 void EditorRuntime::UpdateEditor()
@@ -109,7 +194,15 @@ void EditorRuntime::UpdateEditor()
     if (Input.mouseLeftHasBeenPressed && selectedPointToCamDistance < FLT_MAX)
     {
         handleDragActive = true;
-        selectedDragPoint = pointSelectedThisFrame;
+        handleDragPoint = pointSelectedThisFrame;
+
+        s_movingPointsOfBrush.clear();
+        s_movingPointsOfBrush.push_back(pointSelectedThisFrame);
+    }
+    
+    if (handleDragActive)
+    {
+        handleDragPoint = AverageVector(&s_movingPointsOfBrush);
     }
 
     if (handleDragActive && Input.mouseLeftHasBeenReleased)
@@ -119,94 +212,38 @@ void EditorRuntime::UpdateEditor()
 
     if (handleDragActive)
     {
-        auto v = selectedDragPoint;
-        char charbuf[32];
-        stbsp_sprintf(charbuf, "%.1f, %.1f, %.1f", v.x, v.y, v.z);
+        vec3 dragOrigin = handleDragPoint;
+        //vec3 v = dragOrigin;
+        //char charbuf[32];
+        //stbsp_sprintf(charbuf, "%.1f, %.1f, %.1f", v.x, v.y, v.z);
         //printf("%s\n", charbuf);
 
-        Handles::DrawLine(v + vec3(1000.f, 0.f, 0.f), v + vec3(-1000.f, 0.f, 0.f), vec4(_RGB(248, 230, 60), 0.7f));
-        Handles::DrawLine(v + vec3(0.f, 1000.f, 0.f), v + vec3(0.f, -1000.f, 0.f), vec4(_RGB(248, 230, 60), 0.7f));
-        Handles::DrawLine(v + vec3(0.f, 0.f, 1000.f), v + vec3(0.f, 0.f, -1000.f), vec4(_RGB(248, 230, 60), 0.7f));
+        Handles::DrawLine(dragOrigin + vec3(1000.f, 0.f, 0.f), dragOrigin + vec3(-1000.f, 0.f, 0.f), vec4(_RGB(248, 230, 60), 0.7f));
+        Handles::DrawLine(dragOrigin + vec3(0.f, 1000.f, 0.f), dragOrigin + vec3(0.f, -1000.f, 0.f), vec4(_RGB(248, 230, 60), 0.7f));
+        Handles::DrawLine(dragOrigin + vec3(0.f, 0.f, 1000.f), dragOrigin + vec3(0.f, 0.f, -1000.f), vec4(_RGB(248, 230, 60), 0.7f));
 
         if (Input.mouseLeftPressed)
         {
-            vec3 dragOrigin = selectedDragPoint;
-            vec3 wp = editorCamera.ScreenToWorldPoint(vec3((float)Input.mousePos.x, (float)Input.mousePos.y, editorCamera.WorldPointToCameraDistance(dragOrigin)));
-            vec3 intersection;
-
-            if (Input.KeyPressed(SDL_SCANCODE_LALT))
+            for (CSGBrush* selectedBrushIter : s_selectedBrushes)
             {
-                float projY = 0.f;
-                if (GM_abs(Dot(editorCamera.calculatedDirection, GM_FORWARD_VECTOR)) > 0.707)
+                for (vec3& movingPointRef : s_movingPointsOfBrush)
                 {
-                    if (FindIntersectionBetweenPlaneAndVector(GM_FORWARD_VECTOR, dragOrigin.x, Normalize(wp - editorCamera.position), editorCamera.position, &intersection))
+                    vec3 movingPointMutable = movingPointRef;
+                    if (BrushContainsPoint(selectedBrushIter, movingPointMutable, EPS_POINTINPOINTCLOUD))
                     {
-                        projY = Dot(intersection - dragOrigin, GM_UP_VECTOR);
-                    }
-                }
-                else
-                {
-                    if (FindIntersectionBetweenPlaneAndVector(GM_RIGHT_VECTOR, dragOrigin.z, Normalize(wp - editorCamera.position), editorCamera.position, &intersection))
-                    {
-                        projY = Dot(intersection - dragOrigin, GM_UP_VECTOR);
-                    }
-                }
-
-                if (GM_abs(projY) > (float)activeGridSize * 0.5f)
-                {
-                    int projReadyToSnap = int(projY + GM_sgn(projY) * (float)activeGridSize * 0.5f);
-                    float moveDelta = float(projReadyToSnap - (projReadyToSnap % (int)activeGridSize));
-                    vec3 movedPoint = selectedDragPoint + vec3(0.f, moveDelta, 0.f);
-                    MovePointOnBrushAndUpdateHalfSpaces(selectedDragPoint, movedPoint, brush_0, &movedPoint);
-                    UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0, &movedPoint);
-                    UpdateBrushFacesForDrawing(brush_0);
-                    selectedDragPoint = movedPoint;
-                    if (!BrushContainsPoint(brush_0, selectedDragPoint, EPS_POINTINPOINTCLOUD))
-                    {
-                        handleDragActive = false;
-                    }
-                }
-            }
-            else
-            {
-                if (FindIntersectionBetweenPlaneAndVector(GM_UP_VECTOR, dragOrigin.y, Normalize(wp - editorCamera.position), editorCamera.position, &intersection))
-                {
-                    float projX = Dot(intersection - dragOrigin, GM_FORWARD_VECTOR);
-                    float projZ = Dot(intersection - dragOrigin, GM_RIGHT_VECTOR);
-
-                    bool moveX = GM_abs(projX) > (float)activeGridSize * 0.5f;
-                    bool moveZ = GM_abs(projZ) > (float)activeGridSize * 0.5f;
-
-                    if (moveX)
-                    {
-                        int projReadyToSnap = int(projX + GM_sgn(projX) * (float)activeGridSize * 0.5f);
-                        float moveDelta = float(projReadyToSnap - (projReadyToSnap % (int)activeGridSize));
-                        vec3 movedPoint = selectedDragPoint + vec3(moveDelta, 0.f, 0.f);
-                        MovePointOnBrushAndUpdateHalfSpaces(selectedDragPoint, movedPoint, brush_0, &movedPoint);
-                        UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0, &movedPoint);
-                        UpdateBrushFacesForDrawing(brush_0);
-                        selectedDragPoint = movedPoint;
-                        if (!BrushContainsPoint(brush_0, selectedDragPoint, EPS_POINTINPOINTCLOUD))
+                        MovePoint(selectedBrushIter, &movingPointMutable, dragOrigin, activeGridSize, Input.KeyPressed(SDL_SCANCODE_LALT));
+                        if (!BrushContainsPoint(selectedBrushIter, movingPointMutable, EPS_POINTINPOINTCLOUD))
                         {
                             handleDragActive = false;
                         }
-                    }
-                    if (moveZ)
-                    {
-                        int projReadyToSnap = int(projZ + GM_sgn(projZ) * (float)activeGridSize * 0.5f);
-                        float moveDelta = float(projReadyToSnap - (projReadyToSnap % (int)activeGridSize));
-                        vec3 movedPoint = selectedDragPoint + vec3(0.f, 0.f, moveDelta);
-                        MovePointOnBrushAndUpdateHalfSpaces(selectedDragPoint, movedPoint, brush_0, &movedPoint);
-                        UpdateBrushVerticesEdgesDataFromHalfSpaces(brush_0, &movedPoint);
-                        UpdateBrushFacesForDrawing(brush_0);
-                        selectedDragPoint = movedPoint;
-                        if (!BrushContainsPoint(brush_0, selectedDragPoint, EPS_POINTINPOINTCLOUD))
+                        else
                         {
-                            handleDragActive = false;
+                            movingPointRef = movingPointMutable;
                         }
                     }
                 }
             }
         }
+
     }
 }

@@ -31,7 +31,7 @@ public:
 	void StartEditor();
 
 	void UpdateEditor();
-    
+
 public:
     CSGBrush* brush_0 = nullptr;
     
@@ -41,5 +41,6 @@ private:
     EditorGridSize activeGridSize = EditorGridSize::Grid1;
 
     bool handleDragActive = false;
-    vec3 selectedDragPoint = vec3();
+    vec3 handleDragPoint = vec3();
+    //vec3 selectedDragPoint = vec3();
 };
