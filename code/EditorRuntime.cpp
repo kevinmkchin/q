@@ -120,15 +120,19 @@ void EditorRuntime::UpdateEditor()
 	Engine.gfx->GetBackBufferSize(&drawableWidth, &drawableHeight);
 
     KevGui::EditorBeginWindow(KevGui::UIRect(drawableWidth - 300, 0, 300, drawableHeight));
-    if (KevGui::EditorLabelledButton("A"))
+    if (KevGui::EditorLabelledButton("Vertices"))
     {
-        printf("A");
+        activeToolMode = EditorToolMode::EditVertex;
     }
-    if (KevGui::EditorLabelledButton("Longer Button B"))
+    if (KevGui::EditorLabelledButton("Edges"))
     {
-        printf("B");
+        activeToolMode = EditorToolMode::EditEdge;
     }
-    KevGui::EditorIncrementableIntegerField("Integer", &num);
+    if (KevGui::EditorLabelledButton("Faces"))
+    {
+        activeToolMode = EditorToolMode::EditFace;
+    }
+    KevGui::EditorIncrementableIntegerField("Grid", &num);
     KevGui::EditorIncrementableFloatField("Float", &numf);
     KevGui::EditorEndWindow();
 
@@ -166,30 +170,80 @@ void EditorRuntime::UpdateEditor()
 
     vec3 pointSelectedThisFrame = vec3();
     float selectedPointToCamDistance = FLT_MAX;
-    for (int i = 0; i < brush_0->pointCloud.size(); ++i)
+    switch(activeToolMode)
     {
-        auto v = brush_0->pointCloud[i];
-        Handles::DrawSolidDisc(v, -editorCamera.calculatedDirection, Handles::GetHandleSize(v, 10.f));
-
-        if (!handleDragActive)
+        case EditorToolMode::None:
+            break;
+        case EditorToolMode::EditVertex:
         {
-            // Find nearest control
-            float vToMouseDist = Handles::DistanceToCircle(v, Handles::GetHandleSize(v, 10.f));
-            float vToCamDist = editorCamera.WorldPointToCameraDistance(v);
-            if (vToMouseDist == 0.f && vToCamDist < selectedPointToCamDistance)
+            for (int i = 0; i < brush_0->pointCloud.size(); ++i)
             {
-                pointSelectedThisFrame = v;
-                selectedPointToCamDistance = vToCamDist;
+                auto v = brush_0->pointCloud[i];
+                Handles::DrawSolidDisc(v, -editorCamera.calculatedDirection, Handles::GetHandleSize(v, 10.f));
+
+                if (!handleDragActive)
+                {
+                    // Find nearest control
+                    float vToMouseDist = Handles::DistanceToCircle(v, Handles::GetHandleSize(v, 10.f));
+                    float vToCamDist = editorCamera.WorldPointToCameraDistance(v);
+                    if (vToMouseDist == 0.f && vToCamDist < selectedPointToCamDistance)
+                    {
+                        pointSelectedThisFrame = v;
+                        selectedPointToCamDistance = vToCamDist;
+                    }
+                }
             }
-        }
+            for (int i = 0; i < brush_0->edgesSet.size(); ++i)
+            {
+                auto edge = brush_0->edgesSet[i];
+                vec3 p1 = brush_0->pointCloud[edge.first];
+                vec3 p2 = brush_0->pointCloud[edge.second];
+                Handles::DrawLine(p1, p2, vec4(1.f, 0.f, 0.f, 1.f));
+            }
+        }break;
+        case EditorToolMode::EditEdge:
+        {
+            for (int i = 0; i < brush_0->edgesSet.size(); ++i)
+            {
+                auto edge = brush_0->edgesSet[i];
+                vec3 p1 = brush_0->pointCloud[edge.first];
+                vec3 p2 = brush_0->pointCloud[edge.second];
+                Handles::DrawLine(p1, p2, vec4(1.f, 1.f, 0.f, 1.f));
+            }
+            for (int i = 0; i < brush_0->edgesSet.size(); ++i)
+            {
+                auto edge = brush_0->edgesSet[i];
+                vec3 p1 = brush_0->pointCloud[edge.first];
+                vec3 p2 = brush_0->pointCloud[edge.second];
+                vec3 midp = p1 + ((p2 - p1) / 2.f);
+                Handles::DrawSolidDisc(midp, -editorCamera.calculatedDirection, Handles::GetHandleSize(midp, 10.f));
+            }
+        }break;
+        case EditorToolMode::EditFace:
+        {
+            for (int i = 0; i < brush_0->edgesSet.size(); ++i)
+            {
+                auto edge = brush_0->edgesSet[i];
+                vec3 p1 = brush_0->pointCloud[edge.first];
+                vec3 p2 = brush_0->pointCloud[edge.second];
+                Handles::DrawLine(p1, p2, vec4(1.f, 0.f, 0.f, 1.f));
+            }
+            for(int i = 0; i < brush_0->halfspaces.size(); ++i)
+            {
+                auto vertexIndices = brush_0->planeToVertices[i];
+                vec3 avg;
+                for (auto vi : vertexIndices)
+                {
+                    auto vert = brush_0->pointCloud[vi];
+                    avg += vert;
+                }
+                avg = avg / float(vertexIndices.size());
+                Handles::DrawSolidDisc(avg, -editorCamera.calculatedDirection, Handles::GetHandleSize(avg, 10.f));
+            }
+        }break;
     }
-    for (int i = 0; i < brush_0->edgesSet.size(); ++i)
-    {
-        auto edge = brush_0->edgesSet[i];
-        vec3 p1 = brush_0->pointCloud[edge.first];
-        vec3 p2 = brush_0->pointCloud[edge.second];
-        Handles::DrawLine(p1, p2, vec4(1.f, 0.f, 0.f, 1.f));
-    }
+
+
 
     if (Input.mouseLeftHasBeenPressed && selectedPointToCamDistance < FLT_MAX)
     {

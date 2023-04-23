@@ -35,7 +35,7 @@ public:
 public:
     CSGBrush* brush_0 = nullptr;
     
-    EditorToolMode activeToolMode = EditorToolMode::None;
+    EditorToolMode activeToolMode = EditorToolMode::EditFace;
 
 private:
     EditorGridSize activeGridSize = EditorGridSize::Grid1;
